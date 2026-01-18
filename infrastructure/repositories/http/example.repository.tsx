@@ -1,5 +1,5 @@
-import { IExampleRepository } from "@/app/core/port/http/example";
-import { HttpHelper } from "@/app/utils/http";
+import { IExampleRepository } from "@/core/port/http/example";
+import { HttpHelper } from "@/lib/http";
 
 export class ExampleRepository implements IExampleRepository {
   constructor(private readonly httpHelper: HttpHelper) {}
