@@ -1,4 +1,4 @@
-import { ConnectWalletScreen } from "../../screen/auth/auth.screen";
+import { ConnectWalletScreen } from "../../src/screen/auth/auth.screen";
 
 export default function AuthScreen() {
   return <ConnectWalletScreen />;

@@ -1,6 +1,6 @@
-import { ExampleModel } from "@/core/domain/example";
-import { IExampleRepository } from "@/core/port/http/example";
 import { HttpHelper } from "@/lib/http";
+import { ExampleModel } from "@/src/core/domain/example";
+import { IExampleRepository } from "@/src/core/port/http/example";
 
 export class ExampleRepository implements IExampleRepository {
   constructor(private readonly httpHelper: HttpHelper) {}
