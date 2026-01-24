@@ -7,13 +7,15 @@ export const ConnectWalletScreen = () => {
   return (
     <GradientLayout>
       <View style={styles.container}>
-        <SolpayLogo style={styles.logo} />
-        <Text style={styles.header}>Welcome To SolPay</Text>
-        <Text style={styles.description}>
-          Financial technology is evolving rapidly, especially with the
-          emergence of Decentralized Finance (DeFi) powered by blockchain.
-        </Text>
-        <Button title="Connect Wallet" onPress={() => {}} />
+        <View style={styles.content}>
+          <SolpayLogo style={styles.logo} />
+          <Text style={styles.header}>Welcome To SolPay</Text>
+          <Text style={styles.description}>
+            Financial technology is evolving rapidly, especially with the
+            emergence of Decentralized Finance (DeFi) powered by blockchain.
+          </Text>
+          <Button title="Connect Wallet" onPress={() => {}} />
+        </View>
       </View>
     </GradientLayout>
   );
@@ -22,6 +24,10 @@ export const ConnectWalletScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  content: {
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
