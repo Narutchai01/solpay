@@ -1,3 +1,5 @@
+import { Keypad } from "@/src/components/button/keypad";
+import { PinDots } from "@/src/components/button/pinDots";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,12 +9,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const PIN_LENGTH = 6;
-
-interface KeypadButtonProps {
-  value: string | React.ReactNode;
-  onPress: () => void;
-  isIcon?: boolean;
-}
+const KEYPAD_NUMBERS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 export const PinScreen = () => {
   const navigation = useNavigation();
@@ -49,35 +46,6 @@ export const PinScreen = () => {
     }
   }, [pin, step, tempPin]);
 
-  const renderDots = () => {
-    let dots = [];
-    for (let i = 0; i < PIN_LENGTH; i++) {
-      dots.push(
-        <View
-          key={i}
-          style={[
-            styles.dot,
-            {
-              backgroundColor:
-                i < pin.length ? Theme.colors.v300 : "transparent",
-            },
-          ]}
-        />,
-      );
-    }
-    return dots;
-  };
-
-  const KeypadButton = ({
-    value,
-    onPress,
-    isIcon = false,
-  }: KeypadButtonProps) => (
-    <TouchableOpacity style={styles.keypadButton} onPress={onPress}>
-      {isIcon ? value : <Text style={styles.keypadText}>{value}</Text>}
-    </TouchableOpacity>
-  );
-
   return (
     <GradientLayout>
       <SafeAreaView style={styles.container}>
@@ -106,7 +74,7 @@ export const PinScreen = () => {
         </View>
 
         {/* Pin Display */}
-        <View style={styles.dotsContainer}>{renderDots()}</View>
+        <PinDots pinLength={PIN_LENGTH} currentLength={pin.length} />
 
         {/* Error Message */}
         {errorMessage ? (
@@ -117,16 +85,12 @@ export const PinScreen = () => {
 
         {/* Custom Keypad */}
         <View style={styles.keypadContainer}>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-            <KeypadButton
-              key={num}
-              value={num.toString()}
-              onPress={() => handlePress(num.toString())}
-            />
+          {KEYPAD_NUMBERS.map((num) => (
+            <Keypad key={num} value={num} onPress={() => handlePress(num)} />
           ))}
           <View style={styles.keypadButton} />
-          <KeypadButton value="0" onPress={() => handlePress("0")} />
-          <KeypadButton
+          <Keypad value="0" onPress={() => handlePress("0")} />
+          <Keypad
             value={
               <Ionicons name="backspace-outline" style={styles.deleteIcon} />
             }
