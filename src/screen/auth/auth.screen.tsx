@@ -1,7 +1,8 @@
 import SolpayLogo from "@/assets/solpay-logo.svg";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/theme/theme";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { Link } from "expo-router";
+import { StyleSheet, Text, View } from "react-native";
 
 export const ConnectWalletScreen = () => {
   return (
@@ -14,7 +15,10 @@ export const ConnectWalletScreen = () => {
             Financial technology is evolving rapidly, especially with the
             emergence of Decentralized Finance (DeFi) powered by blockchain.
           </Text>
-          <Button title="Connect Wallet" onPress={() => {}} />
+          {/* <Button title="Connect Wallet" onPress={() => {}} /> */}
+          <Link href="/_sitemap" style={{ marginTop: 20, color: "blue" }}>
+            🗺️ เปิดแผนที่หน้าทั้งหมด (Sitemap)
+          </Link>
         </View>
       </View>
     </GradientLayout>

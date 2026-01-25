@@ -5,34 +5,49 @@ export const Theme = {
     accent: "#03dac4",
     error: "#B00020",
     text: "#000000",
+    errorText: "#EE685E",
     onSurface: "#000000",
+    v50: "#f9f7ff",
+    v75: "#e4ddfd",
+    v100: "#d9cffc",
+    v200: "#c9bbfb",
+    v300: "#BEADFA",
+    v400: "#8579af",
+    v500: "#746a99",
+    g50: "#eaeaea",
+    g75: "#a9a9a9",
+    g100: "#868686",
+    g200: "#525252",
+    g300: "#2e2e2e",
+    g400: "#202020",
+    g500: "#1c1c1c",
     disabled: "rgba(0, 0, 0, 0.38)",
     placeholder: "rgba(0, 0, 0, 0.54)",
     backdrop: "rgba(0, 0, 0, 0.5)",
     background: ["#4c2882", "#2d1b5e", "#1a1a1a"],
   },
   fontSize: {
-    h1: 40, //
-    h2: 36, //
-    h3: 32, //
-    h4: 24, //
-    h5: 20, //
-    h6: 16, //
-    h7: 14, //
-    textL: 16, //
-    textM: 14, //
-    textS: 12, //
+    h1: 40,
+    h2: 36,
+    h3: 32,
+    h4: 24,
+    h5: 20,
+    h6: 16,
+    h7: 14,
+    textL: 16,
+    textM: 14,
+    textS: 12,
   },
   lineHeight: {
-    h1: 60, //
-    h2: 54, //
-    h3: 48, //
-    h4: 36, //
-    h5: 30, //
-    h6: 24, //
-    h7: 21, //
-    textL: 24, //
-    textM: 21, //
-    textS: 18, //
+    h1: 60,
+    h2: 54,
+    h3: 48,
+    h4: 36,
+    h5: 30,
+    h6: 24,
+    h7: 21,
+    textL: 24,
+    textM: 21,
+    textS: 18,
   },
 };
