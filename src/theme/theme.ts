@@ -4,6 +4,7 @@ export const Theme = {
     surface: "#ffffff",
     accent: "#03dac4",
     error: "#B00020",
+    success: "#4CCCAF",
     text: "#000000",
     errorText: "#EE685E",
     onSurface: "#000000",
