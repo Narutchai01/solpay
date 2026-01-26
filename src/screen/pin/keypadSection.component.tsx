@@ -20,7 +20,7 @@ export const KeypadSection = ({ onPress, onDelete }: KeypadSectionProps) => {
     { id: "7", value: "7" },
     { id: "8", value: "8" },
     { id: "9", value: "9" },
-    { id: "10", value: "" },
+    { id: "10", value: "empty" },
     { id: "11", value: "0" },
     { id: "12", value: "delete" },
   ];
@@ -28,7 +28,7 @@ export const KeypadSection = ({ onPress, onDelete }: KeypadSectionProps) => {
   const renderItem = ({ item }: { item: (typeof data)[0] }) => {
     return (
       <View style={styles.columnWrapper}>
-        {item.value === "" ? (
+        {item.value === "empty" ? (
           <View style={styles.keypadButtonPlaceholder} />
         ) : item.value === "delete" ? (
           <KeypadButton
