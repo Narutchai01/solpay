@@ -20,17 +20,17 @@ export const KeypadSection = ({ onPress, onDelete }: KeypadSectionProps) => {
     { id: "7", value: "7" },
     { id: "8", value: "8" },
     { id: "9", value: "9" },
-    { id: "empty", value: "" },
-    { id: "0", value: "0" },
-    { id: "delete", value: "delete" },
+    { id: "10", value: "" },
+    { id: "11", value: "0" },
+    { id: "12", value: "delete" },
   ];
 
   const renderItem = ({ item }: { item: (typeof data)[0] }) => {
     return (
       <View style={styles.columnWrapper}>
-        {item.id === "empty" ? (
+        {item.value === "" ? (
           <View style={styles.keypadButtonPlaceholder} />
-        ) : item.id === "delete" ? (
+        ) : item.value === "delete" ? (
           <KeypadButton
             value={
               <Ionicons name="backspace-outline" style={styles.iconSize} />
