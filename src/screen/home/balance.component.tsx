@@ -5,9 +5,20 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export const BalanceComponent = () => {
+interface BalanceComponentProps {
+  balance: string;
+  currency?: string;
+  onTopUp?: () => void;
+  onSwap?: () => void;
+}
+
+export const BalanceComponent = ({
+  balance,
+  currency = "THB",
+  onTopUp,
+  onSwap,
+}: BalanceComponentProps) => {
   const [isVisible, setIsVisible] = useState(true);
-  const rawBalance = "1,000.00";
 
   return (
     <GlassCard style={styles.balanceCard}>
@@ -15,7 +26,7 @@ export const BalanceComponent = () => {
         <Text style={styles.balanceLabel}>Total balance</Text>
         <View style={styles.balanceRow}>
           <Text style={styles.balanceValue}>
-            {isVisible ? `${rawBalance} THB` : "****** THB"}
+            {isVisible ? `${balance} ${currency}` : `****** ${currency}`}
           </Text>
           <TouchableOpacity onPress={() => setIsVisible(!isVisible)}>
             <Ionicons
@@ -29,7 +40,7 @@ export const BalanceComponent = () => {
           <ButtonWithIcon
             label="Top Up"
             icon={<Ionicons name="add" style={styles.iconSize} />}
-            onPress={() => {}}
+            onPress={onTopUp}
           />
           <ButtonWithIcon
             label="Swap"
@@ -39,7 +50,7 @@ export const BalanceComponent = () => {
                 style={styles.iconSize}
               />
             }
-            onPress={() => {}}
+            onPress={onSwap}
           />
         </View>
       </View>
