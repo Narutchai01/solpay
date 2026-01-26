@@ -3,52 +3,26 @@ import { Theme } from "@/src/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-const ASSETS_DATA = [
-  {
-    id: "1",
-    name: "Solana",
-    sub: "0.10933530228646213 SOL",
-    val: "1,500.00",
-    icon: "logo-bitcoin",
-  },
-  {
-    id: "2",
-    name: "USDC",
-    sub: "0.0312304 USDC",
-    val: "1,000.00",
-    icon: "cash-outline",
-  },
-  {
-    id: "3",
-    name: "USDT",
-    sub: "29.500427134510762 USTD",
-    val: "950.00",
-    icon: "logo-usd",
-  },
-  {
-    id: "4",
-    name: "JupSOL",
-    sub: "0.138711 JUP",
-    val: "550.00",
-    icon: "planet-outline",
-  },
-  {
-    id: "5",
-    name: "PYTH",
-    sub: "14.1651 PYTH",
-    val: "500.00",
-    icon: "pulse-outline",
-  },
-];
+export interface AssetData {
+  id: string;
+  name: string;
+  sub: string;
+  val: string;
+  icon: keyof typeof Ionicons.glyphMap;
+}
 
-const AssetItem = ({ name, sub, val, icon }: any) => (
+interface AssetsComponentProps {
+  assets: AssetData[];
+}
+
+const AssetItem = ({ name, sub, val, icon }: Omit<AssetData, "id">) => (
   <View style={styles.assetItem}>
     <View style={styles.assetLeft}>
       <View style={styles.assetIconBG}>
@@ -65,7 +39,7 @@ const AssetItem = ({ name, sub, val, icon }: any) => (
   </View>
 );
 
-export const AssetsComponent = () => {
+export const AssetsComponent = ({ assets }: AssetsComponentProps) => {
   return (
     <GlassCard style={styles.assetsCard}>
       <View style={styles.assetsContent}>
@@ -77,14 +51,14 @@ export const AssetsComponent = () => {
         </View>
 
         <FlatList
-          data={ASSETS_DATA}
+          data={assets}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <AssetItem
               name={item.name}
               sub={item.sub}
               val={item.val}
-              icon={item.icon as any}
+              icon={item.icon}
             />
           )}
           scrollEnabled={false}
