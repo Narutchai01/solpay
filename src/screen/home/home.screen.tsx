@@ -76,12 +76,7 @@ export const HomeScreen = () => {
           </View>
 
           {/* Balance Card */}
-          <BalanceComponent
-            balance="1,500.00"
-            currency="THB"
-            onTopUp={() => {}}
-            onSwap={() => {}}
-          />
+          <BalanceComponent balance="1,500.00" currency="THB" />
 
           {/* Assets Section */}
           <AssetsComponent assets={ASSETS_MOCK} />

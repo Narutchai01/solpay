@@ -2,21 +2,18 @@ import { ButtonWithIcon } from "@/src/components/button/buttonWithIcon";
 import { GlassCard } from "@/src/components/card/glass";
 import { Theme } from "@/src/theme/theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Link } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface BalanceComponentProps {
   balance: string;
   currency?: string;
-  onTopUp?: () => void;
-  onSwap?: () => void;
 }
 
 export const BalanceComponent = ({
   balance,
   currency = "THB",
-  onTopUp,
-  onSwap,
 }: BalanceComponentProps) => {
   const [isVisible, setIsVisible] = useState(true);
 
@@ -37,21 +34,24 @@ export const BalanceComponent = ({
         </View>
 
         <View style={styles.actionButtons}>
-          <ButtonWithIcon
-            label="Top Up"
-            icon={<Ionicons name="add" style={styles.iconSize} />}
-            onPress={onTopUp}
-          />
-          <ButtonWithIcon
-            label="Swap"
-            icon={
-              <MaterialCommunityIcons
-                name="swap-horizontal"
-                style={styles.iconSize}
-              />
-            }
-            onPress={onSwap}
-          />
+          <Link href="/topup">
+            <ButtonWithIcon
+              label="Top Up"
+              icon={<Ionicons name="add" style={styles.iconSize} />}
+            />
+          </Link>
+
+          <Link href="/_sitemap">
+            <ButtonWithIcon
+              label="Swap"
+              icon={
+                <MaterialCommunityIcons
+                  name="swap-horizontal"
+                  style={styles.iconSize}
+                />
+              }
+            />
+          </Link>
         </View>
       </View>
     </GlassCard>
