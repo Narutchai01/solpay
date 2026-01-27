@@ -53,14 +53,14 @@ const styles = StyleSheet.create({
   balanceLabel: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h5,
-    fontWeight: "bold",
+    fontWeight: "700",
     marginBottom: 16,
   },
   balanceRow: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
   balanceValue: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h3,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
   eyeIcon: { marginLeft: 20 },
   actionButtons: { flexDirection: "row", justifyContent: "center", gap: 15 },

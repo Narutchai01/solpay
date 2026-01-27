@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: Theme.fontSize.h4,
-    fontWeight: "bold",
+    fontWeight: "700",
     marginBottom: 16,
     color: Theme.colors.surface,
   },

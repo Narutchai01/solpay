@@ -1,5 +1,11 @@
 import React, { FC } from "react";
-import { StyleSheet, Text, TouchableOpacity, ViewStyle } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextStyle,
+  TouchableOpacity,
+  ViewStyle,
+} from "react-native";
 import { Theme } from "../../theme/theme";
 
 type ButtonVariant = "solid" | "outline";
@@ -10,20 +16,21 @@ type colorKey = keyof typeof Theme.colors;
 interface ButtonProps {
   title: string;
   variant?: ButtonVariant;
-  onPress?: () => void;
   color?: colorKey;
+  textColor?: colorKey;
   style?: ViewStyle;
+  onPress?: () => void;
 }
 
 const VARIANT_MAP = {
   solid: (colorKey: keyof typeof COLORS) => ({
     container: { backgroundColor: COLORS[colorKey] as string, borderWidth: 0 },
-    text: { color: COLORS.surface },
+    text: { color: COLORS.g300 },
   }),
   outline: (colorKey: keyof typeof COLORS) => ({
     container: {
       backgroundColor: "transparent",
-      borderWidth: 1.5,
+      borderWidth: 2,
       borderColor: COLORS[colorKey] as string,
     },
     text: { color: COLORS[colorKey] as string },
@@ -35,30 +42,37 @@ export const Button: FC<ButtonProps> = ({
   variant = "solid",
   onPress,
   color = "primary",
+  textColor,
   style,
 }) => {
   const variantStyles = VARIANT_MAP[variant](color);
+
+  const customTextStyle: TextStyle = textColor
+    ? { color: COLORS[textColor] as string }
+    : {};
 
   return (
     <TouchableOpacity
       onPress={onPress}
       style={[styles.baseContainer, variantStyles.container, style]}
     >
-      <Text style={[styles.baseText, variantStyles.text]}>{title}</Text>
+      <Text style={[styles.baseText, variantStyles.text, customTextStyle]}>
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   baseContainer: {
-    paddingVertical: 12,
+    paddingVertical: 8,
     paddingHorizontal: 24,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
   baseText: {
-    fontSize: 16,
+    fontSize: Theme.fontSize.h6,
     fontWeight: "600",
   },
 });

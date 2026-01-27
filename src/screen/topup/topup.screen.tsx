@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h5,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
   // Balance Card
   balanceCard: {
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   label: {
     color: Theme.colors.g50,
     fontSize: Theme.fontSize.h6,
-    fontWeight: "semibold",
+    fontWeight: "600",
     marginBottom: 16,
   },
   amountRow: {
@@ -129,13 +129,13 @@ const styles = StyleSheet.create({
   amountText: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h3,
-    fontWeight: "bold",
+    fontWeight: "700",
     marginRight: 24,
   },
   currencyText: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h3,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
   subAmount: {
     color: Theme.colors.surface,
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h6,
-    fontWeight: "semibold",
+    fontWeight: "600",
     marginBottom: 16,
   },
   historyItem: {
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   historyDate: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h6,
-    fontWeight: "semibold",
+    fontWeight: "600",
   },
   historyId: {
     color: Theme.colors.surface,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   historyAmount: {
     color: Theme.colors.success,
     fontSize: Theme.fontSize.h6,
-    fontWeight: "semibold",
+    fontWeight: "600",
   },
   historyUsdt: {
     color: Theme.colors.surface,
