@@ -1,5 +1,3 @@
-import { Keypad } from "@/src/components/button/keypad";
-import { PinDots } from "@/src/components/button/pinDots";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,9 +5,10 @@ import { useNavigation } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { KeypadSection } from "./keypadSection.component";
+import { PinDots } from "./pinDots";
 
 const PIN_LENGTH = 6;
-const KEYPAD_NUMBERS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 export const PinScreen = () => {
   const navigation = useNavigation();
@@ -85,18 +84,7 @@ export const PinScreen = () => {
 
         {/* Custom Keypad */}
         <View style={styles.keypadContainer}>
-          {KEYPAD_NUMBERS.map((num) => (
-            <Keypad key={num} value={num} onPress={() => handlePress(num)} />
-          ))}
-          <View style={styles.keypadButton} />
-          <Keypad value="0" onPress={() => handlePress("0")} />
-          <Keypad
-            value={
-              <Ionicons name="backspace-outline" style={styles.deleteIcon} />
-            }
-            isIcon
-            onPress={handleDelete}
-          />
+          <KeypadSection onPress={handlePress} onDelete={handleDelete} />
         </View>
       </SafeAreaView>
     </GradientLayout>
@@ -108,7 +96,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
-    paddingVertical: 50,
+    paddingVertical: 20,
   },
   closeButton: {
     position: "absolute",
@@ -128,24 +116,13 @@ const styles = StyleSheet.create({
   title: {
     color: "white",
     fontSize: Theme.fontSize.h5,
+    fontWeight: "bold",
     marginBottom: 12,
   },
   subtitle: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.textL,
     textAlign: "center",
-  },
-  dotsContainer: {
-    flexDirection: "row",
-    marginVertical: 30,
-  },
-  dot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: Theme.colors.v300,
-    marginHorizontal: 10,
   },
   errorContainer: {
     width: "80%",
@@ -163,27 +140,5 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     width: "85%",
     justifyContent: "center",
-  },
-  keypadButton: {
-    width: "33.33%",
-    aspectRatio: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  keypadText: {
-    color: "white",
-    fontSize: Theme.fontSize.h3,
-    borderWidth: 1,
-    borderColor: Theme.colors.surface,
-    width: 75,
-    height: 75,
-    borderRadius: 50,
-    textAlign: "center",
-    lineHeight: 75,
-  },
-  deleteIcon: {
-    color: "white",
-    fontSize: 42,
   },
 });
