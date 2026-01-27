@@ -8,7 +8,7 @@ interface KeypadButtonProps {
   isIcon?: boolean;
 }
 
-export const Keypad = ({
+export const KeypadButton = ({
   value,
   onPress,
   isIcon = false,
@@ -27,8 +27,9 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   keypadText: {
-    color: "white",
+    color: Theme.colors.surface,
     fontSize: Theme.fontSize.h3,
+    fontWeight: "medium",
     borderWidth: 1,
     borderColor: Theme.colors.surface,
     width: 75,

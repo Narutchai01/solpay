@@ -2,12 +2,20 @@ import { ButtonWithIcon } from "@/src/components/button/buttonWithIcon";
 import { GlassCard } from "@/src/components/card/glass";
 import { Theme } from "@/src/theme/theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Link } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export const BalanceComponent = () => {
+interface BalanceComponentProps {
+  balance: string;
+  currency?: string;
+}
+
+export const BalanceComponent = ({
+  balance,
+  currency = "THB",
+}: BalanceComponentProps) => {
   const [isVisible, setIsVisible] = useState(true);
-  const rawBalance = "1,000.00";
 
   return (
     <GlassCard style={styles.balanceCard}>
@@ -15,7 +23,7 @@ export const BalanceComponent = () => {
         <Text style={styles.balanceLabel}>Total balance</Text>
         <View style={styles.balanceRow}>
           <Text style={styles.balanceValue}>
-            {isVisible ? `${rawBalance} THB` : "****** THB"}
+            {isVisible ? `${balance} ${currency}` : `****** ${currency}`}
           </Text>
           <TouchableOpacity onPress={() => setIsVisible(!isVisible)}>
             <Ionicons
@@ -26,21 +34,24 @@ export const BalanceComponent = () => {
         </View>
 
         <View style={styles.actionButtons}>
-          <ButtonWithIcon
-            label="Top Up"
-            icon={<Ionicons name="add" style={styles.iconSize} />}
-            onPress={() => {}}
-          />
-          <ButtonWithIcon
-            label="Swap"
-            icon={
-              <MaterialCommunityIcons
-                name="swap-horizontal"
-                style={styles.iconSize}
-              />
-            }
-            onPress={() => {}}
-          />
+          <Link href="/topup">
+            <ButtonWithIcon
+              label="Top Up"
+              icon={<Ionicons name="add" style={styles.iconSize} />}
+            />
+          </Link>
+
+          <Link href="/_sitemap">
+            <ButtonWithIcon
+              label="Swap"
+              icon={
+                <MaterialCommunityIcons
+                  name="swap-horizontal"
+                  style={styles.iconSize}
+                />
+              }
+            />
+          </Link>
         </View>
       </View>
     </GlassCard>
