@@ -10,8 +10,46 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AssetsComponent } from "./assets.component";
+import { AssetData, AssetsComponent } from "./assets.component";
 import { BalanceComponent } from "./balance.component";
+
+const ASSETS_MOCK: AssetData[] = [
+  {
+    id: "1",
+    name: "Solana",
+    sub: "0.10933530228646213 SOL",
+    val: "1,500.00",
+    icon: "logo-bitcoin",
+  },
+  {
+    id: "2",
+    name: "USDC",
+    sub: "0.0312304 USDC",
+    val: "1,000.00",
+    icon: "cash-outline",
+  },
+  {
+    id: "3",
+    name: "USDT",
+    sub: "29.500427134510762 USTD",
+    val: "950.00",
+    icon: "logo-usd",
+  },
+  {
+    id: "4",
+    name: "JupSOL",
+    sub: "0.138711 JUP",
+    val: "550.00",
+    icon: "planet-outline",
+  },
+  {
+    id: "5",
+    name: "PYTH",
+    sub: "14.1651 PYTH",
+    val: "500.00",
+    icon: "pulse-outline",
+  },
+];
 
 export const HomeScreen = () => {
   return (
@@ -38,10 +76,10 @@ export const HomeScreen = () => {
           </View>
 
           {/* Balance Card */}
-          <BalanceComponent />
+          <BalanceComponent balance="1,500.00" currency="THB" />
 
           {/* Assets Section */}
-          <AssetsComponent />
+          <AssetsComponent assets={ASSETS_MOCK} />
         </ScrollView>
       </SafeAreaView>
     </GradientLayout>
