@@ -15,28 +15,28 @@ interface HistoryListProps {
   data: HistoryItem[];
 }
 
-export const HistoryListComponent = ({ data }: HistoryListProps) => {
-  const renderItem = ({ item }: { item: HistoryItem }) => (
-    <GlassCard style={styles.historyItem}>
-      <View style={styles.historyInner}>
-        <View>
-          <Text style={styles.historyDate}>{item.date}</Text>
-          <Text style={styles.historyId}>{item.transactionId}</Text>
-        </View>
-        <View style={styles.historyRight}>
-          <Text style={styles.historyAmount}>+ {item.amount} THB</Text>
-          <Text style={styles.historyUsdt}>~{item.usdt} USDT</Text>
-        </View>
+const HistoryCard = ({ item }: { item: HistoryItem }) => (
+  <GlassCard style={styles.historyItem}>
+    <View style={styles.historyInner}>
+      <View>
+        <Text style={styles.historyDate}>{item.date}</Text>
+        <Text style={styles.historyId}>{item.transactionId}</Text>
       </View>
-    </GlassCard>
-  );
+      <View style={styles.historyRight}>
+        <Text style={styles.historyAmount}>+ {item.amount} THB</Text>
+        <Text style={styles.historyUsdt}>~{item.usdt} USDT</Text>
+      </View>
+    </View>
+  </GlassCard>
+);
 
+export const HistoryListComponent = ({ data }: HistoryListProps) => {
   return (
     <View style={styles.historySection}>
       <Text style={styles.sectionTitle}>Top Up History</Text>
       <FlatList
         data={data}
-        renderItem={renderItem}
+        renderItem={HistoryCard}
         keyExtractor={(item) => item.id}
         scrollEnabled={false}
       />
