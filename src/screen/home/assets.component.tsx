@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   assetsTitle: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h5,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
   viewAllText: {
     color: Theme.colors.surface,
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   assetNameText: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h7,
-    fontWeight: "medium",
+    fontWeight: "500",
   },
   assetSubText: {
     color: Theme.colors.g50,
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   assetValueText: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h7,
-    fontWeight: "medium",
+    fontWeight: "500",
   },
   iconSize: {
     fontSize: 24,

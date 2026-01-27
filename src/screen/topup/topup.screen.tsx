@@ -72,6 +72,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h5,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
 });

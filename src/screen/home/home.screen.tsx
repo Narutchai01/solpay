@@ -111,12 +111,12 @@ const styles = StyleSheet.create({
   helloText: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h4,
-    fontWeight: "medium",
+    fontWeight: "500",
   },
   welcomeText: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h3,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
   iconSize: {
     fontSize: 24,
