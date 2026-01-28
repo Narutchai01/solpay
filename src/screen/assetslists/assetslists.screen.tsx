@@ -5,13 +5,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import React from "react";
 import {
-  ScrollView,
+  FlatList,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useHeaderHeight } from "@react-navigation/elements";
 
 const ASSETS = [
   {
@@ -66,62 +67,46 @@ const ASSETS = [
 ];
 
 export const AssetsListsScreen = () => {
-  const navigation = useNavigation();
+  const headerHeight = useHeaderHeight();
+  const renderItem = ({ item }: { item: (typeof ASSETS)[number] }) => (
+    <GlassCard style={styles.assetCard}>
+      <View style={styles.assetInner}>
+        <View style={styles.assetLeft}>
+          <View style={styles.iconWrapper}>
+            <Ionicons
+              name={item.icon as any}
+              size={24}
+              color={Theme.colors.surface}
+            />
+          </View>
+
+          <View>
+            <Text style={styles.assetName}>{item.name}</Text>
+            <Text style={styles.assetSub}>{item.sub}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.assetValue}>{item.val} THB</Text>
+      </View>
+    </GlassCard>
+  );
   return (
     <GradientLayout>
       <SafeAreaView style={styles.container}>
-        <ScrollView
+        {/* Assets List */}
+        <FlatList
+          data={ASSETS}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => {
-                if (navigation.canGoBack()) {
-                  navigation.goBack();
-                }
-              }}
-            >
-              <Ionicons
-                name="chevron-back-outline"
-                size={24}
-                color={Theme.colors.surface}
-              />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Assets</Text>
-            <View style={{ width: 24 }} />
-          </View>
-
-          {/* Section All Assets */}
-          <Text style={styles.sectionTitle}>All Assets</Text>
-
-          {/* Assets List */}
-          {ASSETS.map((item) => (
-            <GlassCard key={item.id} style={styles.assetCard}>
-              <View style={styles.assetInner}>
-                {/* Name+Value */}
-                <View style={styles.assetLeft}>
-                  <View style={styles.iconWrapper}>
-                    <Ionicons
-                      name={item.icon as any}
-                      size={24}
-                      color={Theme.colors.surface}
-                    />
-                  </View>
-
-                  <View>
-                    <Text style={styles.assetName}>{item.name}</Text>
-                    <Text style={styles.assetSub}>{item.sub}</Text>
-                  </View>
-                </View>
-
-                {/* Amount */}
-                <Text style={styles.assetValue}>{item.val} THB</Text>
-              </View>
-            </GlassCard>
-          ))}
-        </ScrollView>
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingTop: headerHeight + 20 },
+          ]}
+          ListHeaderComponent={() => (
+            <Text style={styles.sectionTitle}>All Assets</Text>
+          )}
+        />
       </SafeAreaView>
     </GradientLayout>
   );

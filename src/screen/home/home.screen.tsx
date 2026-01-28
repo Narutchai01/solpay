@@ -3,7 +3,7 @@ import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/theme/theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Link } from "expo-router";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -54,7 +54,6 @@ const ASSETS_DATA = [
 
 export const HomeScreen = () => {
   const [isVisible, setIsVisible] = useState(true);
-  const router = useRouter();
   const rawBalance = "1,000.00";
 
   return (
@@ -128,9 +127,9 @@ export const HomeScreen = () => {
             <View style={styles.assetsContent}>
               <View style={styles.assetsHeader}>
                 <Text style={styles.assetsTitle}>Assets</Text>
-                <TouchableOpacity onPress={() => router.push("/assetslists")}>
-                  <Text style={styles.viewAllText}>View All</Text>
-                </TouchableOpacity>
+                <Link href="/assetslists" style={styles.viewAllText}>
+                  View All
+                </Link>
               </View>
 
               {ASSETS_DATA.map((item) => (
