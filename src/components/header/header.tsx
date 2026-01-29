@@ -8,9 +8,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface HeaderProps {
   title: string;
   iconback?: boolean;
+  iconright?: boolean;
 }
 
-export const Header = ({ title, iconback = true }: HeaderProps) => {
+export const Header = ({
+  title,
+  iconback = true,
+  iconright = false,
+}: HeaderProps) => {
   const insets = useSafeAreaInsets();
 
   return (
@@ -34,7 +39,20 @@ export const Header = ({ title, iconback = true }: HeaderProps) => {
       <Text style={styles.title}>{title}</Text>
 
       {/* Right */}
-      <View style={styles.side} />
+      <View style={styles.side}>
+        {iconright && (
+          // link silppage
+          <Link href="../" asChild>
+            <TouchableOpacity>
+              <Ionicons
+                name="settings-sharp"
+                size={24}
+                color={Theme.colors.surface}
+              />
+            </TouchableOpacity>
+          </Link>
+        )}
+      </View>
     </View>
   );
 };
