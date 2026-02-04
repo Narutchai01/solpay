@@ -2,14 +2,14 @@ import { Theme } from "@/src/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-    Image,
-    ImageSourcePropType,
-    Modal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ImageSourcePropType,
+  Modal,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
+import { Button } from "../button/button";
 
 interface ConfirmModalProps {
   iconName?: keyof typeof Ionicons.glyphMap;
@@ -75,24 +75,23 @@ export const ConfirmModal = ({
 
           <View style={styles.buttonGroup}>
             {onCancel && cancelLabel && (
-              <TouchableOpacity
+              <Button
+                title={cancelLabel}
+                variant="outline"
+                color="v300"
+                textColor="v500"
                 onPress={onCancel}
-                style={[styles.button, styles.buttonOutline]}
-              >
-                <Text style={styles.textOutline}>{cancelLabel}</Text>
-              </TouchableOpacity>
+                style={styles.flexButton}
+              />
             )}
 
-            <TouchableOpacity
+            <Button
+              title={confirmLabel}
+              variant="solid"
+              color="v300"
               onPress={onConfirm}
-              style={[
-                styles.button,
-                styles.buttonSolid,
-                !onCancel && { width: "100%" },
-              ]}
-            >
-              <Text style={styles.textSolid}>{confirmLabel}</Text>
-            </TouchableOpacity>
+              style={styles.flexButton}
+            />
           </View>
         </View>
       </View>
@@ -118,7 +117,7 @@ const styles = StyleSheet.create({
   icon: { marginBottom: 20 },
   modalTitle: {
     fontSize: Theme.fontSize.h5,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: Theme.colors.g300,
     marginBottom: 10,
     textAlign: "center",
@@ -130,22 +129,7 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   buttonGroup: { flexDirection: "row", width: "100%", gap: 12 },
-  button: {
+  flexButton: {
     flex: 1,
-    paddingVertical: 8,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  buttonOutline: { borderWidth: 2, borderColor: Theme.colors.v300 },
-  buttonSolid: { backgroundColor: Theme.colors.v300 },
-  textOutline: {
-    color: Theme.colors.v500,
-    fontWeight: "semibold",
-    fontSize: Theme.fontSize.h6,
-  },
-  textSolid: {
-    color: Theme.colors.g300,
-    fontWeight: "semibold",
-    fontSize: Theme.fontSize.h6,
   },
 });

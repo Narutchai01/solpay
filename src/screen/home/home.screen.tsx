@@ -1,10 +1,7 @@
-import { ButtonWithIcon } from "@/src/components/button/buttonWithIcon";
-import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/theme/theme";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
-import React, { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -13,8 +10,10 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AssetData, AssetsComponent } from "./assets.component";
+import { BalanceComponent } from "./balance.component";
 
-const ASSETS_DATA = [
+const ASSETS_MOCK: AssetData[] = [
   {
     id: "1",
     name: "Solana",
@@ -53,9 +52,6 @@ const ASSETS_DATA = [
 ];
 
 export const HomeScreen = () => {
-  const [isVisible, setIsVisible] = useState(true);
-  const rawBalance = "1,000.00";
-
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
@@ -80,80 +76,10 @@ export const HomeScreen = () => {
           </View>
 
           {/* Balance Card */}
-          <GlassCard style={styles.balanceCard}>
-            <View style={styles.cardContent}>
-              <Text style={styles.balanceLabel}>Total balance</Text>
-              <View style={styles.balanceRow}>
-                <Text style={styles.balanceValue}>
-                  {isVisible ? `${rawBalance} THB` : "****** THB"}
-                </Text>
-                <TouchableOpacity onPress={() => setIsVisible(!isVisible)}>
-                  <Ionicons
-                    name={isVisible ? "eye-outline" : "eye-off-outline"}
-                    style={[styles.iconSize, styles.eyeIcon]}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.actionButtons}>
-                <ButtonWithIcon
-                  label="Top Up"
-                  icon={
-                    <Ionicons
-                      name="add"
-                      size={24}
-                      color={Theme.colors.surface}
-                    />
-                  }
-                  onPress={() => {}}
-                />
-                <ButtonWithIcon
-                  label="Swap"
-                  icon={
-                    <MaterialCommunityIcons
-                      name="swap-horizontal"
-                      size={24}
-                      color={Theme.colors.surface}
-                    />
-                  }
-                  onPress={() => {}}
-                />
-              </View>
-            </View>
-          </GlassCard>
+          <BalanceComponent balance="1,500.00" currency="THB" />
 
           {/* Assets Section */}
-          <GlassCard style={styles.assetsCard}>
-            <View style={styles.assetsContent}>
-              <View style={styles.assetsHeader}>
-                <Text style={styles.assetsTitle}>Assets</Text>
-                <Link href="/assetslists" style={styles.viewAllText}>
-                  View All
-                </Link>
-              </View>
-
-              {ASSETS_DATA.map((item) => (
-                <View key={item.id} style={styles.assetItem}>
-                  <View style={styles.assetLeft}>
-                    <View style={styles.assetIconBG}>
-                      <Ionicons
-                        name={item.icon as any}
-                        size={24}
-                        color={Theme.colors.surface}
-                      />
-                    </View>
-                    <View>
-                      <Text style={styles.assetNameText}>{item.name}</Text>
-                      <Text style={styles.assetSubText} numberOfLines={1}>
-                        {item.sub}
-                      </Text>
-                    </View>
-                  </View>
-                  <Text style={styles.assetValueText}>{item.val} THB</Text>
-                </View>
-              ))}
-            </View>
-          </GlassCard>
+          <AssetsComponent assets={ASSETS_MOCK} />
         </ScrollView>
       </SafeAreaView>
     </GradientLayout>
@@ -185,119 +111,15 @@ const styles = StyleSheet.create({
   helloText: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h4,
-    fontWeight: "medium",
+    fontWeight: "500",
   },
   welcomeText: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h3,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
   iconSize: {
     fontSize: 24,
     color: Theme.colors.surface,
-  },
-  // Balance Card
-  balanceCard: {
-    marginTop: 10,
-  },
-  cardContent: {
-    padding: 24,
-    alignItems: "center",
-  },
-  balanceLabel: {
-    color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h5,
-    marginBottom: 16,
-  },
-  balanceRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  balanceValue: {
-    color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h3,
-    fontWeight: "bold",
-  },
-  eyeIcon: {
-    marginLeft: 20,
-  },
-  actionButtons: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 15,
-  },
-  actionBtn: {
-    backgroundColor: Theme.colors.surface,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 50,
-  },
-  actionBtnText: {
-    fontSize: Theme.fontSize.h6,
-    fontWeight: "bold",
-    color: Theme.colors.onSurface,
-  },
-  // Assets Container
-  assetsCard: {
-    marginTop: 32,
-  },
-  assetsContent: {
-    padding: 20,
-    paddingBottom: 10,
-  },
-  assetsHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  assetsTitle: {
-    color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h5,
-    fontWeight: "bold",
-  },
-  viewAllText: {
-    color: Theme.colors.surface,
-    fontSize: Theme.fontSize.textS,
-    textDecorationLine: "underline",
-  },
-  assetItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  assetLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  assetIconBG: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  assetNameText: {
-    color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h7,
-    fontWeight: "medium",
-  },
-  assetSubText: {
-    color: Theme.colors.g50,
-    fontSize: Theme.fontSize.textS,
-    marginTop: 2,
-    maxWidth: 200,
-  },
-  assetValueText: {
-    color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h7,
-    fontWeight: "medium",
   },
 });

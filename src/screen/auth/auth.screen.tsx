@@ -1,4 +1,5 @@
 import SolpayLogo from "@/assets/solpay-logo.svg";
+import { Button } from "@/src/components/button/button";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/theme/theme";
 import { Link } from "expo-router";
@@ -16,6 +17,7 @@ export const ConnectWalletScreen = () => {
             emergence of Decentralized Finance (DeFi) powered by blockchain.
           </Text>
           {/* <Button title="Connect Wallet" onPress={() => {}} /> */}
+          <Button title="test" />
           <Link href="/_sitemap" style={{ marginTop: 20, color: "blue" }}>
             🗺️ เปิดแผนที่หน้าทั้งหมด (Sitemap)
           </Link>
@@ -43,7 +45,7 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: Theme.fontSize.h4,
-    fontWeight: "bold",
+    fontWeight: "700",
     marginBottom: 16,
     color: Theme.colors.surface,
   },

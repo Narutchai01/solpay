@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: Theme.fontSize.h6,
-    fontWeight: "semibold",
+    fontWeight: "600",
     color: Theme.colors.g300,
   },
 });
