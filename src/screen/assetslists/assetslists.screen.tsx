@@ -1,10 +1,10 @@
+import { AssetItem } from "@/src/components/assetitem/assetitem";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/theme/theme";
+import { useHeaderHeight } from "@react-navigation/elements";
 import React from "react";
 import { FlatList, StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useHeaderHeight } from "@react-navigation/elements";
-import { AssetItem } from "@/src/components/assetitem/assetitem";
 
 const ASSETS = [
   {
@@ -58,6 +58,8 @@ const ASSETS = [
   },
 ];
 
+const ListHeader = () => <Text style={styles.sectionTitle}>All Assets</Text>;
+
 export const AssetsListsScreen = () => {
   const headerHeight = useHeaderHeight();
 
@@ -73,9 +75,7 @@ export const AssetsListsScreen = () => {
             styles.scrollContent,
             { paddingTop: headerHeight + 20 },
           ]}
-          ListHeaderComponent={() => (
-            <Text style={styles.sectionTitle}>All Assets</Text>
-          )}
+          ListHeaderComponent={ListHeader}
         />
       </SafeAreaView>
     </GradientLayout>
