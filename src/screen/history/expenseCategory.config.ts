@@ -1,4 +1,3 @@
-
 export const EXPENSE_CATEGORY_CONFIG = {
   "Food/Drink": {
     color: "violet",

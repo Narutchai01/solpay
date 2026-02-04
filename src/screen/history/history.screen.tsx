@@ -149,7 +149,6 @@ export const HistoryScreen = () => {
         pagingEnabled
         snapToInterval={SCREEN_WIDTH}
         nestedScrollEnabled
-        directionalLockEnabled
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
         onMomentumScrollEnd={(e) => {
@@ -195,6 +194,7 @@ export const HistoryScreen = () => {
           ListHeaderComponent={ListHeader}
           contentContainerStyle={styles.mainListContent}
           showsVerticalScrollIndicator={false}
+          nestedScrollEnabled
         />
       </SafeAreaView>
     </GradientLayout>

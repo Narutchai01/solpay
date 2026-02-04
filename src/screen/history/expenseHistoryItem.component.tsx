@@ -5,8 +5,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import {
-  EXPENSE_CATEGORY_CONFIG,
-  ExpenseCategory,
+    EXPENSE_CATEGORY_CONFIG,
+    ExpenseCategory,
 } from "./expenseCategory.config";
 
 export interface ExpenseHistoryData {
