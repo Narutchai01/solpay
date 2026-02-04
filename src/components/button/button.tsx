@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from "react-native";
-import { Theme } from "../../theme/theme";
+import { Theme } from "../../core/theme/theme";
 
 type ButtonVariant = "solid" | "outline";
 

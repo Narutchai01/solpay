@@ -1,4 +1,4 @@
-import { Theme } from "@/src/theme/theme";
+import { Theme } from "@/src/core/theme/theme";
 import { LinearGradient } from "expo-linear-gradient";
 import { FC } from "react";
 import { StyleSheet } from "react-native";

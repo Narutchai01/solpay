@@ -1,7 +1,7 @@
 import { HttpHelper } from "@/lib/http";
-import { AccountModel, CreateAccountRequest } from "@/src/core/domain/account";
-import { IAccountRepository } from "@/src/core/port/http/account";
-import { BackendErrorResponse } from "@/src/type/api-error.type";
+import { BackendErrorResponse } from "@/src/core/type/api-error.type";
+import { AccountModel, CreateAccountRequest } from "@/src/domain/model/account";
+import { IAccountRepository } from "@/src/domain/port/http/account";
 import { isAxiosError } from "axios";
 
 export class AccountRepository implements IAccountRepository {

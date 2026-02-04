@@ -1,7 +1,7 @@
 import SolpayLogo from "@/assets/solpay-logo.svg";
 import { Button } from "@/src/components/button/button";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
-import { Theme } from "@/src/theme/theme";
+import { Theme } from "@/src/core/theme/theme";
 import { Link } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 

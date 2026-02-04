@@ -1,5 +1,5 @@
 import { GlassCard } from "@/src/components/card/glass";
-import { Theme } from "@/src/theme/theme";
+import { Theme } from "@/src/core/theme/theme";
 import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 

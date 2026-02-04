@@ -1,4 +1,4 @@
-import { ExampleModel } from "../domain/example";
+import { ExampleModel } from "../model/example";
 import { IExampleRepository } from "../port/http/example";
 interface ExampleService {
   getExampleById(id: string): Promise<ExampleModel | null>;

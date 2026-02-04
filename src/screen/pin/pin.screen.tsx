@@ -1,5 +1,5 @@
 import GradientLayout from "@/src/components/shard/gradieintLayout";
-import { Theme } from "@/src/theme/theme";
+import { Theme } from "@/src/core/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import React, { useEffect, useState } from "react";

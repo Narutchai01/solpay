@@ -1,4 +1,4 @@
-import { AccountModel, CreateAccountRequest } from "../domain/account";
+import { AccountModel, CreateAccountRequest } from "../model/account";
 import { IAccountRepository } from "../port/http/account";
 
 interface AccountService {
