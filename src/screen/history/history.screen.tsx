@@ -165,6 +165,8 @@ export const HistoryScreen = () => {
         pagingEnabled
         snapToInterval={SCREEN_WIDTH}
         showsHorizontalScrollIndicator={false}
+        // TODO: Horizontal FlatList is nested inside a vertical FlatList.
+        // This causes gesture conflict, requiring two swipes to change chart.
         onMomentumScrollEnd={(e) => {
           const x = e.nativeEvent.contentOffset.x;
           setActiveIndex(Math.round(x / SCREEN_WIDTH));
