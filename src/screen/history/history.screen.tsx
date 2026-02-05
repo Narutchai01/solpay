@@ -1,24 +1,37 @@
 import { Button } from "@/src/components/button/button";
+import { Dropdown } from "@/src/components/button/dropdown";
 import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/theme/theme";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import {
-  Dimensions,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   ExpenseHistoryData,
   ExpenseHistoryItem,
 } from "./expenseHistoryItem.component";
 import { BarChartData, MonthlyBarChart } from "./monthlyBarChart.component";
+import { MonthYearPickerModal } from "./monthYearPicker.component";
 import { PieChartComponent, PieChartData } from "./pieChart.component";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+const YEARS = Array.from({ length: 20 }, (_, i) => 2026 - i);
 
 const HISTORY_CHART_DATA: PieChartData[] = [
   { value: 50, color: Theme.colors.violet, label: "Food/Drink" },
@@ -76,12 +89,14 @@ const EXPENSES_HISTORY: ExpenseHistoryData[] = [
   },
 ];
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
 type HistoryTab = "Software Wallet" | "SolPay";
 
 export const HistoryScreen = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedTab, setSelectedTab] = useState<HistoryTab>("Software Wallet");
+  const [isPickerVisible, setPickerVisible] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState("November");
+  const [selectedYear, setSelectedYear] = useState(2025);
 
   const slides = [
     {
@@ -136,10 +151,11 @@ export const HistoryScreen = () => {
           ]}
         />
 
-        <TouchableOpacity style={styles.monthSelector}>
-          <Text style={styles.monthText}>November</Text>
-          <MaterialCommunityIcons name="chevron-down" size={20} color="white" />
-        </TouchableOpacity>
+        <Dropdown
+          label={`${selectedMonth} ${selectedYear}`}
+          onPress={() => setPickerVisible(true)}
+          style={styles.dropdownButton}
+        />
       </View>
 
       <FlatList
@@ -148,9 +164,7 @@ export const HistoryScreen = () => {
         horizontal
         pagingEnabled
         snapToInterval={SCREEN_WIDTH}
-        nestedScrollEnabled
         showsHorizontalScrollIndicator={false}
-        scrollEventThrottle={16}
         onMomentumScrollEnd={(e) => {
           const x = e.nativeEvent.contentOffset.x;
           setActiveIndex(Math.round(x / SCREEN_WIDTH));
@@ -194,7 +208,20 @@ export const HistoryScreen = () => {
           ListHeaderComponent={ListHeader}
           contentContainerStyle={styles.mainListContent}
           showsVerticalScrollIndicator={false}
-          nestedScrollEnabled
+        />
+
+        <MonthYearPickerModal
+          visible={isPickerVisible}
+          months={MONTHS}
+          years={YEARS}
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+          onSelectMonth={setSelectedMonth}
+          onSelectYear={setSelectedYear}
+          onClose={() => setPickerVisible(false)}
+          onConfirm={() => {
+            console.log(selectedMonth, selectedYear);
+          }}
         />
       </SafeAreaView>
     </GradientLayout>
@@ -203,12 +230,7 @@ export const HistoryScreen = () => {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  mainListContent: {
-    paddingBottom: 24,
-  },
-  flatList: {
-    height: 430,
-  },
+  mainListContent: { paddingBottom: 24 },
   header: {
     fontSize: Theme.fontSize.h5,
     fontWeight: "700",
@@ -216,10 +238,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 24,
   },
-  horizontalFlatList: {
-    height: 430,
-    flexGrow: 0,
-  },
+  horizontalFlatList: { height: 430, flexGrow: 0 },
   slideWrapper: {
     width: SCREEN_WIDTH,
     paddingHorizontal: 16,
@@ -233,27 +252,17 @@ const styles = StyleSheet.create({
   },
   card: { width: "100%" },
   pagination: {
-    width: SCREEN_WIDTH,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    width: SCREEN_WIDTH,
     marginTop: 5,
     marginBottom: 24,
   },
-  dot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginHorizontal: 4,
-  },
+  dot: { width: 12, height: 12, borderRadius: 6, marginHorizontal: 4 },
   activeDot: { backgroundColor: Theme.colors.v300 },
   inactiveDot: { backgroundColor: Theme.colors.g50 },
-  historyTitleWrapper: {
-    paddingHorizontal: 16,
-  },
-  historyItemWrapper: {
-    paddingHorizontal: 16,
-  },
+  historyItemWrapper: { paddingHorizontal: 16 },
   sectionTitle: {
     fontSize: Theme.fontSize.h6,
     fontWeight: "600",
@@ -273,32 +282,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 13,
   },
-  unselectedTabButton: {
-    borderColor: Theme.colors.v300,
-  },
-  tabButtonText: {
-    fontSize: Theme.fontSize.h7,
-    fontWeight: "500",
-  },
-  unselectedTabText: {
-    color: Theme.colors.v100,
-  },
-  monthSelector: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderWidth: 2,
-    borderColor: Theme.colors.v300,
-    borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 13,
-    flex: 1,
-    marginLeft: 22,
-  },
-  monthText: {
-    color: Theme.colors.v100,
-    fontSize: Theme.fontSize.h7,
-    fontWeight: "500",
-    marginRight: 8,
-  },
+  unselectedTabButton: { borderColor: Theme.colors.v300 },
+  tabButtonText: { fontSize: Theme.fontSize.h7, fontWeight: "500" },
+  unselectedTabText: { color: Theme.colors.v100 },
+  dropdownButton: { flex: 1, marginLeft: 10 },
 });
