@@ -1,5 +1,6 @@
 import React, { FC } from "react";
 import {
+  StyleProp,
   StyleSheet,
   Text,
   TextStyle,
@@ -18,7 +19,7 @@ interface ButtonProps {
   variant?: ButtonVariant;
   color?: colorKey;
   textColor?: colorKey;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   onPress?: () => void;
 }
 
