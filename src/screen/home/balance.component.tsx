@@ -1,4 +1,4 @@
-import { ButtonWithIcon } from "@/src/components/button/buttonWithIcon";
+import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import { Theme } from "@/src/theme/theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -35,21 +35,30 @@ export const BalanceComponent = ({
 
         <View style={styles.actionButtons}>
           <Link href="/topup">
-            <ButtonWithIcon
-              label="Top Up"
-              icon={<Ionicons name="add" style={styles.iconSize} />}
+            <Button
+              title="Top Up"
+              rounded
+              icon={
+                <Ionicons name="add" size={24} color={Theme.colors.surface} />
+              }
+              iconBgColor="v300"
+              style={{ minWidth: 110 }}
             />
           </Link>
 
           <Link href="/_sitemap">
-            <ButtonWithIcon
-              label="Swap"
+            <Button
+              title="Swap"
+              rounded
               icon={
                 <MaterialCommunityIcons
                   name="swap-horizontal"
-                  style={styles.iconSize}
+                  size={24}
+                  color={Theme.colors.surface}
                 />
               }
+              iconBgColor="v300"
+              style={{ minWidth: 110 }}
             />
           </Link>
         </View>
@@ -74,7 +83,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   eyeIcon: { marginLeft: 20 },
-  actionButtons: { flexDirection: "row", justifyContent: "center", gap: 15 },
+  actionButtons: { flexDirection: "row", justifyContent: "center", gap: 16 },
   iconSize: {
     fontSize: 24,
     color: Theme.colors.surface,
