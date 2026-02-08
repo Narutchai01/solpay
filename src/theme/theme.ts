@@ -29,6 +29,8 @@ export const Theme = {
     disabled: "rgba(0, 0, 0, 0.38)",
     placeholder: "rgba(0, 0, 0, 0.54)",
     backdrop: "rgba(0, 0, 0, 0.5)",
+    glassBackground: "rgba(255, 255, 255, 0.1)",
+    glassBorder: "rgba(255, 255, 255, 0.15)",
     background: ["#4c2882", "#2d1b5e", "#1a1a1a"],
   },
   fontSize: {

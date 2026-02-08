@@ -4,12 +4,13 @@ import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 interface GlassCardProps {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  glassStyle?: StyleProp<ViewStyle>;
 }
 
-export const GlassCard = ({ children, style }: GlassCardProps) => {
+export const GlassCard = ({ children, style, glassStyle }: GlassCardProps) => {
   return (
     <View style={[styles.container, style]}>
-      <View style={[StyleSheet.absoluteFill, styles.glassBase]} />
+      <View style={[StyleSheet.absoluteFill, styles.glassBase, glassStyle]} />
       <View style={[StyleSheet.absoluteFill, styles.glassOverlay]} />
       {children}
     </View>
