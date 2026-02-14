@@ -1,7 +1,7 @@
 import { HttpHelper } from "@/lib/http";
-import { ExampleModel } from "@/src/core/domain/example";
-import { IExampleRepository } from "@/src/core/port/http/example";
-import { BackendErrorResponse } from "@/src/type/api-error.type";
+import { BackendErrorResponse } from "@/src/core/type/api-error.type";
+import { ExampleModel } from "@/src/domain/model/example";
+import { IExampleRepository } from "@/src/domain/port/http/example";
 import { isAxiosError } from "axios";
 
 export class ExampleRepository implements IExampleRepository {

@@ -1,6 +1,6 @@
 import { ButtonWithIcon } from "@/src/components/button/buttonWithIcon";
 import { GlassCard } from "@/src/components/card/glass";
-import { Theme } from "@/src/theme/theme";
+import { Theme } from "@/src/core/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import React from "react";
