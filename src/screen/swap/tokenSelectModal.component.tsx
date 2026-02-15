@@ -1,16 +1,16 @@
 import { GlassCard } from "@/src/components/card/glass";
-import { Theme } from "@/src/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React, { ComponentProps } from "react";
 import {
-  FlatList,
-  ListRenderItem,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    FlatList,
+    ListRenderItem,
+    Modal,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
+import { Theme } from "../../core/theme/theme";
 
 export interface TokenAsset {
   id: number;

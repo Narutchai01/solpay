@@ -1,10 +1,10 @@
 import { AssetItem } from "@/src/components/assetitem/assetitem";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
-import { Theme } from "@/src/theme/theme";
 import { useHeaderHeight } from "@react-navigation/elements";
 import React from "react";
 import { FlatList, StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Theme } from "../../core/theme/theme";
 
 const ASSETS = [
   {

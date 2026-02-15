@@ -1,7 +1,7 @@
-import { Theme } from "@/src/theme/theme";
 import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { PieChart } from "react-native-gifted-charts";
+import { Theme } from "../../core/theme/theme";
 
 export interface PieChartData {
   value: number;

@@ -1,7 +1,7 @@
-import { Theme } from "@/src/theme/theme";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
+import { Theme } from "../../core/theme/theme";
 
 export interface BarChartData {
   value: number;

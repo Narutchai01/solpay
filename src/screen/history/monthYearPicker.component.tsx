@@ -1,4 +1,3 @@
-import { Theme } from "@/src/theme/theme";
 import React, { useEffect, useRef } from "react";
 import {
     FlatList,
@@ -9,6 +8,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { Theme } from "../../core/theme/theme";
 
 type Props = {
   visible: boolean;
