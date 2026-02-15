@@ -1,6 +1,5 @@
 import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
-import { Theme } from "@/src/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
@@ -11,6 +10,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { Theme } from "../../core/theme/theme";
 
 interface SlippageModalProps {
   visible: boolean;

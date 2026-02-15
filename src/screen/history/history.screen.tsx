@@ -2,10 +2,10 @@ import { Button } from "@/src/components/button/button";
 import { Dropdown } from "@/src/components/button/dropdown";
 import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
-import { Theme } from "@/src/theme/theme";
 import React, { useState } from "react";
 import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Theme } from "../../core/theme/theme";
 import {
   ExpenseHistoryData,
   ExpenseHistoryItem,

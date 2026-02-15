@@ -1,9 +1,9 @@
 import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
-import { Theme } from "@/src/theme/theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { Theme } from "../../core/theme/theme";
 import {
     EXPENSE_CATEGORY_CONFIG,
     ExpenseCategory,

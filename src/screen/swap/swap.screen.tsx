@@ -1,24 +1,24 @@
 import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
-import { Theme } from "@/src/theme/theme";
 import {
-  FontAwesome,
-  Ionicons,
-  MaterialCommunityIcons,
+    FontAwesome,
+    Ionicons,
+    MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Theme } from "../../core/theme/theme";
 import { SlippageModal } from "./slippageModal.component";
 import { TokenAsset, TokenSelectModal } from "./tokenSelectModal.component";
 

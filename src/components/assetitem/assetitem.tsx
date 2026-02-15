@@ -1,8 +1,8 @@
 import { GlassCard } from "@/src/components/card/glass";
-import { Theme } from "@/src/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { Theme } from "../../core/theme/theme";
 
 interface AssetItemProps {
   item: {

@@ -1,7 +1,6 @@
 import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
-import { Theme } from "@/src/theme/theme";
 import React from "react";
 import {
     FlatList,
@@ -13,6 +12,7 @@ import {
     ViewStyle,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Theme } from "../../core/theme/theme";
 
 export interface SuccessDetailItem {
   label: string;
