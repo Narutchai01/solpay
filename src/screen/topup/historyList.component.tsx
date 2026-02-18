@@ -36,7 +36,7 @@ export const HistoryListComponent = ({ data }: HistoryListProps) => {
       <Text style={styles.sectionTitle}>Top Up History</Text>
       <FlatList
         data={data}
-        renderItem={HistoryCard}
+        renderItem={({ item }) => <HistoryCard item={item} />}
         keyExtractor={(item) => item.id}
         scrollEnabled={false}
       />
