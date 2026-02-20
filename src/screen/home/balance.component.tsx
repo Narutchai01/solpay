@@ -2,7 +2,7 @@ import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import { Theme } from "@/src/core/theme/theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -34,33 +34,31 @@ export const BalanceComponent = ({
         </View>
 
         <View style={styles.actionButtons}>
-          <Link href="/topup">
-            <Button
-              title="Top Up"
-              rounded
-              icon={
-                <Ionicons name="add" size={24} color={Theme.colors.surface} />
-              }
-              iconBgColor="v300"
-              style={{ minWidth: 110 }}
-            />
-          </Link>
+          <Button
+            title="Top Up"
+            rounded
+            icon={
+              <Ionicons name="add" size={24} color={Theme.colors.surface} />
+            }
+            iconBgColor="v300"
+            style={{ minWidth: 110 }}
+            onPress={() => router.replace("/topup")}
+          />
 
-          <Link href="/_sitemap">
-            <Button
-              title="Swap"
-              rounded
-              icon={
-                <MaterialCommunityIcons
-                  name="swap-horizontal"
-                  size={24}
-                  color={Theme.colors.surface}
-                />
-              }
-              iconBgColor="v300"
-              style={{ minWidth: 110 }}
-            />
-          </Link>
+          <Button
+            title="Swap"
+            rounded
+            icon={
+              <MaterialCommunityIcons
+                name="swap-horizontal"
+                size={24}
+                color={Theme.colors.surface}
+              />
+            }
+            iconBgColor="v300"
+            style={{ minWidth: 110 }}
+            onPress={() => router.replace("/swap")}
+          />
         </View>
       </View>
     </GlassCard>
