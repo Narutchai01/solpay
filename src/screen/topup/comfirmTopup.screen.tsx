@@ -3,13 +3,13 @@ import { GlassCard } from "@/src/components/card/glass";
 import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/core/theme/theme";
-import { LabelValueItem } from "@/src/core/type/detail-item.type";
+import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const topupData: LabelValueItem[] = [
+const topupData: DetailConfirmationCard[] = [
   { label: "THB Amount", value: "200 THB" },
   { label: "USDT Amount", value: "6.18 USDT" },
   { label: "Fee", value: "0.00 USDT" },
@@ -19,7 +19,7 @@ const topupData: LabelValueItem[] = [
 export const ComfirmTopupScreen = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
 
-  const DetailRow = ({ label, value }: LabelValueItem) => (
+  const DetailRow = ({ label, value }: DetailConfirmationCard) => (
     <View style={styles.row}>
       <Text style={styles.rowLabel}>{label}</Text>
       <Text style={styles.rowValue}>{value}</Text>

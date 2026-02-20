@@ -1,9 +1,9 @@
 import { SuccessLayout } from "@/src/components/shard/successLayout";
-import { LabelValueItem } from "@/src/core/type/detail-item.type";
+import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
 import { router } from "expo-router";
 
 export const SwapSuccessScreen = () => {
-  const swapData: LabelValueItem[] = [
+  const swapData: DetailConfirmationCard[] = [
     { label: "Transaction Id", value: "11111111" },
     { label: "Exchange Rate", value: "1 USDT ≈ 0.0072 SOL" },
     { label: "Fee", value: "0.00 THB" },

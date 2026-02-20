@@ -1,29 +1,21 @@
 import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
-import { LabelValueItem } from "@/src/core/type/detail-item.type";
+import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
 import { FontAwesome5 } from "@expo/vector-icons";
 import React from "react";
-import {
-  FlatList,
-  ImageSourcePropType,
-  StyleSheet,
-  Text,
-  View,
-  ViewStyle,
-} from "react-native";
+import { FlatList, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
 
 interface SuccessLayoutProps {
-  icon?: ImageSourcePropType;
-  details: LabelValueItem[];
+  details: DetailConfirmationCard[];
   buttonTitle?: string;
   onButtonPress: () => void;
   cardStyle?: ViewStyle;
 }
 
-const DetailRow = ({ label, value }: LabelValueItem) => (
+const DetailRow = ({ label, value }: DetailConfirmationCard) => (
   <View style={styles.row}>
     <Text style={styles.rowLabel}>{label}</Text>
     <Text style={styles.rowValue}>{value}</Text>
@@ -31,7 +23,6 @@ const DetailRow = ({ label, value }: LabelValueItem) => (
 );
 
 export const SuccessLayout = ({
-  icon = require("@/assets/images/success-icon.png"),
   details,
   buttonTitle = "Done",
   onButtonPress,
