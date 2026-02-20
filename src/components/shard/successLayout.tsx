@@ -1,33 +1,21 @@
 import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
+import { FontAwesome5 } from "@expo/vector-icons";
 import React from "react";
-import {
-    FlatList,
-    Image,
-    ImageSourcePropType,
-    StyleSheet,
-    Text,
-    View,
-    ViewStyle,
-} from "react-native";
+import { FlatList, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
 
-export interface SuccessDetailItem {
-  label: string;
-  value: string;
-}
-
 interface SuccessLayoutProps {
-  icon?: ImageSourcePropType;
-  details: SuccessDetailItem[];
+  details: DetailConfirmationCard[];
   buttonTitle?: string;
   onButtonPress: () => void;
   cardStyle?: ViewStyle;
 }
 
-const DetailRow = ({ label, value }: SuccessDetailItem) => (
+const DetailRow = ({ label, value }: DetailConfirmationCard) => (
   <View style={styles.row}>
     <Text style={styles.rowLabel}>{label}</Text>
     <Text style={styles.rowValue}>{value}</Text>
@@ -35,7 +23,6 @@ const DetailRow = ({ label, value }: SuccessDetailItem) => (
 );
 
 export const SuccessLayout = ({
-  icon = require("@/assets/images/success-icon.png"),
   details,
   buttonTitle = "Done",
   onButtonPress,
@@ -46,11 +33,9 @@ export const SuccessLayout = ({
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
           {/* Icon */}
-          <Image
-            source={icon}
-            style={styles.successIcon}
-            resizeMode="contain"
-          />
+          <View style={styles.iconCircle}>
+            <FontAwesome5 name="check" size={44} color={Theme.colors.surface} />
+          </View>
 
           {/* Detail Card */}
           <GlassCard style={[styles.detailCard, cardStyle]}>
@@ -123,5 +108,14 @@ const styles = StyleSheet.create({
   },
   doneButton: {
     paddingVertical: 10,
+  },
+  iconCircle: {
+    width: 85,
+    height: 85,
+    borderRadius: "50%",
+    backgroundColor: Theme.colors.success,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 38,
   },
 });

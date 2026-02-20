@@ -3,7 +3,7 @@ import { Theme } from "@/src/core/theme/theme";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AvailableBalanceComponent } from "./availableBalance.component";
+import { BalanceCardComponent } from "./balanceCard.component";
 import { HistoryListComponent } from "./historyList.component";
 
 const TOPUP_HISTORY = [
@@ -44,10 +44,13 @@ export const TopupScreen = () => {
           </View>
 
           {/* Available Balance Card */}
-          <AvailableBalanceComponent
-            amount="1,000"
-            usdt="30.88"
-            onPressTopup={() => {}}
+          <BalanceCardComponent
+            label="Available Balance"
+            mainAmount="1,000"
+            mainCurrency="THB"
+            subAmount="30.88"
+            subCurrency="USDT"
+            showTopUp={true}
           />
 
           {/* History Section */}
@@ -63,7 +66,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 40,
   },
   header: {
