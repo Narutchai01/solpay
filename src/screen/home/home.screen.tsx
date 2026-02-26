@@ -1,6 +1,7 @@
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/core/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import {
   ScrollView,
@@ -64,7 +65,7 @@ export const HomeScreen = () => {
             <TouchableOpacity>
               <Ionicons name="person-circle" style={styles.profileIcon} />
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.replace("/notifications")}>
               <Ionicons name="notifications-outline" style={styles.iconSize} />
             </TouchableOpacity>
           </View>
