@@ -1,6 +1,6 @@
 import { AssetItem } from "@/src/components/assetitem/assetitem";
-import { Header } from "@/src/components/header/header";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { Header } from "@/src/components/shard/header";
 import { useHeaderHeight } from "@react-navigation/elements";
 import React from "react";
 import { FlatList, StyleSheet, Text } from "react-native";
