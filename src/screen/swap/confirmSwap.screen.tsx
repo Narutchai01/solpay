@@ -2,10 +2,11 @@ import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { Header } from "@/src/components/shard/header";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
 
@@ -15,18 +16,7 @@ export const ConfirmSwapScreen = () => {
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity>
-            <Ionicons
-              name="chevron-back"
-              size={28}
-              color={Theme.colors.surface}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Swap</Text>
-          <View style={{ width: 28 }} />
-        </View>
+        <Header title="Swap" />
 
         <View style={styles.container}>
           <View style={styles.swapSection}>
@@ -145,17 +135,6 @@ export const ConfirmSwapScreen = () => {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-  },
-  headerTitle: {
-    fontSize: Theme.fontSize.h5,
-    fontWeight: "700",
-    color: Theme.colors.surface,
-  },
   container: {
     flex: 1,
     paddingHorizontal: 16,

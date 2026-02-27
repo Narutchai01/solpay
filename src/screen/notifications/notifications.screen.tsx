@@ -1,13 +1,9 @@
 import GradientLayout from "@/src/components/shard/gradieintLayout";
-import { Theme } from "@/src/core/theme/theme";
-import { Ionicons } from "@expo/vector-icons";
+import { Header } from "@/src/components/shard/header";
 import React from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NotificationCard } from "./notificationCard.component";
@@ -16,19 +12,7 @@ const NotificationScreen = () => {
   return (
     <GradientLayout>
       <SafeAreaView style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => {}}>
-            <Ionicons
-              name="chevron-back"
-              size={28}
-              color={Theme.colors.surface}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Notification</Text>
-          <View style={{ width: 28 }} />
-        </View>
-
+        <Header title="Notification" />
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
@@ -48,18 +32,6 @@ const NotificationScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  headerTitle: {
-    color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h5,
-    fontWeight: "700",
   },
   scrollContent: {
     paddingHorizontal: 16,
