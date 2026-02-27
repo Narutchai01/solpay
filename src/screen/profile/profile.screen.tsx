@@ -5,17 +5,17 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export const ProfileScreen = () => {
   const [isVisible, setIsVisible] = useState(true);
-  const fullAddress = "xxx326xxxxxxdssdsa";
+  const fullAddress = "xxx326xxxxxxdssdsaxxx326xxxxx";
 
   const maskAddress = (address: string) => {
     return address.length > 8
@@ -45,14 +45,15 @@ export const ProfileScreen = () => {
             <View style={styles.addressWrapper}>
               <Text style={styles.userAddress}>
                 {isVisible ? fullAddress : maskAddress(fullAddress)}
+                {"\u00A0\u00A0"}
+                <Text onPress={() => setIsVisible(!isVisible)}>
+                  <Ionicons
+                    name={isVisible ? "eye-outline" : "eye-off-outline"}
+                    size={24}
+                    color={Theme.colors.surface}
+                  />
+                </Text>
               </Text>
-
-              <TouchableOpacity onPress={() => setIsVisible(!isVisible)}>
-                <Ionicons
-                  name={isVisible ? "eye-outline" : "eye-off-outline"}
-                  style={[styles.iconSize, styles.eyeIcon]}
-                />
-              </TouchableOpacity>
             </View>
           </View>
 
@@ -119,17 +120,14 @@ const styles = StyleSheet.create({
   },
   addressWrapper: {
     flexDirection: "row",
+    flexWrap: "wrap",
     alignItems: "center",
   },
   userAddress: {
     color: "white",
     fontSize: Theme.fontSize.h4,
     fontWeight: "700",
-  },
-  eyeIcon: { marginLeft: 20 },
-  iconSize: {
-    fontSize: 24,
-    color: Theme.colors.surface,
+    lineHeight: Theme.fontSize.h4 * 1.4,
   },
   menuContainer: {
     borderTopWidth: 0.5,
