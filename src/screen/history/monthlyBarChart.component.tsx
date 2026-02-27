@@ -15,10 +15,12 @@ interface MonthlyBarChartProps {
 }
 
 export const MonthlyBarChart = ({ data }: MonthlyBarChartProps) => {
+  const last6Months = data.slice(-6);
+
   return (
     <View style={styles.container} pointerEvents="none">
       <BarChart
-        data={data}
+        data={last6Months}
         barWidth={40}
         height={285}
         spacing={20}
