@@ -209,6 +209,6 @@ const styles = StyleSheet.create({
     fontSize: Theme.fontSize.textS,
     marginVertical: 16,
   },
-  footer: { paddingHorizontal: 16, paddingBottom: 20, paddingTop: 10 },
+  footer: { paddingHorizontal: 16, paddingTop: 10 },
   nextButton: { width: "100%", paddingVertical: 10 },
 });
