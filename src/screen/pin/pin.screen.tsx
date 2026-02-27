@@ -1,3 +1,4 @@
+import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/core/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,6 +17,7 @@ export const PinScreen = () => {
   const [step, setStep] = useState<"SET" | "CONFIRM">("SET");
   const [tempPin, setTempPin] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
 
   const handlePress = (num: string) => {
     if (pin.length < PIN_LENGTH) {
@@ -36,7 +38,7 @@ export const PinScreen = () => {
         setPin("");
       } else if (step === "CONFIRM") {
         if (pin === tempPin) {
-          alert("PIN Set Successfully!");
+          setIsSuccessModalVisible(true);
         } else {
           setErrorMessage("The PIN does not match. Please try again.");
           setPin("");
@@ -44,6 +46,14 @@ export const PinScreen = () => {
       }
     }
   }, [pin, step, tempPin]);
+
+  const handleConfirmSuccess = () => {
+    setIsSuccessModalVisible(false);
+
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    }
+  };
 
   return (
     <GradientLayout>
@@ -86,6 +96,17 @@ export const PinScreen = () => {
         <View style={styles.keypadContainer}>
           <KeypadSection onPress={handlePress} onDelete={handleDelete} />
         </View>
+
+        <ConfirmModal
+          visible={isSuccessModalVisible}
+          title="PIN Set Successfully!"
+          description="Your account is now secured with a 6-digit PIN."
+          iconName="checkmark-circle"
+          iconSize={80}
+          iconColor={Theme.colors.success}
+          confirmLabel="Done"
+          onConfirm={handleConfirmSuccess}
+        />
       </SafeAreaView>
     </GradientLayout>
   );
@@ -100,9 +121,8 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: "absolute",
-    top: 24,
+    top: 44,
     right: 24,
-    padding: 10,
     zIndex: 10,
   },
   closeIcon: {
