@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-export default function TransferLayout() {
+export default function TransferVerifyInformationLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
