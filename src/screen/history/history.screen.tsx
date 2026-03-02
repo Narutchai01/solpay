@@ -2,6 +2,7 @@ import { Button } from "@/src/components/button/button";
 import { Dropdown } from "@/src/components/button/dropdown";
 import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { Header } from "@/src/components/shard/header";
 import React, { useState } from "react";
 import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -198,7 +199,8 @@ export const HistoryScreen = () => {
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
-        <Text style={styles.header}>History</Text>
+        <Header title="History" showBackButton={false} />
+
         <FlatList
           data={EXPENSES_HISTORY}
           renderItem={({ item }) => (
@@ -233,13 +235,6 @@ export const HistoryScreen = () => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   mainListContent: { paddingBottom: 24 },
-  header: {
-    fontSize: Theme.fontSize.h5,
-    fontWeight: "700",
-    color: Theme.colors.surface,
-    textAlign: "center",
-    marginBottom: 24,
-  },
   horizontalFlatList: { height: 430, flexGrow: 0 },
   slideWrapper: {
     width: SCREEN_WIDTH,
@@ -276,7 +271,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    marginBottom: 24,
+    marginVertical: 24,
   },
   tabButton: {
     minWidth: 100,

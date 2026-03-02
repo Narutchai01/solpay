@@ -1,7 +1,7 @@
 import { Button } from "@/src/components/button/button";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -43,17 +43,7 @@ export const TopupViaScreen = () => {
   return (
     <GradientLayout>
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity>
-            <Ionicons
-              name="chevron-back"
-              size={28}
-              color={Theme.colors.surface}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Top up via SolPay</Text>
-          <View style={{ width: 28 }} />
-        </View>
+        <Header title="Top up via SolPay" />
 
         <KeyboardAvoidingView
           style={{ flex: 1 }}
@@ -140,18 +130,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 16,
     paddingBottom: 20,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  headerTitle: {
-    color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h5,
-    fontWeight: "700",
   },
   inputSection: {
     marginTop: 40,
