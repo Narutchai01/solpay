@@ -1,21 +1,19 @@
 import { Button } from "@/src/components/button/button";
 import { Dropdown } from "@/src/components/button/dropdown";
-import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
 import React, { useState } from "react";
-import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
+import { ChartSection } from "./chartSection.component";
 import {
   ExpenseHistoryData,
   ExpenseHistoryItem,
 } from "./expenseHistoryItem.component";
-import { BarChartData, MonthlyBarChart } from "./monthlyBarChart.component";
 import { MonthYearPickerModal } from "./monthYearPicker.component";
-import { PieChartComponent, PieChartData } from "./pieChart.component";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+import { BarChartData } from "./monthlyBarChart.component";
+import { PieChartData } from "./pieChart.component";
 
 const MONTHS = [
   "January",
@@ -34,29 +32,21 @@ const MONTHS = [
 
 const YEARS = Array.from({ length: 20 }, (_, i) => 2026 - i);
 
-const HISTORY_CHART_DATA: PieChartData[] = [
-  { value: 50, color: Theme.colors.violet, label: "Food/Drink" },
-  { value: 20, color: Theme.colors.coral, label: "Shopping" },
-  { value: 20, color: Theme.colors.cyan, label: "Invest" },
-  { value: 10, color: Theme.colors.amber, label: "Others" },
-];
-
 const MONTHLY_DATA: BarChartData[] = [
   { value: 950, label: "Jul" },
   { value: 350, label: "Aug" },
   { value: 850, label: "Sep" },
   { value: 600, label: "Oct" },
   { value: 400, label: "Nov" },
-  {
-    value: 250,
-    label: "Nov",
-    frontColor: Theme.colors.v300,
-    topLabelComponent: () => (
-      <Text style={{ color: "white", fontSize: 12, marginBottom: 6 }}>
-        625 THB
-      </Text>
-    ),
-  },
+  { value: 750, label: "Dec" },
+  { value: 500, label: "Jan" },
+];
+
+const HISTORY_CHART_DATA: PieChartData[] = [
+  { value: 50, color: Theme.colors.violet, label: "Food/Drink" },
+  { value: 20, color: Theme.colors.coral, label: "Shopping" },
+  { value: 20, color: Theme.colors.cyan, label: "Invest" },
+  { value: 10, color: Theme.colors.amber, label: "Others" },
 ];
 
 const EXPENSES_HISTORY: ExpenseHistoryData[] = [
@@ -93,108 +83,10 @@ const EXPENSES_HISTORY: ExpenseHistoryData[] = [
 type HistoryTab = "Software Wallet" | "SolPay";
 
 export const HistoryScreen = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
   const [selectedTab, setSelectedTab] = useState<HistoryTab>("Software Wallet");
   const [isPickerVisible, setPickerVisible] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState("November");
   const [selectedYear, setSelectedYear] = useState(2025);
-
-  const slides = [
-    {
-      id: "pie",
-      title: "Expense Breakdown",
-      component: <PieChartComponent data={HISTORY_CHART_DATA} />,
-    },
-    {
-      id: "bar",
-      title: "Monthly Summary",
-      component: <MonthlyBarChart data={MONTHLY_DATA} />,
-    },
-  ];
-
-  const renderSlide = ({ item }: { item: (typeof slides)[0] }) => (
-    <View style={styles.slideWrapper}>
-      <Text style={styles.title}>{item.title}</Text>
-      <GlassCard style={styles.card}>{item.component}</GlassCard>
-    </View>
-  );
-
-  const ListHeader = () => (
-    <View>
-      <View style={styles.tabContainer}>
-        <Button
-          title="Software Wallet"
-          variant={selectedTab === "Software Wallet" ? "solid" : "outline"}
-          color="v300"
-          onPress={() => setSelectedTab("Software Wallet")}
-          style={[
-            styles.tabButton,
-            selectedTab !== "Software Wallet" && styles.unselectedTabButton,
-          ]}
-          textStyle={[
-            styles.tabButtonText,
-            selectedTab !== "Software Wallet" && styles.unselectedTabText,
-          ]}
-        />
-
-        <Button
-          title="SolPay"
-          variant={selectedTab === "SolPay" ? "solid" : "outline"}
-          color="v300"
-          onPress={() => setSelectedTab("SolPay")}
-          style={[
-            styles.tabButton,
-            selectedTab !== "SolPay" && styles.unselectedTabButton,
-          ]}
-          textStyle={[
-            styles.tabButtonText,
-            selectedTab !== "SolPay" && styles.unselectedTabText,
-          ]}
-        />
-
-        <Dropdown
-          label={`${selectedMonth} ${selectedYear}`}
-          onPress={() => setPickerVisible(true)}
-          style={styles.dropdownButton}
-        />
-      </View>
-
-      <FlatList
-        data={slides}
-        renderItem={renderSlide}
-        horizontal
-        pagingEnabled
-        snapToInterval={SCREEN_WIDTH}
-        showsHorizontalScrollIndicator={false}
-        // TODO: Horizontal FlatList is nested inside a vertical FlatList.
-        // This causes gesture conflict, requiring two swipes to change chart.
-        onMomentumScrollEnd={(e) => {
-          const x = e.nativeEvent.contentOffset.x;
-          setActiveIndex(Math.round(x / SCREEN_WIDTH));
-        }}
-        keyExtractor={(item) => item.id}
-        style={styles.horizontalFlatList}
-      />
-
-      <FlatList
-        data={slides}
-        horizontal
-        keyExtractor={(_, index) => index.toString()}
-        contentContainerStyle={styles.pagination}
-        scrollEnabled={false}
-        renderItem={({ index }) => (
-          <View
-            style={[
-              styles.dot,
-              activeIndex === index ? styles.activeDot : styles.inactiveDot,
-            ]}
-          />
-        )}
-      />
-
-      <Text style={styles.sectionTitle}>Expenses History</Text>
-    </View>
-  );
 
   return (
     <GradientLayout>
@@ -203,15 +95,71 @@ export const HistoryScreen = () => {
 
         <FlatList
           data={EXPENSES_HISTORY}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            <>
+              {/* Header */}
+              <Text style={styles.header}>History</Text>
+
+              {/* Tabs + Dropdown */}
+              <View style={styles.tabContainer}>
+                <Button
+                  title="Software Wallet"
+                  variant={
+                    selectedTab === "Software Wallet" ? "solid" : "outline"
+                  }
+                  color="v300"
+                  onPress={() => setSelectedTab("Software Wallet")}
+                  style={[
+                    styles.tabButton,
+                    selectedTab !== "Software Wallet" &&
+                      styles.unselectedTabButton,
+                  ]}
+                  textStyle={[
+                    styles.tabButtonText,
+                    selectedTab !== "Software Wallet" &&
+                      styles.unselectedTabText,
+                  ]}
+                />
+
+                <Button
+                  title="SolPay"
+                  variant={selectedTab === "SolPay" ? "solid" : "outline"}
+                  color="v300"
+                  onPress={() => setSelectedTab("SolPay")}
+                  style={[
+                    styles.tabButton,
+                    selectedTab !== "SolPay" && styles.unselectedTabButton,
+                  ]}
+                  textStyle={[
+                    styles.tabButtonText,
+                    selectedTab !== "SolPay" && styles.unselectedTabText,
+                  ]}
+                />
+
+                <Dropdown
+                  label={`${selectedMonth} ${selectedYear}`}
+                  onPress={() => setPickerVisible(true)}
+                  style={styles.dropdownButton}
+                />
+              </View>
+
+              {/* Charts */}
+              <ChartSection
+                monthlyData={MONTHLY_DATA}
+                pieData={HISTORY_CHART_DATA}
+              />
+
+              {/* Section title */}
+              <Text style={styles.sectionTitle}>Expenses History</Text>
+            </>
+          }
           renderItem={({ item }) => (
             <View style={styles.historyItemWrapper}>
               <ExpenseHistoryItem item={item} />
             </View>
           )}
-          keyExtractor={(item) => item.id}
-          ListHeaderComponent={ListHeader}
-          contentContainerStyle={styles.mainListContent}
-          showsVerticalScrollIndicator={false}
         />
 
         <MonthYearPickerModal
@@ -223,9 +171,7 @@ export const HistoryScreen = () => {
           onSelectMonth={setSelectedMonth}
           onSelectYear={setSelectedYear}
           onClose={() => setPickerVisible(false)}
-          onConfirm={() => {
-            console.log(selectedMonth, selectedYear);
-          }}
+          onConfirm={() => setPickerVisible(false)}
         />
       </SafeAreaView>
     </GradientLayout>
@@ -250,16 +196,29 @@ const styles = StyleSheet.create({
   card: { width: "100%" },
   pagination: {
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
-    width: SCREEN_WIDTH,
-    marginTop: 5,
+    paddingHorizontal: 16,
     marginBottom: 24,
   },
-  dot: { width: 12, height: 12, borderRadius: 6, marginHorizontal: 4 },
-  activeDot: { backgroundColor: Theme.colors.v300 },
-  inactiveDot: { backgroundColor: Theme.colors.g50 },
-  historyItemWrapper: { paddingHorizontal: 16 },
+  tabButton: {
+    minWidth: 100,
+    marginRight: 9,
+    paddingVertical: 10,
+    paddingHorizontal: 13,
+  },
+  unselectedTabButton: {
+    borderColor: Theme.colors.v300,
+  },
+  tabButtonText: {
+    fontSize: Theme.fontSize.h7,
+    fontWeight: "500",
+  },
+  unselectedTabText: {
+    color: Theme.colors.v100,
+  },
+  dropdownButton: {
+    flex: 1,
+  },
   sectionTitle: {
     fontSize: Theme.fontSize.h6,
     fontWeight: "600",
@@ -267,9 +226,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 16,
   },
-  tabContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+  historyItemWrapper: {
     paddingHorizontal: 16,
     marginVertical: 24,
   },
@@ -279,8 +236,4 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 13,
   },
-  unselectedTabButton: { borderColor: Theme.colors.v300 },
-  tabButtonText: { fontSize: Theme.fontSize.h7, fontWeight: "500" },
-  unselectedTabText: { color: Theme.colors.v100 },
-  dropdownButton: { flex: 1, marginLeft: 10 },
 });
