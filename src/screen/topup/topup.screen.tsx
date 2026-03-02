@@ -1,7 +1,7 @@
 import GradientLayout from "@/src/components/shard/gradieintLayout";
-import { Theme } from "@/src/core/theme/theme";
+import { Header } from "@/src/components/shard/header";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BalanceCardComponent } from "./balanceCard.component";
 import { HistoryListComponent } from "./historyList.component";
@@ -38,10 +38,7 @@ export const TopupScreen = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Top Up</Text>
-          </View>
+          <Header title="Top Up" />
 
           {/* Available Balance Card */}
           <BalanceCardComponent
@@ -68,13 +65,5 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 16,
     paddingBottom: 40,
-  },
-  header: {
-    alignItems: "center",
-  },
-  headerTitle: {
-    color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h5,
-    fontWeight: "700",
   },
 });

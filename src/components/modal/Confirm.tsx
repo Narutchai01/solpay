@@ -14,6 +14,7 @@ import { Button } from "../button/button";
 interface ConfirmModalProps {
   iconName?: keyof typeof Ionicons.glyphMap;
   iconSize?: number;
+  iconColor?: string;
   imageSource?: ImageSourcePropType;
   imageStyle?: { width?: number; height?: number };
   title: string;
@@ -28,6 +29,7 @@ interface ConfirmModalProps {
 export const ConfirmModal = ({
   iconName,
   iconSize = 80,
+  iconColor = Theme.colors.onSurface,
   imageSource,
   imageStyle,
   title,
@@ -55,7 +57,7 @@ export const ConfirmModal = ({
             <Ionicons
               name={iconName}
               size={iconSize}
-              color="black"
+              color={iconColor}
               style={styles.icon}
             />
           ) : null}

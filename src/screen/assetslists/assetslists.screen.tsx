@@ -1,5 +1,6 @@
 import { AssetItem } from "@/src/components/assetitem/assetitem";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { Header } from "@/src/components/shard/header";
 import { useHeaderHeight } from "@react-navigation/elements";
 import React from "react";
 import { FlatList, StyleSheet, Text } from "react-native";
@@ -66,6 +67,8 @@ export const AssetsListsScreen = () => {
   return (
     <GradientLayout>
       <SafeAreaView style={styles.container}>
+        <Header title="Assets" />
+
         <FlatList
           data={ASSETS}
           keyExtractor={(item) => item.id.toString()}
@@ -88,11 +91,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingBottom: 40,
+    marginTop: 20,
   },
   sectionTitle: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h6,
-    fontWeight: "semibold",
+    fontWeight: "600",
     marginBottom: 16,
   },
 });

@@ -2,9 +2,9 @@ import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import { WalletSelectorCard } from "@/src/components/card/walletSelectorCard";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { WalletOption } from "@/src/core/type/wallet-option";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -13,7 +13,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -32,17 +31,7 @@ export const TransferScreen = () => {
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons
-              name="chevron-back"
-              size={28}
-              color={Theme.colors.surface}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Transfer</Text>
-          <View style={{ width: 28 }} />
-        </View>
+        <Header title="Transfer" />
 
         <View style={styles.mainWrapper}>
           <ScrollView
@@ -131,17 +120,6 @@ export const TransferScreen = () => {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-  },
-  headerTitle: {
-    fontSize: Theme.fontSize.h5,
-    fontWeight: "700",
-    color: Theme.colors.surface,
-  },
   mainWrapper: { flex: 1 },
   scrollContent: { paddingHorizontal: 16, paddingTop: 20 },
   label: {
@@ -209,6 +187,6 @@ const styles = StyleSheet.create({
     fontSize: Theme.fontSize.textS,
     marginVertical: 16,
   },
-  footer: { paddingHorizontal: 16, paddingBottom: 20, paddingTop: 10 },
+  footer: { paddingHorizontal: 16, paddingTop: 10 },
   nextButton: { width: "100%", paddingVertical: 10 },
 });
