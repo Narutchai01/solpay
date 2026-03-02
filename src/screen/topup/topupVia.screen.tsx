@@ -205,7 +205,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: 16,
-    paddingBottom: 10,
     paddingTop: 10,
   },
   nextButton: {

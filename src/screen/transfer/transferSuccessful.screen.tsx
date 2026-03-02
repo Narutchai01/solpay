@@ -56,7 +56,6 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 20,
   },
   doneButton: {
     paddingVertical: 10,
