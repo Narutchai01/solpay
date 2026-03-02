@@ -91,8 +91,6 @@ export const HistoryScreen = () => {
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
-        <Header title="History" showBackButton={false} />
-
         <FlatList
           data={EXPENSES_HISTORY}
           keyExtractor={(item) => item.id}
@@ -100,7 +98,7 @@ export const HistoryScreen = () => {
           ListHeaderComponent={
             <>
               {/* Header */}
-              <Text style={styles.header}>History</Text>
+              <Header title="Transfer" showBackButton={false} />
 
               {/* Tabs + Dropdown */}
               <View style={styles.tabContainer}>
@@ -180,25 +178,12 @@ export const HistoryScreen = () => {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  mainListContent: { paddingBottom: 24 },
-  horizontalFlatList: { height: 430, flexGrow: 0 },
-  slideWrapper: {
-    width: SCREEN_WIDTH,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  title: {
-    fontSize: Theme.fontSize.h6,
-    fontWeight: "600",
-    color: Theme.colors.surface,
-    marginBottom: 16,
-  },
-  card: { width: "100%" },
-  pagination: {
+  tabContainer: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
     marginBottom: 24,
+    marginTop: 16,
   },
   tabButton: {
     minWidth: 100,
@@ -228,12 +213,5 @@ const styles = StyleSheet.create({
   },
   historyItemWrapper: {
     paddingHorizontal: 16,
-    marginVertical: 24,
-  },
-  tabButton: {
-    minWidth: 100,
-    marginRight: 9,
-    paddingVertical: 10,
-    paddingHorizontal: 13,
   },
 });
