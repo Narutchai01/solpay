@@ -104,7 +104,6 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 20,
   },
   doneButton: {
     paddingVertical: 10,
@@ -117,5 +116,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 38,
+    marginTop: 10,
   },
 });

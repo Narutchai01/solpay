@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 24,
   },
   profileIcon: {
     fontSize: 44,

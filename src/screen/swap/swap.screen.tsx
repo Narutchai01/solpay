@@ -1,6 +1,7 @@
 import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { Header } from "@/src/components/shard/header";
 import {
   FontAwesome,
   Ionicons,
@@ -121,18 +122,7 @@ export const SwapScreen = () => {
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity>
-            <Ionicons
-              name="chevron-back"
-              size={28}
-              color={Theme.colors.surface}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Swap</Text>
-          <View style={{ width: 28 }} />
-        </View>
+        <Header title="Swap" />
 
         <View style={styles.container}>
           {/* Select Section */}
@@ -285,17 +275,6 @@ export const SwapScreen = () => {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-  },
-  headerTitle: {
-    fontSize: Theme.fontSize.h5,
-    fontWeight: 700,
-    color: Theme.colors.surface,
-  },
   container: {
     paddingHorizontal: 16,
     marginTop: 30,

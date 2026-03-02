@@ -2,6 +2,7 @@ import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
 import { router } from "expo-router";
@@ -30,9 +31,7 @@ export const ComfirmTopupScreen = () => {
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.mainContent}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Confirm</Text>
-          </View>
+          <Header title="Confirm" showBackButton={false} />
 
           <GlassCard style={[styles.detailCard]}>
             <FlatList
@@ -89,14 +88,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: "center",
   },
-  header: {
-    alignItems: "center",
-  },
-  headerTitle: {
-    color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h5,
-    fontWeight: "700",
-  },
   detailCard: {
     width: "100%",
     paddingHorizontal: 12,
@@ -123,7 +114,6 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: "row",
     paddingHorizontal: 16,
-    paddingBottom: 20,
   },
   footerButton: {
     flex: 1,

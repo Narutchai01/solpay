@@ -2,17 +2,11 @@ import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { Header } from "@/src/components/shard/header";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
-import {
-  FlatList,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
 import {
@@ -74,18 +68,7 @@ export const TransferVerifyInformationScreen = () => {
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons
-              name="chevron-back"
-              size={28}
-              color={Theme.colors.surface}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Verify Information</Text>
-          <View style={{ width: 28 }} />
-        </View>
+        <Header title="Verify Information" />
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -125,7 +108,10 @@ export const TransferVerifyInformationScreen = () => {
           <GlassCard style={[styles.card, { marginTop: 12 }]}>
             <View style={styles.accountRow}>
               <View
-                style={[styles.avatarCircle, { backgroundColor: "#D9D9D9" }]}
+                style={[
+                  styles.avatarCircle,
+                  { backgroundColor: Theme.colors.g50 },
+                ]}
               />
               <View>
                 <Text style={styles.receiverName}>Mr. Dee Jai</Text>
@@ -224,18 +210,6 @@ export const TransferVerifyInformationScreen = () => {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingBottom: 10,
-  },
-  headerTitle: {
-    fontSize: Theme.fontSize.h5,
-    fontWeight: "700",
-    color: Theme.colors.surface,
-  },
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 10,

@@ -20,7 +20,9 @@ const GradientLayout: FC<GradientLayoutProps> = (props) => {
       end={{ x: 0, y: 1 }}
       style={styles.gradient}
     >
-      <SafeAreaView style={styles.safeArea}>{children}</SafeAreaView>
+      <SafeAreaView style={styles.safeArea} edges={["bottom", "left", "right"]}>
+        {children}
+      </SafeAreaView>
     </LinearGradient>
   );
 };

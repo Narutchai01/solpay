@@ -1,10 +1,7 @@
 import { ConfirmModal } from "@/src/components/modal/Confirm";
+import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
-import {
-  Ionicons,
-  MaterialCommunityIcons,
-  MaterialIcons,
-} from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation, useRouter } from "expo-router";
@@ -84,16 +81,7 @@ const PayScreen = () => {
       {/* Overlay */}
       <View style={[styles.overlay, StyleSheet.absoluteFillObject]}>
         <SafeAreaView style={styles.safeArea}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={styles.iconBtn}
-            >
-              <Ionicons name="chevron-back" style={styles.button} />
-            </TouchableOpacity>
-
-            <Text style={styles.headerTitle}>Transfer</Text>
-          </View>
+          <Header title="Transfer" />
 
           <View style={styles.mainContent}>
             <View style={styles.scanFrameContainer}>
@@ -146,25 +134,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Theme.colors.onSurface },
   overlay: { flex: 1 },
   safeArea: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-    height: 60,
-    position: "relative",
-  },
   iconBtn: {
     padding: 5,
     position: "absolute",
     left: 20,
     zIndex: 10,
-  },
-  headerTitle: {
-    color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h5,
-    fontWeight: "bold",
-    textAlign: "center",
   },
   mainContent: { flex: 1, justifyContent: "center", alignItems: "center" },
   scanFrameContainer: {
