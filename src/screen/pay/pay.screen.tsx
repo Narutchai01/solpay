@@ -23,7 +23,8 @@ const PayScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const [torch, setTorch] = useState(false);
   const [scanned, setScanned] = useState(false);
-  const [showModal, setShowModal] = useState(true);
+  const [showPermissionModal, setShowPermissionModal] = useState(true);
+  const [showInvalidQRModal, setShowInvalidQRModal] = useState(false);
 
   useEffect(() => {
     if (permission && !permission.granted && permission.canAskAgain) {
@@ -33,16 +34,31 @@ const PayScreen = () => {
 
   if (!permission) return <View style={styles.container} />;
 
-  const handleConfirm = async () => {
+  const handleConfirmPermission = async () => {
     const { granted } = await requestPermission();
     if (granted) {
-      setShowModal(false);
+      setShowPermissionModal(false);
     }
   };
 
   const handleBarCodeScanned = ({ data }: { data: string }) => {
-    setScanned(true);
-    router.replace({ pathname: "/(tabs)", params: { qrData: data } });
+    if (scanned) return;
+
+    const isPromptPay =
+      data.startsWith("000201") && data.includes("A000000677");
+
+    if (isPromptPay) {
+      setScanned(true);
+      router.replace({ pathname: "/transfer", params: { qrData: data } });
+    } else {
+      setScanned(true);
+      setShowInvalidQRModal(true);
+    }
+  };
+
+  const handleCloseInvalidQRModal = () => {
+    setShowInvalidQRModal(false);
+    setScanned(false);
   };
 
   const pickImage = async () => {
@@ -115,14 +131,24 @@ const PayScreen = () => {
       </View>
 
       <ConfirmModal
-        visible={!permission.granted || showModal}
+        visible={!permission.granted || showPermissionModal}
         iconName="camera-outline"
         title="Camera Access Required"
         description="We need your permission to use the camera to scan QR codes for your transactions."
         cancelLabel="Don't allow"
         confirmLabel="Confirm"
         onCancel={() => navigation.goBack()}
-        onConfirm={handleConfirm}
+        onConfirm={handleConfirmPermission}
+      />
+
+      <ConfirmModal
+        visible={showInvalidQRModal}
+        iconName="alert-circle-outline"
+        iconColor={Theme.colors.errorText}
+        title="Apologize"
+        description="The QR code information is invalid. Please check it and try again."
+        confirmLabel="OK"
+        onConfirm={handleCloseInvalidQRModal}
       />
     </View>
   );
