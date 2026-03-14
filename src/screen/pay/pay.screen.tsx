@@ -23,16 +23,16 @@ const PayScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const [torch, setTorch] = useState(false);
   const [scanned, setScanned] = useState(false);
-  const [showPermissionModal, setShowPermissionModal] = useState(true);
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [showInvalidQRModal, setShowInvalidQRModal] = useState(false);
 
   useEffect(() => {
-    if (permission && !permission.granted && permission.canAskAgain) {
-      requestPermission();
+    if (permission) {
+      if (!permission.granted && permission.canAskAgain) {
+        setShowPermissionModal(true);
+      }
     }
-  }, [permission, requestPermission]);
-
-  if (!permission) return <View style={styles.container} />;
+  }, [permission]);
 
   const handleConfirmPermission = async () => {
     const { granted } = await requestPermission();
@@ -131,7 +131,7 @@ const PayScreen = () => {
       </View>
 
       <ConfirmModal
-        visible={!permission.granted || showPermissionModal}
+        visible={showPermissionModal}
         iconName="camera-outline"
         title="Camera Access Required"
         description="We need your permission to use the camera to scan QR codes for your transactions."
