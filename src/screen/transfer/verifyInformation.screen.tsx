@@ -6,7 +6,14 @@ import { Header } from "@/src/components/shard/header";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
 import {
@@ -107,20 +114,21 @@ export const TransferVerifyInformationScreen = () => {
           {/* Receiver Info */}
           <GlassCard style={[styles.card, { marginTop: 12 }]}>
             <View style={styles.accountRow}>
-              <View
-                style={[
-                  styles.avatarCircle,
-                  { backgroundColor: Theme.colors.g50 },
-                ]}
-              />
+              <View style={styles.avatarContainer}>
+                <Image
+                  source={require("@/assets/images/thaiQR-logo.png")}
+                  style={styles.avatarInsideImage}
+                  resizeMode="contain"
+                />
+              </View>
+
               <View>
                 <Text style={styles.receiverName}>Mr. Dee Jai</Text>
                 <Text style={styles.receiverAccount}>412-8-25624-3</Text>
-                <Text style={styles.receiverBank}>ABC Bank</Text>
+                <Text style={styles.receiverBank}>PromptPay</Text>
               </View>
             </View>
           </GlassCard>
-
           {/* Amount Display */}
           <GlassCard style={styles.amountCard}>
             {walletType === "software" ? (
@@ -279,6 +287,20 @@ const styles = StyleSheet.create({
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.textM,
     opacity: 0.8,
+  },
+  avatarContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+    backgroundColor: Theme.colors.surface,
+  },
+  avatarInsideImage: {
+    width: "100%",
+    height: "100%",
   },
   // Amount
   amountCard: {
