@@ -1,6 +1,9 @@
+import { useMobileWallet } from "@wallet-ui/react-native-web3js";
 import { Redirect } from "expo-router";
 
 export default function Index() {
-  const auth = false;
-  return auth ? <Redirect href="/(tabs)" /> : <Redirect href="/(auth)" />;
+  const { account } = useMobileWallet();
+  const isConnected = Boolean(account);
+
+  return <Redirect href={isConnected ? "/(tabs)" : "/(auth)"} />;
 }

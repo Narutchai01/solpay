@@ -2,10 +2,17 @@ import SolpayLogo from "@/assets/solpay-logo.svg";
 import { Button } from "@/src/components/button/button";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/core/theme/theme";
-import { Link } from "expo-router";
+import { useMobileWallet } from "@wallet-ui/react-native-web3js";
+import { Link, Redirect } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 export const ConnectWalletScreen = () => {
+  const { account, connect } = useMobileWallet();
+
+  if (account) {
+    return <Redirect href="/(tabs)" />;
+  }
+
   return (
     <GradientLayout>
       <View style={styles.container}>
@@ -17,7 +24,7 @@ export const ConnectWalletScreen = () => {
             emergence of Decentralized Finance (DeFi) powered by blockchain.
           </Text>
           {/* <Button title="Connect Wallet" onPress={() => {}} /> */}
-          <Button title="test" />
+          <Button title="Connect Wallet" onPress={connect} />
           <Link href="/_sitemap" style={{ marginTop: 20, color: "blue" }}>
             🗺️ เปิดแผนที่หน้าทั้งหมด (Sitemap)
           </Link>
