@@ -7,5 +7,4 @@ export interface AccountModel {
 
 export interface CreateAccountRequest {
   public_address: string;
-  kyc_token: string;
 }
