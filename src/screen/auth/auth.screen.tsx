@@ -3,11 +3,22 @@ import { Button } from "@/src/components/button/button";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/core/theme/theme";
 import { useMobileWallet } from "@wallet-ui/react-native-web3js";
-import { Link, Redirect } from "expo-router";
+import { Link, Redirect, router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 export const ConnectWalletScreen = () => {
   const { account, connect } = useMobileWallet();
+
+  const handleConnectWallet = async () => {
+    try {
+      const connectedAccount = await connect();
+      if (connectedAccount) {
+        router.replace("/(tabs)");
+      }
+    } catch (error) {
+      console.error("Wallet connect failed:", error);
+    }
+  };
 
   if (account) {
     return <Redirect href="/(tabs)" />;
@@ -23,8 +34,7 @@ export const ConnectWalletScreen = () => {
             Financial technology is evolving rapidly, especially with the
             emergence of Decentralized Finance (DeFi) powered by blockchain.
           </Text>
-          {/* <Button title="Connect Wallet" onPress={() => {}} /> */}
-          <Button title="Connect Wallet" onPress={connect} />
+          <Button title="Connect Wallet" onPress={handleConnectWallet} />
           <Link href="/_sitemap" style={{ marginTop: 20, color: "blue" }}>
             🗺️ เปิดแผนที่หน้าทั้งหมด (Sitemap)
           </Link>
