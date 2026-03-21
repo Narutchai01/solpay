@@ -75,40 +75,46 @@ export const IdCardDetailScreen = () => {
     scannedSurname?: string;
   }>();
 
-  const [idNumber, setIdNumber] = useState(scannedId);
-  const [name, setName] = useState(scannedName);
-  const [surname, setSurname] = useState(scannedSurname);
+  const [formData, setFormData] = useState({
+    idNumber: scannedId,
+    name: scannedName,
+    surname: scannedSurname,
+    dobDay: "",
+    dobMonth: "",
+    dobYear: "",
+    expDay: "",
+    expMonth: "",
+    expYear: "",
+  });
 
-  const [dobDay, setDobDay] = useState("");
-  const [dobMonth, setDobMonth] = useState("");
-  const [dobYear, setDobYear] = useState("");
+  const [pickerConfig, setPickerConfig] = useState<{
+    isVisible: boolean;
+    data: string[];
+    tempValue: string | null;
+    targetField: keyof typeof formData | null;
+  }>({
+    isVisible: false,
+    data: [],
+    tempValue: null,
+    targetField: null,
+  });
 
-  const [expDay, setExpDay] = useState("");
-  const [expMonth, setExpMonth] = useState("");
-  const [expYear, setExpYear] = useState("");
-
-  const [isPickerVisible, setPickerVisible] = useState(false);
-  const [pickerData, setPickerData] = useState<string[]>([]);
-  const [onSelectCallback, setOnSelectCallback] = useState<
-    ((val: string) => void) | null
-  >(null);
-  const [tempSelectedValue, setTempSelectedValue] = useState<string | null>(
-    null,
-  );
-
-  const openPicker = (data: string[], callback: (val: string) => void) => {
-    setPickerData(data);
-    setOnSelectCallback(() => callback);
-    setTempSelectedValue(null);
-    setPickerVisible(true);
+  const updateForm = (field: keyof typeof formData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleNameChange = (
-    text: string,
-    setFunction: React.Dispatch<React.SetStateAction<string>>,
-  ) => {
+  const openPicker = (data: string[], field: keyof typeof formData) => {
+    setPickerConfig({
+      isVisible: true,
+      data: data,
+      tempValue: formData[field] || null,
+      targetField: field,
+    });
+  };
+
+  const handleNameChange = (field: "name" | "surname", text: string) => {
     const filteredText = text.replace(/[^a-zA-Z\u0E00-\u0E7F\s]/g, "");
-    setFunction(filteredText);
+    updateForm(field, filteredText);
   };
 
   const UnderlineDropdown = ({
@@ -171,8 +177,8 @@ export const IdCardDetailScreen = () => {
                 <Text style={styles.label}>ID Card Number</Text>
                 <TextInput
                   style={styles.input}
-                  value={idNumber}
-                  onChangeText={setIdNumber}
+                  value={formData.idNumber}
+                  onChangeText={(text) => updateForm("idNumber", text)}
                   keyboardType="numeric"
                   maxLength={13}
                   placeholder="Enter 13-digit ID"
@@ -185,8 +191,8 @@ export const IdCardDetailScreen = () => {
                 <Text style={styles.label}>First Name</Text>
                 <TextInput
                   style={styles.input}
-                  value={name}
-                  onChangeText={(text) => handleNameChange(text, setName)}
+                  value={formData.name}
+                  onChangeText={(text) => handleNameChange("name", text)}
                   placeholder="Enter first name"
                   placeholderTextColor="rgba(255, 255, 255, 0.5)"
                 />
@@ -197,8 +203,8 @@ export const IdCardDetailScreen = () => {
                 <Text style={styles.label}>Last Name</Text>
                 <TextInput
                   style={styles.input}
-                  value={surname}
-                  onChangeText={(text) => handleNameChange(text, setSurname)}
+                  value={formData.surname}
+                  onChangeText={(text) => handleNameChange("surname", text)}
                   placeholder="Enter last name"
                   placeholderTextColor="rgba(255, 255, 255, 0.4)"
                 />
@@ -208,12 +214,12 @@ export const IdCardDetailScreen = () => {
               <View style={styles.inputSection}>
                 <Text style={styles.label}>Date of Birth</Text>
                 <DateDropdownGroup
-                  day={dobDay}
-                  month={dobMonth}
-                  year={dobYear}
-                  onPressDay={() => openPicker(DAYS, setDobDay)}
-                  onPressMonth={() => openPicker(MONTHS, setDobMonth)}
-                  onPressYear={() => openPicker(DOB_YEARS, setDobYear)}
+                  day={formData.dobDay}
+                  month={formData.dobMonth}
+                  year={formData.dobYear}
+                  onPressDay={() => openPicker(DAYS, "dobDay")}
+                  onPressMonth={() => openPicker(MONTHS, "dobMonth")}
+                  onPressYear={() => openPicker(DOB_YEARS, "dobYear")}
                 />
               </View>
 
@@ -221,12 +227,12 @@ export const IdCardDetailScreen = () => {
               <View style={styles.inputSection}>
                 <Text style={styles.label}>Date of Expiry</Text>
                 <DateDropdownGroup
-                  day={expDay}
-                  month={expMonth}
-                  year={expYear}
-                  onPressDay={() => openPicker(DAYS, setExpDay)}
-                  onPressMonth={() => openPicker(MONTHS, setExpMonth)}
-                  onPressYear={() => openPicker(EXP_YEARS, setExpYear)}
+                  day={formData.expDay}
+                  month={formData.expMonth}
+                  year={formData.expYear}
+                  onPressDay={() => openPicker(DAYS, "expDay")}
+                  onPressMonth={() => openPicker(MONTHS, "expMonth")}
+                  onPressYear={() => openPicker(EXP_YEARS, "expYear")}
                 />
               </View>
             </GlassCard>
@@ -237,30 +243,47 @@ export const IdCardDetailScreen = () => {
               title="Next"
               variant="solid"
               color="v300"
-              onPress={() => router.push("/")}
+              onPress={() => {
+                console.log("Final Data:", formData);
+                router.push("/");
+              }}
               style={styles.submitButton}
             />
           </View>
         </KeyboardAvoidingView>
 
-        {/* Modal Selection */}
-        <Modal visible={isPickerVisible} transparent animationType="slide">
+        {/* Picker Modal */}
+        <Modal
+          visible={pickerConfig.isVisible}
+          transparent
+          animationType="slide"
+        >
           <View style={styles.modalOverlay}>
             <Pressable
               style={StyleSheet.absoluteFill}
-              onPress={() => setPickerVisible(false)}
+              onPress={() =>
+                setPickerConfig((p) => ({ ...p, isVisible: false }))
+              }
             />
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <TouchableOpacity onPress={() => setPickerVisible(false)}>
+                <TouchableOpacity
+                  onPress={() =>
+                    setPickerConfig((p) => ({ ...p, isVisible: false }))
+                  }
+                >
                   <Text style={styles.actionText}>Cancel</Text>
                 </TouchableOpacity>
                 <Text style={styles.modalTitle}>Select</Text>
                 <TouchableOpacity
                   onPress={() => {
-                    if (onSelectCallback && tempSelectedValue)
-                      onSelectCallback(tempSelectedValue);
-                    setPickerVisible(false);
+                    if (pickerConfig.targetField && pickerConfig.tempValue) {
+                      updateForm(
+                        pickerConfig.targetField,
+                        pickerConfig.tempValue,
+                      );
+                    }
+                    setPickerConfig((p) => ({ ...p, isVisible: false }));
                   }}
                 >
                   <Text style={[styles.actionText, styles.confirmText]}>
@@ -269,17 +292,19 @@ export const IdCardDetailScreen = () => {
                 </TouchableOpacity>
               </View>
               <FlatList
-                data={pickerData}
+                data={pickerConfig.data}
                 keyExtractor={(item) => item}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.pickerItem}
-                    onPress={() => setTempSelectedValue(item)}
+                    onPress={() =>
+                      setPickerConfig((p) => ({ ...p, tempValue: item }))
+                    }
                   >
                     <Text
                       style={[
                         styles.pickerItemText,
-                        tempSelectedValue === item &&
+                        pickerConfig.tempValue === item &&
                           styles.pickerItemSelectedText,
                       ]}
                     >
@@ -300,11 +325,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   keyboardAvoid: { flex: 1 },
   scrollContent: { paddingHorizontal: 16, paddingTop: 20 },
-  cardContainer: {
-    marginTop: 12,
-    paddingHorizontal: 16,
-    paddingTop: 18,
-  },
+  cardContainer: { marginTop: 12, paddingHorizontal: 16, paddingTop: 18 },
   inputSection: { marginBottom: 28 },
   label: {
     color: Theme.colors.surface,
@@ -324,17 +345,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 12,
+    marginTop: 8,
   },
-  dateDropdown: {
-    flex: 1,
-  },
+  dateDropdown: { flex: 1 },
   underlineContainer: {
     backgroundColor: "transparent",
-    borderWidth: 0,
-    borderBottomWidth: 1,
+    borderWidth: 1.5,
     borderBottomColor: Theme.colors.v300,
-    borderRadius: 0,
-    paddingHorizontal: 0,
     paddingVertical: 10,
   },
   footer: { paddingHorizontal: 16 },
