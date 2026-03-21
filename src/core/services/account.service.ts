@@ -1,8 +1,10 @@
 import { IAccountRepository } from "@/src/core/port/account.repository";
+import { AccountModel } from "@/src/domain/model/account";
 import { AuthModel } from "@/src/domain/model/auth";
 
 export interface AccountService {
   AuthenticateWallet(address: string): Promise<AuthModel>;
+  GetProfile(access_token: string): Promise<AccountModel>;
 }
 
 export class AccountService implements AccountService {
@@ -10,5 +12,9 @@ export class AccountService implements AccountService {
 
   async AuthenticateWallet(address: string): Promise<AuthModel> {
     return this.accountRepository.AuthenticateWallet(address);
+  }
+
+  async GetProfile(access_token: string): Promise<AccountModel> {
+    return this.accountRepository.GetProfile(access_token);
   }
 }
