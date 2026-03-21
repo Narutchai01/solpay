@@ -2,19 +2,17 @@ import SolpayLogo from "@/assets/solpay-logo.svg";
 import { Button } from "@/src/components/button/button";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/core/theme/theme";
-import { useMobileWallet } from "@wallet-ui/react-native-web3js";
+import { useAuth } from "@/src/hooks/useAuth";
 import { Link, Redirect, router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 export const ConnectWalletScreen = () => {
-  const { account, connect } = useMobileWallet();
+  const { account, login, isLoading, errorMessage } = useAuth();
 
   const handleConnectWallet = async () => {
     try {
-      const connectedAccount = await connect();
-      if (connectedAccount) {
-        router.replace("/(tabs)");
-      }
+      const authSession = await login();
+      if (authSession) router.replace("/(tabs)");
     } catch (error) {
       console.error("Wallet connect failed:", error);
     }
@@ -34,7 +32,13 @@ export const ConnectWalletScreen = () => {
             Financial technology is evolving rapidly, especially with the
             emergence of Decentralized Finance (DeFi) powered by blockchain.
           </Text>
-          <Button title="Connect Wallet" onPress={handleConnectWallet} />
+          <Button
+            title={isLoading ? "Connecting..." : "Connect Wallet"}
+            onPress={handleConnectWallet}
+          />
+          {errorMessage ? (
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          ) : null}
           <Link href="/_sitemap" style={{ marginTop: 20, color: "blue" }}>
             🗺️ เปิดแผนที่หน้าทั้งหมด (Sitemap)
           </Link>
@@ -70,5 +74,10 @@ const styles = StyleSheet.create({
     fontSize: Theme.fontSize.h6,
     textAlign: "left",
     color: Theme.colors.surface,
+  },
+  errorText: {
+    fontSize: Theme.fontSize.textS,
+    color: Theme.colors.error,
+    textAlign: "center",
   },
 });
