@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+
+const AUTH_STORAGE_KEY = "solpay-auth-storage";
 
 interface AuthState {
   accessToken: string | null;
@@ -8,24 +9,46 @@ interface AuthState {
 
   save: (accessToken: string, refreshToken: string) => void;
   clear: () => void;
+  loadTokens: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      accessToken: null,
-      refreshToken: null,
+export const useAuthStore = create<AuthState>((set) => ({
+  accessToken: null,
+  refreshToken: null,
 
-      save: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
-      clear: () => set({ accessToken: null, refreshToken: null }),
-    }),
-    {
-      name: "solpay-auth-storage",
-      storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-      }),
-    },
-  ),
-);
+  save: (accessToken: string, refreshToken: string) => {
+    try {
+      set({ accessToken, refreshToken });
+      const authData = { accessToken, refreshToken };
+      AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData)).catch(
+        (error) => {
+          console.error("Failed to save auth tokens:", error);
+        },
+      );
+    } catch (error) {
+      console.error("Failed to save auth tokens:", error);
+    }
+  },
+
+  clear: () => {
+    try {
+      set({ accessToken: null, refreshToken: null });
+      AsyncStorage.removeItem(AUTH_STORAGE_KEY).catch((error) => {
+        console.error("Failed to clear auth tokens:", error);
+      });
+    } catch (error) {
+      console.error("Failed to clear auth tokens:", error);
+    }
+  },
+  loadTokens: async () => {
+    try {
+      const authData = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
+      if (authData) {
+        const { accessToken, refreshToken } = JSON.parse(authData);
+        set({ accessToken, refreshToken });
+      }
+    } catch (error) {
+      console.error("Failed to load auth tokens:", error);
+    }
+  },
+}));
