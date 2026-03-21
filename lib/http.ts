@@ -100,44 +100,48 @@ export class HttpHelper {
     }
   }
 
-  get<Resp>(url: string, headers?: Record<string, string>) {
-    return this.request<Resp>(url, { method: "GET", headers });
+  get<Resp>(url: string, config: AxiosRequestConfig = {}) {
+    return this.request<Resp>(url, { method: "GET", ...config });
   }
 
   post<Resp, Req = unknown>(
     url: string,
     body?: Req,
-    headers?: Record<string, string>,
+    config: AxiosRequestConfig<Req> = {},
   ) {
     return this.request<Resp, Req>(url, {
       method: "POST",
       data: body,
-      headers,
+      ...config,
     });
   }
 
   put<Resp, Req = unknown>(
     url: string,
     body?: Req,
-    headers?: Record<string, string>,
+    config: AxiosRequestConfig<Req> = {},
   ) {
-    return this.request<Resp, Req>(url, { method: "PUT", data: body, headers });
+    return this.request<Resp, Req>(url, {
+      method: "PUT",
+      data: body,
+      ...config,
+    });
   }
 
   patch<Resp, Req = unknown>(
     url: string,
     body?: Req,
-    headers?: Record<string, string>,
+    config: AxiosRequestConfig<Req> = {},
   ) {
     return this.request<Resp, Req>(url, {
       method: "PATCH",
       data: body,
-      headers,
+      ...config,
     });
   }
 
-  delete<Resp>(url: string, headers?: Record<string, string>) {
-    return this.request<Resp>(url, { method: "DELETE", headers });
+  delete<Resp>(url: string, config: AxiosRequestConfig = {}) {
+    return this.request<Resp>(url, { method: "DELETE", ...config });
   }
 }
 
