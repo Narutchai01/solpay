@@ -4,6 +4,7 @@ import { AuthModel } from "@/src/domain/model/auth";
 import { AccountRepositoryImpl } from "@/src/infrastructure/account.repository";
 import { useMobileWallet } from "@wallet-ui/react-native-web3js";
 import { useMemo, useState } from "react";
+import { API_URL } from "../config/config";
 import { useAuthStore } from "../store/auth.store";
 
 export const useAuth = () => {
@@ -12,13 +13,11 @@ export const useAuth = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [session, setSession] = useState<AuthModel | null>(null);
 
-  const apiBaseUrl = "http://localhost:8080";
-
   const accountService = useMemo(() => {
-    const httpHelper = new HttpHelper(apiBaseUrl);
+    const httpHelper = new HttpHelper(API_URL);
     const accountRepo = new AccountRepositoryImpl(httpHelper);
     return new AccountService(accountRepo);
-  }, [apiBaseUrl]);
+  }, []);
 
   const { save, clear } = useAuthStore();
 
@@ -44,7 +43,7 @@ export const useAuth = () => {
           error.message.includes("Failed to fetch")
         ) {
           setErrorMessage(
-            `Cannot reach API at ${apiBaseUrl}. Set EXPO_PUBLIC_API_BASE_URL for your backend host.`,
+            `Cannot reach API at ${API_URL}. Set EXPO_PUBLIC_API_BASE_URL for your backend host.`,
           );
         } else {
           setErrorMessage(error.message);

@@ -10,4 +10,8 @@ export class AccountServiceImpl implements AccountService {
   createAccount(data: CreateAccountRequest): Promise<AccountModel | null> {
     return this.accountRepository.createAccount(data);
   }
+  getProfile(access_token: string): Promise<AccountModel> {
+    const resp = this.accountRepository.getProfile(access_token);
+    return resp;
+  }
 }
