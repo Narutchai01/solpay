@@ -11,10 +11,12 @@ export class AccountService implements AccountService {
   constructor(private readonly accountRepository: IAccountRepository) {}
 
   async AuthenticateWallet(address: string): Promise<AuthModel> {
-    return this.accountRepository.AuthenticateWallet(address);
+    const resp = await this.accountRepository.AuthenticateWallet(address);
+    return resp;
   }
 
   async GetProfile(access_token: string): Promise<AccountModel> {
-    return this.accountRepository.GetProfile(access_token);
+    const resp = await this.accountRepository.GetProfile(access_token);
+    return resp;
   }
 }
