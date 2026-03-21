@@ -1,25 +1,41 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, ViewStyle } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextStyle,
+  TouchableOpacity,
+  ViewStyle,
+} from "react-native";
 import { Theme } from "../../core/theme/theme";
 
 type DropdownProps = {
   label: string;
   onPress: () => void;
   style?: ViewStyle;
+  containerStyle?: ViewStyle;
+  textStyle?: TextStyle;
+  iconColor?: string;
 };
 
-export const Dropdown = ({ label, onPress, style }: DropdownProps) => {
+export const Dropdown = ({
+  label,
+  onPress,
+  style,
+  containerStyle,
+  textStyle,
+  iconColor = "white",
+}: DropdownProps) => {
   return (
     <TouchableOpacity
-      style={[styles.container, style]}
+      style={[styles.container, style, containerStyle]}
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <Text style={styles.text} numberOfLines={1}>
+      <Text style={[styles.text, textStyle]} numberOfLines={1}>
         {label}
       </Text>
-      <MaterialCommunityIcons name="chevron-down" size={20} color="white" />
+      <MaterialCommunityIcons name="chevron-down" size={20} color={iconColor} />
     </TouchableOpacity>
   );
 };
