@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface BalanceComponentProps {
-  balance: string;
+  balance: number;
   currency?: string;
 }
 

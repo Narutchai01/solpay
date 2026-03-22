@@ -1,5 +1,6 @@
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/core/theme/theme";
+import { useBalance } from "@/src/hooks/useBalance";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
@@ -53,6 +54,7 @@ const ASSETS_MOCK: AssetData[] = [
 ];
 
 export const HomeScreen = () => {
+  const { balance } = useBalance();
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
@@ -77,7 +79,7 @@ export const HomeScreen = () => {
           </View>
 
           {/* Balance Card */}
-          <BalanceComponent balance="1,500.00" currency="THB" />
+          <BalanceComponent balance={balance?.thb_amount ?? 0} currency="THB" />
 
           {/* Assets Section */}
           <AssetsComponent assets={ASSETS_MOCK} />
