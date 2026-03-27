@@ -2,19 +2,31 @@ import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import { Theme } from "@/src/core/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { Link } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, View, ViewStyle } from "react-native";
 
 interface BalanceCardProps {
   label: string;
-  mainAmount: string;
+  mainAmount: number | string;
   mainCurrency: string;
-  subAmount: string;
+  subAmount: number | string;
   subCurrency: string;
   showTopUp?: boolean;
   style?: ViewStyle;
 }
+
+const formatAmount = (value: number | string) => {
+  const normalized =
+    typeof value === "string" ? value.replaceAll(",", "") : value;
+  const numericValue = Number(normalized);
+
+  if (Number.isNaN(numericValue)) {
+    return "0.00";
+  }
+
+  return numericValue.toFixed(2);
+};
 
 export const BalanceCardComponent = ({
   label,
@@ -33,13 +45,13 @@ export const BalanceCardComponent = ({
 
           <View style={styles.mainContentRow}>
             <View style={styles.amountRow}>
-              <Text style={styles.amountText}>{mainAmount}</Text>
+              <Text style={styles.amountText}>{formatAmount(mainAmount)}</Text>
               <Text style={styles.currencyText}>{mainCurrency}</Text>
             </View>
 
             {!showTopUp && (
               <Text style={styles.subAmountInline}>
-                ~{subAmount} {subCurrency}
+                ~{formatAmount(subAmount)} {subCurrency}
               </Text>
             )}
           </View>
@@ -47,23 +59,24 @@ export const BalanceCardComponent = ({
           {showTopUp && (
             <View style={styles.subAmountMargin}>
               <Text style={styles.subAmount}>
-                ~{subAmount} {subCurrency}
+                ~{formatAmount(subAmount)} {subCurrency}
               </Text>
             </View>
           )}
         </View>
 
         {showTopUp && (
-          <Button
-            title="Top Up"
-            rounded
-            icon={
-              <Ionicons name="add" size={24} color={Theme.colors.surface} />
-            }
-            iconBgColor="v300"
-            style={{ minWidth: 110 }}
-            onPress={() => router.replace("/topupVia")}
-          />
+          <Link href="/topupVia" asChild>
+            <Button
+              title="Top Up"
+              rounded
+              icon={
+                <Ionicons name="add" size={24} color={Theme.colors.surface} />
+              }
+              iconBgColor="v300"
+              style={{ minWidth: 110 }}
+            />
+          </Link>
         )}
       </View>
     </GlassCard>
