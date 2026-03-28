@@ -2,7 +2,8 @@ import { Button } from "@/src/components/button/button";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
-import { router } from "expo-router";
+import { CreateQuoteRequest } from "@/src/domain/model/quote";
+import { useQuote } from "@/src/hooks/useQuote";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -18,27 +19,43 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BalanceCardComponent } from "./balanceCard.component";
 
-const PRESET_AMOUNTS = ["200", "500", "1,000", "2,000"];
+const PRESET_AMOUNTS = [200, 500, 1000, 2000];
 
 export const TopupViaScreen = () => {
-  const [amount, setAmount] = useState("");
+  const { createQuote, quote } = useQuote();
+  const [reqQuote, setReqQuote] = useState<CreateQuoteRequest>({
+    thb_amount: 0,
+    action_type: "TOPUP",
+  });
 
-  const renderPresetItem = ({ item }: { item: string }) => {
-    const isSelected = amount === item.replace(",", "");
+  const handleAmountChange = (value: number) => {
+    const normalizedValue = value;
+    const parsedValue = Number(normalizedValue);
+
+    setReqQuote((prev) => ({
+      ...prev,
+      thb_amount: Number.isNaN(parsedValue) ? 0 : parsedValue,
+    }));
+  };
+
+  const renderPresetItem = (item: number) => {
+    const isSelected = reqQuote.thb_amount === item;
 
     return (
       <TouchableOpacity
         style={[styles.presetButton, isSelected && styles.presetButtonActive]}
-        onPress={() => setAmount(item.replace(",", ""))}
+        onPress={() => handleAmountChange(item)}
       >
         <Text
           style={[styles.presetText, isSelected && styles.presetTextActive]}
         >
-          {item}
+          {item.toLocaleString()} THB
         </Text>
       </TouchableOpacity>
     );
   };
+
+  console.log("Quote:", quote);
 
   return (
     <GradientLayout>
@@ -70,8 +87,8 @@ export const TopupViaScreen = () => {
                 <View style={styles.largeInputContainer}>
                   <TextInput
                     style={styles.largeInput}
-                    value={amount}
-                    onChangeText={setAmount}
+                    value={reqQuote.thb_amount.toLocaleString()}
+                    onChangeText={(value) => handleAmountChange(Number(value))}
                     placeholder="0"
                     placeholderTextColor={Theme.colors.g100}
                     keyboardType="numeric"
@@ -82,7 +99,9 @@ export const TopupViaScreen = () => {
 
                 <View style={styles.detailRow}>
                   <Text style={styles.detailText}>USDT Amount :</Text>
-                  <Text style={styles.detailText}>0 USDT</Text>
+                  <Text style={styles.detailText}>
+                    {reqQuote.thb_amount} THB
+                  </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailText}>Min :</Text>
@@ -94,8 +113,8 @@ export const TopupViaScreen = () => {
                 <View style={styles.presetContainer}>
                   <FlatList
                     data={PRESET_AMOUNTS}
-                    renderItem={renderPresetItem}
-                    keyExtractor={(item) => item}
+                    renderItem={({ item }) => renderPresetItem(item)}
+                    keyExtractor={(item) => item.toString()}
                     horizontal
                     scrollEnabled={false}
                     contentContainerStyle={styles.presetListContainer}
@@ -110,7 +129,7 @@ export const TopupViaScreen = () => {
                 title="Next"
                 color="v300"
                 style={styles.nextButton}
-                onPress={() => router.replace("/comfirmTopup")}
+                onPress={() => createQuote(reqQuote)}
               />
             </View>
           </View>
