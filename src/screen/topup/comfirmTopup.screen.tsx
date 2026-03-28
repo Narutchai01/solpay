@@ -5,27 +5,95 @@ import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
-import { router } from "expo-router";
-import React, { useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { useQuote } from "@/src/hooks/useQuote";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
+import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const topupData: DetailConfirmationCard[] = [
-  { label: "THB Amount", value: "200 THB" },
-  { label: "USDT Amount", value: "6.18 USDT" },
-  { label: "Fee", value: "0.00 USDT" },
-  { label: "Exchange Rate", value: "1 USDT  = 32.39 THB" },
-];
+const DetailRow = ({ label, value }: DetailConfirmationCard) => (
+  <View style={styles.row}>
+    <Text style={styles.rowLabel}>{label}</Text>
+    <Text style={styles.rowValue}>{value}</Text>
+  </View>
+);
 
-export const ComfirmTopupScreen = () => {
+export const ConfirmTopupScreen = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { quote, GetQuoteByID, ConfirmQuote } = useQuote();
 
-  const DetailRow = ({ label, value }: DetailConfirmationCard) => (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowValue}>{value}</Text>
-    </View>
+  const handleConfirm = async () => {
+    if (!id) {
+      Alert.alert("Missing quote", "Quote ID is not available.");
+      return;
+    }
+
+    setIsConfirming(true);
+    try {
+      const signedTx = await ConfirmQuote(id);
+      console.log("Signed transaction:", signedTx);
+      router.replace("/topupSuccess");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to confirm quote";
+      Alert.alert("Confirm failed", message);
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
+  const formatAmount = (value?: number, currency?: string) => {
+    if (typeof value !== "number" || Number.isNaN(value)) {
+      return `0.00 ${currency ?? ""}`.trim();
+    }
+    return `${value.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} ${currency ?? ""}`.trim();
+  };
+
+  const formatExchangeRate = (value?: number) => {
+    if (typeof value !== "number" || Number.isNaN(value)) {
+      return "1 USDT = 32.39 THB";
+    }
+    return `1 USDT = ${value.toFixed(2)} THB`;
+  };
+
+  const topupData: DetailConfirmationCard[] = useMemo(
+    () => [
+      {
+        label: "THB Amount",
+        value: formatAmount(quote?.thb_amount, "THB"),
+      },
+      {
+        label: "USDT Amount",
+        value: formatAmount(quote?.usdt_amount, "USDT"),
+      },
+      {
+        label: "Fee",
+        value: formatAmount(quote?.fee, "USDT"),
+      },
+      {
+        label: "Exchange Rate",
+        value: formatExchangeRate(quote?.exchange_rate),
+      },
+    ],
+    [quote],
   );
+
+  useEffect(() => {
+    const fetchQuote = async () => {
+      if (id && quote?.quote_id !== id) {
+        await GetQuoteByID(id);
+      }
+    };
+
+    void fetchQuote();
+  }, [GetQuoteByID, id, quote?.quote_id]);
+
+  console.log("quote inconfirm :", quote);
 
   return (
     <GradientLayout>
@@ -56,10 +124,10 @@ export const ComfirmTopupScreen = () => {
             textColor="surface"
           />
           <Button
-            title="Confirm"
+            title={isConfirming ? "Confirming..." : "Confirm"}
             variant="solid"
             color="v300"
-            onPress={() => router.replace("/topupSuccess")}
+            onPress={handleConfirm}
             style={[styles.footerButton, { marginLeft: 16 }]}
             textColor="g300"
           />
