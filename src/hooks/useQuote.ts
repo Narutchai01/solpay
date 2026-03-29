@@ -9,8 +9,10 @@ import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { API_URL } from "../config/config";
 import { QuoteService } from "../core/services/quote.service";
+import { TransactionServiceImpl } from "../core/services/transaction.service";
 import { CreateQuoteRequest, Quote } from "../domain/model/quote";
 import { QuoteRepositoryImpl } from "../infrastructure/quote.repository";
+import { TransactionRepositoryImpl } from "../infrastructure/transaction.repository";
 import { useAuthStore } from "../store/auth.store";
 
 export const useQuote = () => {
@@ -27,6 +29,12 @@ export const useQuote = () => {
     const httpHelper = new HttpHelper(API_URL);
     const quoteRepo = new QuoteRepositoryImpl(httpHelper);
     return new QuoteService(quoteRepo);
+  }, []);
+
+  const transactionService = useMemo(() => {
+    const httpHelper = new HttpHelper(API_URL);
+    const transactionRepo = new TransactionRepositoryImpl(httpHelper);
+    return new TransactionServiceImpl(transactionRepo);
   }, []);
 
   useEffect(() => {
@@ -120,6 +128,17 @@ export const useQuote = () => {
 
         if (unSignTx) {
           const signedTx = await SignQuoteTransaction(unSignTx);
+
+          const tx = await transactionService.confirmTopUpTransaction(
+            {
+              quoteID: id,
+              tx_hash: signedTx,
+              max_slippage: 0,
+            },
+            accessToken,
+          );
+          console.log("tx detail", tx);
+
           return signedTx;
         }
 
@@ -129,7 +148,7 @@ export const useQuote = () => {
         throw error;
       }
     },
-    [SignQuoteTransaction, accessToken, quoteService],
+    [SignQuoteTransaction, accessToken, quoteService, transactionService],
   );
 
   return {
