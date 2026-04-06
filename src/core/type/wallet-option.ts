@@ -1,6 +1,6 @@
 export interface WalletOption {
   id: string;
   name: string;
-  type: "solpay" | "software";
+  type: "OFFCHAIN" | "ONCHAIN";
   balance?: string;
 }

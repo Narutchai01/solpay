@@ -18,21 +18,21 @@ export const useBalance = () => {
   }, []);
 
   useEffect(() => {
-    const fetchBalance = async () => {
-      await loadTokens();
-      if (accessToken) {
-        try {
-          const balance = await balanceService.GetBalance(accessToken);
-          setBalance(balance);
-        } catch (error) {
-          console.error("Failed to fetch balance:", error);
-        }
-      } else {
-        setBalance(null);
-      }
-    };
-    void fetchBalance();
-  }, [accessToken, balanceService, loadTokens]);
+    loadTokens();
+  }, [accessToken]);
 
-  return { balance };
+  const GetBalance = async () => {
+    if (accessToken) {
+      try {
+        const balance = await balanceService.GetBalance(accessToken);
+        setBalance(balance);
+      } catch (error) {
+        console.error("Failed to fetch balance:", error);
+      }
+    } else {
+      setBalance(null);
+    }
+  };
+
+  return { balance, GetBalance };
 };

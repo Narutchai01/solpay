@@ -16,17 +16,37 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { CreateQuoteRequest } from "@/src/domain/model/quote";
+import { useQuote } from "@/src/hooks/useQuote";
 
 const WALLET_OPTIONS: WalletOption[] = [
-  { id: "1", name: "SolPay", type: "solpay", balance: "1,000 THB" },
-  { id: "2", name: "Software Wallet", type: "software" },
+  { id: "1", name: "SolPay", type: "OFFCHAIN", balance: "1,000 THB" },
+  { id: "2", name: "Software Wallet", type: "ONCHAIN" },
 ];
 
 export const TransferScreen = () => {
+  const { createQuote, quote } = useQuote();
   const router = useRouter();
-  const [amount, setAmount] = useState("");
-  const [walletType, setWalletType] = useState<"solpay" | "software">("solpay");
-  const isAmountEmpty = amount.trim() === "" || amount === "0";
+  const [transferType, setTransferType] = useState<"OFFCHAIN" | "ONCHAIN">(
+    "OFFCHAIN",
+  );
+
+  const [reqQuote, setReqQuote] = useState<CreateQuoteRequest>({
+    thb_amount: 0,
+    action_type: transferType,
+  });
+
+  const isAmountEmpty = reqQuote.thb_amount === 0;
+
+  const handleCreateQuote = async () => {
+    const newQuote = await createQuote(reqQuote);
+    router.push({
+      pathname: "/transferVerifyInformation",
+      params: { quoteID: newQuote?.quote_id },
+    });
+  };
+
+  console.log("from Transfer", quote);
 
   return (
     <GradientLayout>
@@ -41,7 +61,7 @@ export const TransferScreen = () => {
             <Text style={styles.label}>From:</Text>
             <WalletSelectorCard
               wallets={WALLET_OPTIONS}
-              onWalletChange={(wallet) => setWalletType(wallet.type)}
+              onWalletChange={(wallet) => setTransferType(wallet.type)}
             />
 
             <View style={styles.divider} />
@@ -56,7 +76,7 @@ export const TransferScreen = () => {
             </View>
 
             {/* Coins Section */}
-            {walletType === "software" && (
+            {transferType === "ONCHAIN" && (
               <View style={styles.coinSection}>
                 <Text style={styles.label}>Coins:</Text>
                 <GlassCard style={styles.coinCard}>
@@ -76,16 +96,22 @@ export const TransferScreen = () => {
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.amountInput}
-                  value={amount}
-                  onChangeText={setAmount}
+                  value={reqQuote.thb_amount.toLocaleString()}
+                  onChangeText={(text) => {
+                    const numericOnly = text.replace(/[^0-9.]/g, "");
+                    setReqQuote({
+                      ...reqQuote,
+                      thb_amount: parseFloat(numericOnly),
+                    });
+                  }}
                   placeholder="0.00"
                   placeholderTextColor={Theme.colors.g100}
-                  keyboardType="decimal-pad"
+                  keyboardType="numeric"
                   textAlign="right"
                 />
               </View>
               {/* Warning for Software Wallet */}
-              {walletType === "software" && (
+              {transferType === "ONCHAIN" && (
                 <Text style={styles.helperText}>
                   *Enter THB; calculation is automatic.
                 </Text>
@@ -100,13 +126,7 @@ export const TransferScreen = () => {
               color={isAmountEmpty ? "g200" : "v300"}
               disabled={isAmountEmpty}
               onPress={() => {
-                router.push({
-                  pathname: "/transferVerifyInformation",
-                  params: {
-                    amount: amount,
-                    walletType: walletType,
-                  },
-                });
+                handleCreateQuote();
               }}
               style={styles.nextButton}
               textColor={isAmountEmpty ? "surface" : "g300"}

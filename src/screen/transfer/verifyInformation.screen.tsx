@@ -5,7 +5,7 @@ import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FlatList,
   Image,
@@ -20,6 +20,8 @@ import {
   EXPENSE_CATEGORY_CONFIG,
   ExpenseCategory,
 } from "../history/expenseCategory.config";
+import { useQuote } from "@/src/hooks/useQuote";
+import { useTransaction } from "@/src/hooks/useTransaction";
 
 const CATEGORIES = [
   { id: "food", title: "Food/Drink", icon: "silverware-fork-knife" },
@@ -29,10 +31,13 @@ const CATEGORIES = [
 ];
 
 export const TransferVerifyInformationScreen = () => {
+  const { GetQuoteByID, quote } = useQuote();
+  const { CreateTransactionOffchain, transaction } = useTransaction();
   const router = useRouter();
-  const { amount, walletType } = useLocalSearchParams<{
+  const { amount, walletType, quoteID } = useLocalSearchParams<{
     amount: string;
     walletType: "solpay" | "software";
+    quoteID: string;
   }>();
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<
@@ -71,6 +76,27 @@ export const TransferVerifyInformationScreen = () => {
       />
     );
   };
+
+  console.log("quoteID in Verify", quoteID);
+
+  useEffect(() => {
+    const fetchQuote = async () => {
+      if (quoteID && quote?.quote_id !== quoteID) {
+        await GetQuoteByID(quoteID);
+      }
+    };
+    void fetchQuote();
+  }, [quoteID, GetQuoteByID, quote?.quote_id]);
+
+  console.log("quote in Verify", quote);
+
+  const handleConfirm = async () => {
+    if (quote) {
+      await CreateTransactionOffchain({ quoteID: quote.quote_id });
+    }
+  };
+
+  console.log("transaction in Verify", transaction);
 
   return (
     <GradientLayout>
@@ -124,7 +150,9 @@ export const TransferVerifyInformationScreen = () => {
 
               <View>
                 <Text style={styles.receiverName}>Mr. Dee Jai</Text>
-                <Text style={styles.receiverAccount}>412-8-25624-3</Text>
+                <Text style={styles.receiverAccount}>
+                  {quote?.promptpay_id}
+                </Text>
                 <Text style={styles.receiverBank}>PromptPay</Text>
               </View>
             </View>
@@ -135,7 +163,9 @@ export const TransferVerifyInformationScreen = () => {
               <View style={styles.amountContainer}>
                 <View style={styles.amountDetailRow}>
                   <Text style={styles.amountLabel}>THB Amount:</Text>
-                  <Text style={styles.amountValue}>{amount} THB</Text>
+                  <Text style={styles.amountValue}>
+                    {quote?.thb_amount} THB
+                  </Text>
                 </View>
                 <View style={styles.amountDetailRow}>
                   <Text style={styles.amountLabel}>USDT Amount:</Text>
@@ -145,12 +175,12 @@ export const TransferVerifyInformationScreen = () => {
                       { fontSize: Theme.fontSize.textM },
                     ]}
                   >
-                    {usdtAmount} USDT
+                    {quote?.usdt_amount} USDT
                   </Text>
                 </View>
                 <View style={styles.amountDetailRow}>
                   <Text style={styles.amountLabel}>Fee:</Text>
-                  <Text style={styles.amountValue}>0.00 USDT</Text>
+                  <Text style={styles.amountValue}>{quote?.fee} USDT</Text>
                 </View>
                 <View style={styles.amountDetailRow}>
                   <Text style={styles.amountLabel}>Estimated Time:</Text>
@@ -160,7 +190,7 @@ export const TransferVerifyInformationScreen = () => {
             ) : (
               <View style={styles.amountRowSimple}>
                 <Text style={styles.amountLabel}>THB Amount:</Text>
-                <Text style={styles.amountValue}>{amount} THB</Text>
+                <Text style={styles.amountValue}>{quote?.thb_amount} THB</Text>
               </View>
             )}
           </GlassCard>
@@ -194,7 +224,7 @@ export const TransferVerifyInformationScreen = () => {
             title="Confirm"
             variant="solid"
             color="v300"
-            onPress={() => router.replace("/transferSuccessful")}
+            onPress={() => handleConfirm()}
             style={[styles.footerButton, { marginLeft: 16 }]}
             textColor="g300"
           />
