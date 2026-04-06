@@ -1,6 +1,6 @@
 import { HttpHelper } from "@/lib/http";
 import { BalanceRepositoryImpl } from "@/src/infrastructure/balance.repository";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { API_URL } from "../config/config";
 import { BalanceServiceImpl } from "../core/services/balance.service";
 import { BalanceModel } from "../domain/model/balance";
