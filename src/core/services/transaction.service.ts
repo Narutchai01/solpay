@@ -14,6 +14,10 @@ export interface TransactionService {
     tx: ConfirmTransaction,
     access_token: string,
   ): Promise<TransactionResponse>;
+  confirmOnChainTransaction(
+    tx: ConfirmTransaction,
+    access_token: string,
+  ): Promise<TransactionResponse>;
 }
 
 export class TransactionServiceImpl implements TransactionService {
@@ -47,6 +51,22 @@ export class TransactionServiceImpl implements TransactionService {
       return resp;
     } catch (error) {
       console.error("Failed to confirm off-chain transaction:", error);
+      throw error;
+    }
+  }
+
+  async confirmOnChainTransaction(
+    tx: ConfirmTransaction,
+    access_token: string,
+  ): Promise<TransactionResponse> {
+    try {
+      const resp = await this.transactionRepository.ConfirmOnChain(
+        tx,
+        access_token,
+      );
+      return resp;
+    } catch (error) {
+      console.error("Failed to confirm on-chain transaction:", error);
       throw error;
     }
   }

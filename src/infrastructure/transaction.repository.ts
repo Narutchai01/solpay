@@ -71,4 +71,34 @@ export class TransactionRepositoryImpl implements ITransactionRepository {
       throw error;
     }
   }
+
+  async ConfirmOnChain(
+    tx: ConfirmTransaction,
+    access_token: string,
+  ): Promise<TransactionResponse> {
+    try {
+      const resp = await this.httpHelper.post<BaseModel<TransactionResponse>>(
+        "/api/v1/onchain/confirm",
+        tx,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        },
+      );
+      return resp.data;
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        const status = error.response.status;
+        const resp = error.response.data as BackendErrorResponse;
+        switch (status) {
+          case 404:
+            throw new Error("Transaction not found");
+          case 500:
+            throw new Error(resp.message || "Internal Server Error");
+        }
+      }
+      throw error;
+    }
+  }
 }
