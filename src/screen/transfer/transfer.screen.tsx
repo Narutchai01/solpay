@@ -34,6 +34,7 @@ export const TransferScreen = () => {
   const [reqQuote, setReqQuote] = useState<CreateQuoteRequest>({
     thb_amount: 0,
     action_type: transferType,
+    promptpay_id: "1234567890",
   });
 
   const isAmountEmpty = reqQuote.thb_amount === 0;
