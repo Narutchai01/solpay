@@ -14,4 +14,9 @@ export interface ITransactionRepository {
     tx: ConfirmTransaction,
     access_token: string,
   ): Promise<TransactionResponse>;
+
+  ConfirmOnChain(
+    tx: ConfirmTransaction,
+    access_token: string,
+  ): Promise<TransactionResponse>;
 }
