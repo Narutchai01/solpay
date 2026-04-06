@@ -57,10 +57,7 @@ export const useQuote = () => {
           throw new Error("Failed to create quote");
         }
         setQuote(newQuote);
-        router.push({
-          pathname: "/comfirmTopup/[id]",
-          params: { id: newQuote.quote_id },
-        });
+        return newQuote;
       } catch (error) {
         console.error("Failed to create quote:", error);
         throw error;
@@ -78,6 +75,7 @@ export const useQuote = () => {
 
         const fetchedQuote = await quoteService.GetQuoteByID(id, accessToken);
         setQuote(fetchedQuote);
+        return fetchedQuote;
       } catch (error) {
         console.error("Failed to fetch quote:", error);
         throw error;

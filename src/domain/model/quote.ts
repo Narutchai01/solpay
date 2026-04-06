@@ -1,6 +1,6 @@
 export interface CreateQuoteRequest {
   thb_amount: number;
-  action_type: "ONCHAIN" | "TOPUP";
+  action_type: "ONCHAIN" | "TOPUP" | "OFFCHAIN";
   promptpay_id?: string;
 }
 

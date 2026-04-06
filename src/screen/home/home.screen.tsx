@@ -3,8 +3,9 @@ import { Theme } from "@/src/core/theme/theme";
 import { useBalance } from "@/src/hooks/useBalance";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -54,13 +55,36 @@ const ASSETS_MOCK: AssetData[] = [
 ];
 
 export const HomeScreen = () => {
-  const { balance } = useBalance();
+  const { balance, GetBalance } = useBalance();
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  useEffect(() => {
+    GetBalance();
+  }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await GetBalance();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={Theme.colors.surface}
+              colors={[Theme.colors.v300]}
+            />
+          }
         >
           {/* Header Section */}
           <View style={styles.header}>

@@ -18,10 +18,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BalanceCardComponent } from "./balanceCard.component";
+import { useRouter } from "expo-router";
 
 const PRESET_AMOUNTS = [200, 500, 1000, 2000];
 
 export const TopupViaScreen = () => {
+  const router = useRouter();
   const { createQuote, quote } = useQuote();
   const [reqQuote, setReqQuote] = useState<CreateQuoteRequest>({
     thb_amount: 0,
@@ -36,6 +38,17 @@ export const TopupViaScreen = () => {
       ...prev,
       thb_amount: Number.isNaN(parsedValue) ? 0 : parsedValue,
     }));
+  };
+
+  const handleCreateQuote = async () => {
+    await createQuote(reqQuote);
+
+    if (quote?.quote_id) {
+      router.push({
+        pathname: "/comfirmTopup/[id]",
+        params: { id: quote?.quote_id },
+      });
+    }
   };
 
   const renderPresetItem = (item: number) => {
@@ -129,7 +142,7 @@ export const TopupViaScreen = () => {
                 title="Next"
                 color="v300"
                 style={styles.nextButton}
-                onPress={() => createQuote(reqQuote)}
+                onPress={() => handleCreateQuote()}
               />
             </View>
           </View>
