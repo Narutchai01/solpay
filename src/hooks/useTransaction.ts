@@ -41,5 +41,18 @@ export const useTransaction = () => {
     }
   };
 
-  return { CreateTransactionOffchain, transaction };
+  const CreateTransactionOnchain = async (reqTx: ConfirmTransaction) => {
+    try {
+      if (!accessToken) return;
+      const result = await transactionService.confirmOnChainTransaction(
+        reqTx,
+        accessToken,
+      );
+      setTransaction(result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return { CreateTransactionOffchain, CreateTransactionOnchain, transaction };
 };
