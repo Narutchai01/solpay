@@ -19,16 +19,17 @@ import { BalanceComponent } from "./balance.component";
 
 export const HomeScreen = () => {
   const { balance, GetBalance } = useBalance();
+  const { assets, fetchAssets } = useTokenAccounts();
   const [refreshing, setRefreshing] = React.useState(false);
 
   useEffect(() => {
     GetBalance();
-  }, []);
+  }, [GetBalance]);
 
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      await GetBalance();
+      await Promise.all([GetBalance(), fetchAssets()]);
     } finally {
       setRefreshing(false);
     }

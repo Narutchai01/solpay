@@ -3,9 +3,11 @@ import { GlassCard } from "@/src/components/card/glass";
 import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
+import { useQuote } from "@/src/hooks/useQuote";
+import { useTransaction } from "@/src/hooks/useTransaction";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -20,8 +22,6 @@ import {
   EXPENSE_CATEGORY_CONFIG,
   ExpenseCategory,
 } from "../history/expenseCategory.config";
-import { useQuote } from "@/src/hooks/useQuote";
-import { useTransaction } from "@/src/hooks/useTransaction";
 
 const CATEGORIES = [
   { id: "food", title: "Food/Drink", icon: "silverware-fork-knife" },
@@ -32,19 +32,18 @@ const CATEGORIES = [
 
 export const TransferVerifyInformationScreen = () => {
   const { GetQuoteByID, quote } = useQuote();
-  const { CreateTransactionOffchain, transaction } = useTransaction();
+  const { CreateTransactionOffchain, transaction, CreateTransactionOnchain } =
+    useTransaction();
   const router = useRouter();
-  const { amount, walletType, quoteID } = useLocalSearchParams<{
-    amount: string;
-    walletType: "solpay" | "software";
+  const { quoteID } = useLocalSearchParams<{
     quoteID: string;
   }>();
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<
     ExpenseCategory | ""
   >("");
-  const exchangeRate = 35.5;
-  const usdtAmount = (parseFloat(amount || "0") / exchangeRate).toFixed(6);
+
+  const { ConfirmQuote } = useQuote();
 
   const renderCategoryItem = ({ item }: { item: (typeof CATEGORIES)[0] }) => {
     const isSelected = selectedCategory === item.title;
@@ -91,8 +90,25 @@ export const TransferVerifyInformationScreen = () => {
   console.log("quote in Verify", quote);
 
   const handleConfirm = async () => {
-    if (quote) {
+    if (!quote) {
+      return;
+    }
+
+    if (quote.quote_type === "OFFCHAIN") {
       await CreateTransactionOffchain({ quoteID: quote.quote_id });
+    } else if (quote.quote_type === "ONCHAIN") {
+      const signedTx = await ConfirmQuote(quote?.quote_id);
+
+      if (!signedTx) {
+        return;
+      }
+
+      const tx = await CreateTransactionOnchain({
+        quoteID: quote.quote_id,
+        tx_hash: signedTx,
+      });
+
+      console.log("transaction in Verify", tx);
     }
   };
 
@@ -159,7 +175,7 @@ export const TransferVerifyInformationScreen = () => {
           </GlassCard>
           {/* Amount Display */}
           <GlassCard style={styles.amountCard}>
-            {walletType === "software" ? (
+            {quote?.quote_type === "ONCHAIN" ? (
               <View style={styles.amountContainer}>
                 <View style={styles.amountDetailRow}>
                   <Text style={styles.amountLabel}>THB Amount:</Text>

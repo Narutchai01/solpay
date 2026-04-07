@@ -6,6 +6,7 @@ import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
 import { useQuote } from "@/src/hooks/useQuote";
+import { useTransaction } from "@/src/hooks/useTransaction";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
@@ -23,6 +24,27 @@ export const ConfirmTopupScreen = () => {
   const [isConfirming, setIsConfirming] = useState(false);
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { quote, GetQuoteByID, ConfirmQuote } = useQuote();
+  const { ConfirmTopup } = useTransaction();
+
+  // const handleConfirm = async () => {
+  //   if (!id) {
+  //     Alert.alert("Missing quote", "Quote ID is not available.");
+  //     return;
+  //   }
+
+  //   setIsConfirming(true);
+  //   try {
+  //     const signedTx = await ConfirmQuote(id);
+  //     console.log("Signed transaction:", signedTx);
+  //     router.replace("/topupSuccess");
+  //   } catch (error) {
+  //     const message =
+  //       error instanceof Error ? error.message : "Failed to confirm quote";
+  //     Alert.alert("Confirm failed", message);
+  //   } finally {
+  //     setIsConfirming(false);
+  //   }
+  // };
 
   const handleConfirm = async () => {
     if (!id) {
@@ -34,6 +56,20 @@ export const ConfirmTopupScreen = () => {
     try {
       const signedTx = await ConfirmQuote(id);
       console.log("Signed transaction:", signedTx);
+
+      if (!signedTx) {
+        Alert.alert("Confirmation failed", "No transaction hash returned.");
+        return;
+      }
+
+      const tx = await ConfirmTopup({
+        quoteId: id,
+        tx_hash: signedTx,
+        max_slippage: 0,
+      });
+
+      console.log(tx);
+
       router.replace("/topupSuccess");
     } catch (error) {
       const message =

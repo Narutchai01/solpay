@@ -9,6 +9,7 @@ export interface Quote {
   thb_amount: number;
   usdt_amount: number;
   exchange_rate: number;
+  quote_type: string;
   promptpay_id?: string;
   fee: number;
   expires_in_seconds: number;
