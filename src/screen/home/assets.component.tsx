@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
   FlatList,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -16,17 +17,34 @@ export interface AssetData {
   sub: string;
   val: string;
   icon: keyof typeof Ionicons.glyphMap;
+  currency?: string; // defaults to "THB" if not supplied
+  imageUri?: string;
 }
 
 interface AssetsComponentProps {
   assets: AssetData[];
 }
 
-const AssetItem = ({ name, sub, val, icon }: Omit<AssetData, "id">) => (
+const AssetItem = ({
+  name,
+  sub,
+  val,
+  icon,
+  currency,
+  imageUri,
+}: Omit<AssetData, "id">) => (
   <View style={styles.assetItem}>
     <View style={styles.assetLeft}>
       <View style={styles.assetIconBG}>
-        <Ionicons name={icon} style={styles.iconSize} />
+        {imageUri ? (
+          <Image
+            source={{ uri: imageUri }}
+            style={styles.tokenImage}
+            resizeMode="contain"
+          />
+        ) : (
+          <Ionicons name={icon} style={styles.iconSize} />
+        )}
       </View>
       <View>
         <Text style={styles.assetNameText}>{name}</Text>
@@ -35,7 +53,9 @@ const AssetItem = ({ name, sub, val, icon }: Omit<AssetData, "id">) => (
         </Text>
       </View>
     </View>
-    <Text style={styles.assetValueText}>{val} THB</Text>
+    <Text style={styles.assetValueText}>
+      {val} {currency ?? "THB"}
+    </Text>
   </View>
 );
 
@@ -59,6 +79,8 @@ export const AssetsComponent = ({ assets }: AssetsComponentProps) => {
               sub={item.sub}
               val={item.val}
               icon={item.icon}
+              currency={item.currency}
+              imageUri={item.imageUri}
             />
           )}
           scrollEnabled={false}
@@ -123,5 +145,10 @@ const styles = StyleSheet.create({
   iconSize: {
     fontSize: 24,
     color: Theme.colors.surface,
+  },
+  tokenImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
   },
 });
