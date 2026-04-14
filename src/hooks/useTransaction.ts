@@ -1,14 +1,13 @@
-import { API_URL } from "../config/config";
-import { useMemo, useState } from "react";
-import { useAuthStore } from "../store/auth.store";
-import { TransactionRepositoryImpl } from "../infrastructure/transaction.repository";
-import { TransactionServiceImpl } from "../core/services/transaction.service";
-import HttpHelper from "@/lib/http";
+import { HttpHelper } from "@/lib/http";
 import {
-  TransactionResponse,
   ConfirmTransaction,
+  TransactionResponse,
 } from "@/src/domain/model/transaction";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { API_URL } from "../config/config";
+import { TransactionServiceImpl } from "../core/services/transaction.service";
+import { TransactionRepositoryImpl } from "../infrastructure/transaction.repository";
+import { useAuthStore } from "../store/auth.store";
 
 export const useTransaction = () => {
   const [transaction, setTransaction] = useState<TransactionResponse | null>(
@@ -26,7 +25,7 @@ export const useTransaction = () => {
     const httpHelper = new HttpHelper(API_URL);
     const transactionRepository = new TransactionRepositoryImpl(httpHelper);
     return new TransactionServiceImpl(transactionRepository);
-  }, [accessToken]);
+  }, []);
 
   const CreateTransactionOffchain = async (reqTx: ConfirmTransaction) => {
     try {
@@ -54,5 +53,25 @@ export const useTransaction = () => {
     }
   };
 
-  return { CreateTransactionOffchain, CreateTransactionOnchain, transaction };
+  const CreateTransactionTopUP = async (reqTx: ConfirmTransaction) => {
+    try {
+      if (!accessToken) return null;
+      const result = await transactionService.confirmTopUpTransaction(
+        { quoteID: reqTx.quoteID, tx_hash: reqTx.tx_hash, max_slippage: 0 },
+        accessToken,
+      );
+      setTransaction(result);
+      return result;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  };
+
+  return {
+    CreateTransactionOffchain,
+    CreateTransactionOnchain,
+    transaction,
+    CreateTransactionTopUP,
+  };
 };

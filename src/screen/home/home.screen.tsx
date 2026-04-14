@@ -19,6 +19,7 @@ import { BalanceComponent } from "./balance.component";
 
 export const HomeScreen = () => {
   const { balance, GetBalance } = useBalance();
+  const { assets, fetchAssets } = useTokenAccounts();
   const [refreshing, setRefreshing] = React.useState(false);
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export const HomeScreen = () => {
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      await GetBalance();
+      await Promise.all([GetBalance(), fetchAssets()]);
     } finally {
       setRefreshing(false);
     }

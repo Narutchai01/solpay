@@ -21,4 +21,6 @@ export interface ConfirmTopUp {
 
 export interface ConfirmTransaction {
   quoteID: string;
+  tx_hash: string;
+  max_slippage: number;
 }

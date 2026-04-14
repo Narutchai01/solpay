@@ -6,6 +6,7 @@ import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
 import { useQuote } from "@/src/hooks/useQuote";
+import { useTransaction } from "@/src/hooks/useTransaction";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
@@ -23,6 +24,7 @@ export const ConfirmTopupScreen = () => {
   const [isConfirming, setIsConfirming] = useState(false);
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { quote, GetQuoteByID, ConfirmQuote } = useQuote();
+  const { CreateTransactionTopUP } = useTransaction();
 
   const handleConfirm = async () => {
     if (!id) {
@@ -34,6 +36,24 @@ export const ConfirmTopupScreen = () => {
     try {
       const signedTx = await ConfirmQuote(id);
       console.log("Signed transaction:", signedTx);
+
+      if (!signedTx) {
+        Alert.alert("Error", "Failed to get signed transaction.");
+        return;
+      }
+
+      const createdTransaction = await CreateTransactionTopUP({
+        quoteID: id,
+        tx_hash: signedTx,
+        max_slippage: 0,
+      });
+
+      if (!createdTransaction) {
+        Alert.alert("Error", "Failed to create transaction.");
+        return;
+      }
+
+      console.log(createdTransaction);
       router.replace("/topupSuccess");
     } catch (error) {
       const message =
