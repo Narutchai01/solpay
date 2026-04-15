@@ -1,13 +1,12 @@
 import {
-  ConfirmTopUp,
-  TransactionResponse,
   ConfirmTransaction,
+  TransactionResponse,
 } from "@/src/domain/model/transaction";
 import { ITransactionRepository } from "../port/transation.repository";
 
 export interface TransactionService {
   confirmTopUpTransaction(
-    tx: ConfirmTopUp,
+    tx: ConfirmTransaction,
     access_token: string,
   ): Promise<TransactionResponse>;
   confirmOffChainTransaction(
@@ -24,7 +23,7 @@ export class TransactionServiceImpl implements TransactionService {
   constructor(private readonly transactionRepository: ITransactionRepository) {}
 
   async confirmTopUpTransaction(
-    tx: ConfirmTopUp,
+    tx: ConfirmTransaction,
     access_token: string,
   ): Promise<TransactionResponse> {
     try {

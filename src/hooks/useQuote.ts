@@ -5,7 +5,6 @@ import {
   toUint8Array,
   useMobileWallet,
 } from "@wallet-ui/react-native-web3js";
-import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { API_URL } from "../config/config";
 import { QuoteService } from "../core/services/quote.service";
@@ -127,16 +126,6 @@ export const useQuote = () => {
         if (unSignTx) {
           const signedTx = await SignQuoteTransaction(unSignTx);
 
-          const tx = await transactionService.confirmTopUpTransaction(
-            {
-              quoteID: id,
-              tx_hash: signedTx,
-              max_slippage: 0,
-            },
-            accessToken,
-          );
-          console.log("tx detail", tx);
-
           return signedTx;
         }
 
@@ -146,7 +135,7 @@ export const useQuote = () => {
         throw error;
       }
     },
-    [SignQuoteTransaction, accessToken, quoteService, transactionService],
+    [SignQuoteTransaction, accessToken, quoteService],
   );
 
   return {
