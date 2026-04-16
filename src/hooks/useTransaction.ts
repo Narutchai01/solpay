@@ -68,11 +68,12 @@ export const useTransaction = () => {
         {
           quoteID: quoteId,
           tx_hash,
-          max_slippage: 0,
         },
         accessToken,
       );
+
       setTransaction(result);
+      return result;
     } catch (error) {
       console.log(error);
     }
