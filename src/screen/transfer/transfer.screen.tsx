@@ -5,6 +5,8 @@ import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { WalletOption } from "@/src/core/type/wallet-option";
+import { CreateQuoteRequest } from "@/src/domain/model/quote";
+import { useQuote } from "@/src/hooks/useQuote";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -16,8 +18,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CreateQuoteRequest } from "@/src/domain/model/quote";
-import { useQuote } from "@/src/hooks/useQuote";
 
 const WALLET_OPTIONS: WalletOption[] = [
   { id: "1", name: "SolPay", type: "OFFCHAIN", balance: "1,000 THB" },
@@ -33,7 +33,7 @@ export const TransferScreen = () => {
 
   const [reqQuote, setReqQuote] = useState<CreateQuoteRequest>({
     thb_amount: 0,
-    action_type: transferType,
+    action_type: "OFFCHAIN",
     promptpay_id: "1234567890",
   });
 
@@ -62,7 +62,12 @@ export const TransferScreen = () => {
             <Text style={styles.label}>From:</Text>
             <WalletSelectorCard
               wallets={WALLET_OPTIONS}
-              onWalletChange={(wallet) => setTransferType(wallet.type)}
+              onWalletChange={(wallet) =>
+                setReqQuote({
+                  ...reqQuote,
+                  action_type: wallet.type,
+                })
+              }
             />
 
             <View style={styles.divider} />
@@ -77,7 +82,7 @@ export const TransferScreen = () => {
             </View>
 
             {/* Coins Section */}
-            {transferType === "ONCHAIN" && (
+            {reqQuote.action_type === "ONCHAIN" && (
               <View style={styles.coinSection}>
                 <Text style={styles.label}>Coins:</Text>
                 <GlassCard style={styles.coinCard}>
@@ -112,7 +117,7 @@ export const TransferScreen = () => {
                 />
               </View>
               {/* Warning for Software Wallet */}
-              {transferType === "ONCHAIN" && (
+              {reqQuote.action_type === "ONCHAIN" && (
                 <Text style={styles.helperText}>
                   *Enter THB; calculation is automatic.
                 </Text>

@@ -42,7 +42,7 @@ export const useTransaction = () => {
 
   const CreateTransactionOnchain = async (reqTx: ConfirmTransaction) => {
     try {
-      if (!accessToken) return;
+      if (!accessToken || !reqTx.tx_hash) return;
       const result = await transactionService.confirmOnChainTransaction(
         reqTx,
         accessToken,
@@ -53,25 +53,35 @@ export const useTransaction = () => {
     }
   };
 
-  const CreateTransactionTopUP = async (reqTx: ConfirmTransaction) => {
+  const ConfirmTopup = async ({
+    quoteId,
+    tx_hash,
+    max_slippage,
+  }: {
+    quoteId: string;
+    tx_hash: string;
+    max_slippage: number;
+  }) => {
     try {
-      if (!accessToken) return null;
+      if (!accessToken) return;
       const result = await transactionService.confirmTopUpTransaction(
-        { quoteID: reqTx.quoteID, tx_hash: reqTx.tx_hash, max_slippage: 0 },
+        {
+          quoteID: quoteId,
+          tx_hash,
+          max_slippage: 0,
+        },
         accessToken,
       );
       setTransaction(result);
-      return result;
     } catch (error) {
-      console.error(error);
-      return null;
+      console.log(error);
     }
   };
 
   return {
     CreateTransactionOffchain,
     CreateTransactionOnchain,
+    ConfirmTopup,
     transaction,
-    CreateTransactionTopUP,
   };
 };

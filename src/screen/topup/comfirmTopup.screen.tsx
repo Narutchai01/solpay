@@ -24,7 +24,27 @@ export const ConfirmTopupScreen = () => {
   const [isConfirming, setIsConfirming] = useState(false);
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { quote, GetQuoteByID, ConfirmQuote } = useQuote();
-  const { CreateTransactionTopUP } = useTransaction();
+  const { ConfirmTopup } = useTransaction();
+
+  // const handleConfirm = async () => {
+  //   if (!id) {
+  //     Alert.alert("Missing quote", "Quote ID is not available.");
+  //     return;
+  //   }
+
+  //   setIsConfirming(true);
+  //   try {
+  //     const signedTx = await ConfirmQuote(id);
+  //     console.log("Signed transaction:", signedTx);
+  //     router.replace("/topupSuccess");
+  //   } catch (error) {
+  //     const message =
+  //       error instanceof Error ? error.message : "Failed to confirm quote";
+  //     Alert.alert("Confirm failed", message);
+  //   } finally {
+  //     setIsConfirming(false);
+  //   }
+  // };
 
   const handleConfirm = async () => {
     if (!id) {
@@ -38,22 +58,18 @@ export const ConfirmTopupScreen = () => {
       console.log("Signed transaction:", signedTx);
 
       if (!signedTx) {
-        Alert.alert("Error", "Failed to get signed transaction.");
+        Alert.alert("Confirmation failed", "No transaction hash returned.");
         return;
       }
 
-      const createdTransaction = await CreateTransactionTopUP({
-        quoteID: id,
+      const tx = await ConfirmTopup({
+        quoteId: id,
         tx_hash: signedTx,
         max_slippage: 0,
       });
 
-      if (!createdTransaction) {
-        Alert.alert("Error", "Failed to create transaction.");
-        return;
-      }
+      console.log(tx);
 
-      console.log(createdTransaction);
       router.replace("/topupSuccess");
     } catch (error) {
       const message =

@@ -126,10 +126,10 @@ export const useQuote = () => {
         if (unSignTx) {
           const signedTx = await SignQuoteTransaction(unSignTx);
 
-          return signedTx;
+          // Return transaction hash instead of base64
+          const txHash = signedTx; // The signed transaction base64 is the hash
+          return txHash;
         }
-
-        return null;
       } catch (error) {
         console.error("Failed to confirm quote:", error);
         throw error;

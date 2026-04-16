@@ -24,7 +24,7 @@ export const HomeScreen = () => {
 
   useEffect(() => {
     GetBalance();
-  }, []);
+  }, [GetBalance]);
 
   const onRefresh = async () => {
     setRefreshing(true);
