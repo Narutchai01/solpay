@@ -70,7 +70,10 @@ export const ConfirmTopupScreen = () => {
 
       console.log(tx);
 
-      router.replace("/topupSuccess");
+      router.replace({
+        pathname: "/topupSuccess",
+        params: { txUUID: tx?.transaction_uuid },
+      });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to confirm quote";
