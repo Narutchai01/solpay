@@ -18,7 +18,10 @@ export interface TransactionService {
     access_token: string,
   ): Promise<TransactionResponse>;
 
-  GetTransactionByID(txUUID: string): Promise<TransactionResponse>;
+  GetTransactionByID(
+    txUUID: string,
+    access_token: string,
+  ): Promise<TransactionResponse>;
 }
 
 export class TransactionServiceImpl implements TransactionService {
@@ -72,9 +75,15 @@ export class TransactionServiceImpl implements TransactionService {
     }
   }
 
-  async GetTransactionByID(txUUID: string): Promise<TransactionResponse> {
+  async GetTransactionByID(
+    txUUID: string,
+    access_token: string,
+  ): Promise<TransactionResponse> {
     try {
-      const resp = await this.transactionRepository.GetTransactionByID(txUUID);
+      const resp = await this.transactionRepository.GetTransactionByID(
+        txUUID,
+        access_token,
+      );
       return resp;
     } catch (error) {
       console.error("Failed to get transaction by ID:", error);

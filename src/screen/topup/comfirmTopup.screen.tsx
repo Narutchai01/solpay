@@ -68,11 +68,15 @@ export const ConfirmTopupScreen = () => {
         max_slippage: 0,
       });
 
-      console.log(tx);
+      const txUUID = tx?.transaction_uuid?.trim();
+      if (!txUUID) {
+        Alert.alert("Confirmation failed", "Transaction ID was not returned.");
+        return;
+      }
 
       router.replace({
         pathname: "/topupSuccess",
-        params: { txUUID: tx?.transaction_uuid },
+        params: { txUUID },
       });
     } catch (error) {
       const message =
