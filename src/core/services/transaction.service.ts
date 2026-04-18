@@ -17,6 +17,8 @@ export interface TransactionService {
     tx: ConfirmTransaction,
     access_token: string,
   ): Promise<TransactionResponse>;
+
+  GetTransactionByID(txUUID: string): Promise<TransactionResponse>;
 }
 
 export class TransactionServiceImpl implements TransactionService {
@@ -66,6 +68,16 @@ export class TransactionServiceImpl implements TransactionService {
       return resp;
     } catch (error) {
       console.error("Failed to confirm on-chain transaction:", error);
+      throw error;
+    }
+  }
+
+  async GetTransactionByID(txUUID: string): Promise<TransactionResponse> {
+    try {
+      const resp = await this.transactionRepository.GetTransactionByID(txUUID);
+      return resp;
+    } catch (error) {
+      console.error("Failed to get transaction by ID:", error);
       throw error;
     }
   }

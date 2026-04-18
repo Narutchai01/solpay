@@ -18,4 +18,6 @@ export interface ITransactionRepository {
     tx: ConfirmTransaction,
     access_token: string,
   ): Promise<TransactionResponse>;
+
+  GetTransactionByID(txUUID: string): Promise<TransactionResponse>;
 }

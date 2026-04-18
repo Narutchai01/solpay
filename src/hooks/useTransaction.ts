@@ -79,10 +79,21 @@ export const useTransaction = () => {
     }
   };
 
+  const GetTransactionByID = async (txUUID: string) => {
+    try {
+      if (!accessToken) return;
+      const result = await transactionService.GetTransactionByID(txUUID);
+      setTransaction(result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return {
     CreateTransactionOffchain,
     CreateTransactionOnchain,
     ConfirmTopup,
+    GetTransactionByID,
     transaction,
   };
 };
