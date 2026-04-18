@@ -1,9 +1,9 @@
 export interface TransactionResponse {
   transaction_uuid: string;
   ID: number;
-  CreatedAt: Date;
-  UpdatedAt: Date;
-  DeletedAt: null;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at: null;
   account_id: number;
   category_id: string;
   transaction_type: string;

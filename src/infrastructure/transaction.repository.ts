@@ -102,10 +102,18 @@ export class TransactionRepositoryImpl implements ITransactionRepository {
     }
   }
 
-  async GetTransactionByID(txUUID: string): Promise<TransactionResponse> {
+  async GetTransactionByID(
+    txUUID: string,
+    access_token: string,
+  ): Promise<TransactionResponse> {
     try {
       const resp = await this.httpHelper.get<BaseModel<TransactionResponse>>(
-        `/api/v1/transaction/${txUUID}`,
+        `/api/v1/transactions/${txUUID}`,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        },
       );
       return resp.data;
     } catch (error) {

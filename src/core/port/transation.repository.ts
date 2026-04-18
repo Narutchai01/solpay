@@ -19,5 +19,8 @@ export interface ITransactionRepository {
     access_token: string,
   ): Promise<TransactionResponse>;
 
-  GetTransactionByID(txUUID: string): Promise<TransactionResponse>;
+  GetTransactionByID(
+    txUUID: string,
+    access_token: string,
+  ): Promise<TransactionResponse>;
 }
