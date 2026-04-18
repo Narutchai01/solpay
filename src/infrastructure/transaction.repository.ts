@@ -101,4 +101,25 @@ export class TransactionRepositoryImpl implements ITransactionRepository {
       throw error;
     }
   }
+
+  async GetTransactionByID(txUUID: string): Promise<TransactionResponse> {
+    try {
+      const resp = await this.httpHelper.get<BaseModel<TransactionResponse>>(
+        `/api/v1/transaction/${txUUID}`,
+      );
+      return resp.data;
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        const status = error.response.status;
+        const resp = error.response.data as BackendErrorResponse;
+        switch (status) {
+          case 404:
+            throw new Error("Transaction not found");
+          case 500:
+            throw new Error(resp.message || "Internal Server Error");
+        }
+      }
+      throw error;
+    }
+  }
 }
