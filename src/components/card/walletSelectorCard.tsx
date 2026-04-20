@@ -36,8 +36,8 @@ export const WalletSelectorCard = ({
     onWalletChange(wallet);
   };
 
-  const renderIcon = (type: "solpay" | "software", size = 44) => {
-    return type === "solpay" ? (
+  const renderIcon = (type: "OFFCHAIN" | "ONCHAIN", size = 44) => {
+    return type === "OFFCHAIN" ? (
       <Ionicons
         name="phone-portrait-outline"
         size={size}
