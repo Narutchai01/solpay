@@ -1,6 +1,7 @@
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
-import React from "react";
+import { useBalance } from "@/src/hooks/useBalance";
+import React, { useEffect, useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BalanceCardComponent } from "./balanceCard.component";
@@ -30,7 +31,26 @@ const TOPUP_HISTORY = [
   },
 ];
 
+const EXCHANGE_RATE = 32;
+
 export const TopupScreen = () => {
+  const { balance, GetBalance } = useBalance();
+
+  useEffect(() => {
+    GetBalance();
+  }, [GetBalance]);
+
+  const balanceDisplay = useMemo(() => {
+    const amount = balance?.thb_amount ?? 100000000;
+    return {
+      thb: amount.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+      usdt: (amount / EXCHANGE_RATE).toFixed(2),
+    };
+  }, [balance]);
+
   return (
     <GradientLayout>
       <SafeAreaView style={styles.container}>
@@ -43,9 +63,9 @@ export const TopupScreen = () => {
           {/* Available Balance Card */}
           <BalanceCardComponent
             label="Available Balance"
-            mainAmount="1,000"
+            mainAmount={balanceDisplay.thb}
             mainCurrency="THB"
-            subAmount="30.88"
+            subAmount={balanceDisplay.usdt}
             subCurrency="USDT"
             showTopUp={true}
           />

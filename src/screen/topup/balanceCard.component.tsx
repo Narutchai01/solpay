@@ -3,7 +3,7 @@ import { GlassCard } from "@/src/components/card/glass";
 import { Theme } from "@/src/core/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View, ViewStyle } from "react-native";
 
 interface BalanceCardProps {
@@ -25,6 +25,11 @@ export const BalanceCardComponent = ({
   showTopUp = false,
   style,
 }: BalanceCardProps) => {
+  const dynamicFontSize = useMemo(() => {
+    if (mainAmount.length > 12) return 28;
+    return Theme.fontSize.h3;
+  }, [mainAmount]);
+
   return (
     <GlassCard style={[styles.balanceCard, style]}>
       <View style={styles.cardInner}>
@@ -33,8 +38,14 @@ export const BalanceCardComponent = ({
 
           <View style={styles.mainContentRow}>
             <View style={styles.amountRow}>
-              <Text style={styles.amountText}>{mainAmount}</Text>
-              <Text style={styles.currencyText}>{mainCurrency}</Text>
+              <Text style={[styles.amountText, { fontSize: dynamicFontSize }]}>
+                {mainAmount}
+              </Text>
+              <Text
+                style={[styles.currencyText, { fontSize: dynamicFontSize }]}
+              >
+                {mainCurrency}
+              </Text>
             </View>
 
             {!showTopUp && (

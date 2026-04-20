@@ -6,9 +6,10 @@ import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { WalletOption } from "@/src/core/type/wallet-option";
 import { CreateQuoteRequest } from "@/src/domain/model/quote";
+import { useBalance } from "@/src/hooks/useBalance";
 import { useQuote } from "@/src/hooks/useQuote";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   ScrollView,
@@ -19,17 +20,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const WALLET_OPTIONS: WalletOption[] = [
-  { id: "1", name: "SolPay", type: "OFFCHAIN", balance: "1,000 THB" },
-  { id: "2", name: "Software Wallet", type: "ONCHAIN" },
-];
-
 export const TransferScreen = () => {
+  const { balance, GetBalance } = useBalance();
   const { createQuote, quote } = useQuote();
   const router = useRouter();
-  const [transferType, setTransferType] = useState<"OFFCHAIN" | "ONCHAIN">(
-    "OFFCHAIN",
-  );
 
   const [reqQuote, setReqQuote] = useState<CreateQuoteRequest>({
     thb_amount: 0,
@@ -38,6 +32,20 @@ export const TransferScreen = () => {
   });
 
   const isAmountEmpty = reqQuote.thb_amount === 0;
+
+  useEffect(() => {
+    GetBalance();
+  }, [GetBalance]);
+
+  const walletOptions: WalletOption[] = [
+    {
+      id: "1",
+      name: "SolPay",
+      type: "OFFCHAIN",
+      balance: balance ? `${balance.thb_amount.toLocaleString()} THB` : "0 THB",
+    },
+    { id: "2", name: "Software Wallet", type: "ONCHAIN" },
+  ];
 
   const handleCreateQuote = async () => {
     const newQuote = await createQuote(reqQuote);
@@ -61,7 +69,7 @@ export const TransferScreen = () => {
           >
             <Text style={styles.label}>From:</Text>
             <WalletSelectorCard
-              wallets={WALLET_OPTIONS}
+              wallets={walletOptions}
               onWalletChange={(wallet) =>
                 setReqQuote({
                   ...reqQuote,
