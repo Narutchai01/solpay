@@ -41,7 +41,7 @@ export const TopupScreen = () => {
   }, [GetBalance]);
 
   const balanceDisplay = useMemo(() => {
-    const amount = balance?.thb_amount ?? 100000000;
+    const amount = balance?.thb_amount ?? 0;
     return {
       thb: amount.toLocaleString(undefined, {
         minimumFractionDigits: 2,
