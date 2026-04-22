@@ -52,10 +52,10 @@ export const HomeScreen = () => {
         >
           {/* Header Section */}
           <View style={styles.header}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/profile")}>
               <Ionicons name="person-circle" style={styles.profileIcon} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.replace("/notifications")}>
+            <TouchableOpacity onPress={() => router.push("/notifications")}>
               <Ionicons name="notifications-outline" style={styles.iconSize} />
             </TouchableOpacity>
           </View>
