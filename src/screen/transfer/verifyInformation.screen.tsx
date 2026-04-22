@@ -3,6 +3,8 @@ import { GlassCard } from "@/src/components/card/glass";
 import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
+import { CategoryModel } from "@/src/domain/model/category";
+import { useCategory } from "@/src/hooks/useCategory";
 import { useQuote } from "@/src/hooks/useQuote";
 import { useTransaction } from "@/src/hooks/useTransaction";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -23,13 +25,6 @@ import {
   ExpenseCategory,
 } from "../history/expenseCategory.config";
 
-const CATEGORIES = [
-  { id: "food", title: "Food/Drink", icon: "silverware-fork-knife" },
-  { id: "shopping", title: "Shopping", icon: "shopping" },
-  { id: "invest", title: "Invest", icon: "finance" },
-  { id: "others", title: "Others", icon: "file-document-outline" },
-];
-
 export const TransferVerifyInformationScreen = () => {
   const { GetQuoteByID, quote } = useQuote();
   const { CreateTransactionOffchain, transaction, CreateTransactionOnchain } =
@@ -39,22 +34,27 @@ export const TransferVerifyInformationScreen = () => {
     quoteID: string;
   }>();
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<
-    ExpenseCategory | ""
-  >("");
+  const { categories, GetCategories } = useCategory();
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   const { ConfirmQuote } = useQuote();
 
-  const renderCategoryItem = ({ item }: { item: (typeof CATEGORIES)[0] }) => {
-    const isSelected = selectedCategory === item.title;
-    const config = EXPENSE_CATEGORY_CONFIG[item.title as ExpenseCategory];
+  useEffect(() => {
+    GetCategories();
+  }, [GetCategories]);
+
+  const renderCategoryItem = ({ item }: { item: CategoryModel }) => {
+    const isSelected = selectedCategory === item.name;
+    const config =
+      EXPENSE_CATEGORY_CONFIG[item.name as ExpenseCategory] ||
+      EXPENSE_CATEGORY_CONFIG["Others"];
 
     return (
       <Button
-        title={item.title}
+        title={item.name}
         variant={isSelected ? "solid" : "outline"}
         color={isSelected ? config.color : "surface"}
-        onPress={() => setSelectedCategory(item.title as ExpenseCategory)}
+        onPress={() => setSelectedCategory(item.name as ExpenseCategory)}
         style={[
           styles.categoryButton,
           !isSelected && styles.unselectedCategoryButton,
@@ -214,10 +214,19 @@ export const TransferVerifyInformationScreen = () => {
           {/* Category Selection */}
           <View style={styles.categorySection}>
             <Text style={styles.sectionTitle}>Category</Text>
+
+            {/* TODO(UI-BUG): Fix screen jump when selecting category
+      - Screen shifts/jumps when a category is selected
+      - Likely caused by layout changes (borderWidth, size, font, icon, etc.)
+      - Ensure Button has consistent height/width across all states
+      - Use consistent styles for selected/unselected (avoid layout changes)
+      - Investigate FlatList re-render behavior
+      - Check interaction with parent ScrollView
+  */}
             <FlatList
-              data={CATEGORIES}
+              data={categories}
               renderItem={renderCategoryItem}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id.toString()}
               horizontal={true}
               scrollEnabled={true}
               showsHorizontalScrollIndicator={false}
@@ -400,9 +409,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   categoryButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: "transparent",
     borderRadius: 8,
+    minWidth: 80,
   },
   categoryButtonText: {
     fontSize: Theme.fontSize.textS,
