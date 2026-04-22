@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: "center",
   },
-  topImage: { width: 140, height: 120, marginBottom: 20 },
+  topImage: { width: 140, height: 120 },
   icon: { marginBottom: 20 },
   modalTitle: {
     fontSize: Theme.fontSize.h5,

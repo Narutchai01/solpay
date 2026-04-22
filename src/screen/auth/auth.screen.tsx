@@ -3,11 +3,13 @@ import { Button } from "@/src/components/button/button";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/core/theme/theme";
 import { useAuth } from "@/src/hooks/useAuth";
+import { useAuthStore } from "@/src/store/auth.store";
 import { Link, Redirect, router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 export const ConnectWalletScreen = () => {
   const { account, login, isLoading, errorMessage } = useAuth();
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   const handleConnectWallet = async () => {
     try {
@@ -18,7 +20,7 @@ export const ConnectWalletScreen = () => {
     }
   };
 
-  if (account) {
+  if (account && accessToken) {
     return <Redirect href="/(tabs)" />;
   }
 

@@ -8,6 +8,8 @@ import { useAuthStore } from "../store/auth.store";
 
 export const useAccount = () => {
   const [profile, setProfile] = useState<AccountModel | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const accessToken = useAuthStore((state) => state.accessToken);
   const loadTokens = useAuthStore((state) => state.loadTokens);
 
@@ -23,20 +25,26 @@ export const useAccount = () => {
 
   useEffect(() => {
     const fetchAccount = async () => {
-      if (accessToken) {
-        try {
-          const profile = await accountService.GetProfile(accessToken);
-          setProfile(profile);
-        } catch (error) {
-          console.error("Failed to fetch account profile:", error);
-        }
-      } else {
+      if (!accessToken) {
         setProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const data = await accountService.GetProfile(accessToken);
+        setProfile(data);
+      } catch (error) {
+        console.error("Failed to fetch account profile:", error);
+        setProfile(null);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchAccount();
   }, [accessToken, accountService]);
 
-  return { profile };
+  return { profile, loading };
 };
