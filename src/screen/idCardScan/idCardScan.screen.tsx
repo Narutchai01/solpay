@@ -2,46 +2,58 @@ import { ConfirmModal } from "@/src/components/modal/Confirm";
 import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-    Dimensions,
-    StyleSheet,
-    TouchableOpacity,
-    View
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
 export default function IdCardScanScreen() {
-  const navigation = useNavigation();
+  const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
 
   const [showPermissionModal, setShowPermissionModal] = useState(false);
 
+  const [step, setStep] = useState<"FRONT" | "BACK">("FRONT");
+  const [frontImage, setFrontImage] = useState<string | null>(null);
+
   useEffect(() => {
-    if (permission) {
-      if (!permission.granted && permission.canAskAgain) {
-        setShowPermissionModal(true);
-      }
+    if (permission && !permission.granted && permission.canAskAgain) {
+      setShowPermissionModal(true);
     }
   }, [permission]);
 
   const handleConfirmPermission = async () => {
     const { granted } = await requestPermission();
-
-    if (granted) {
-      setShowPermissionModal(false);
-    }
+    if (granted) setShowPermissionModal(false);
   };
 
   const takePicture = async () => {
     if (cameraRef.current) {
       try {
         const photo = await cameraRef.current.takePictureAsync();
-        console.log("ID Card Photo taken:", photo?.uri);
+        if (!photo) return;
+
+        if (step === "FRONT") {
+          setFrontImage(photo.uri);
+          setStep("BACK");
+        } else {
+          router.push({
+            pathname: "/idCardDetail",
+            params: {
+              frontImageUri: frontImage,
+              backImageUri: photo.uri,
+            },
+          });
+        }
       } catch (error) {
         console.error("Failed to take picture:", error);
       }
@@ -57,10 +69,15 @@ export default function IdCardScanScreen() {
       />
 
       <SafeAreaView style={styles.overlay}>
-        {/* Header */}
         <Header title="Scan ID Card" />
 
-        {/* ID Card Mask */}
+        <View style={styles.instructionContainer}>
+          <Text style={styles.instructionText}>
+            Please scan the <Text style={styles.boldText}>{step}</Text> of your
+            ID Card
+          </Text>
+        </View>
+
         <View style={styles.maskContainer}>
           <View style={styles.idCardFrame}>
             <View style={[styles.corner, styles.topLeft]} />
@@ -71,7 +88,6 @@ export default function IdCardScanScreen() {
         </View>
 
         <View style={styles.bottomSection}>
-          {/* Capture Button */}
           <View style={styles.captureContainer}>
             <TouchableOpacity
               style={styles.captureOuterRing}
@@ -86,12 +102,9 @@ export default function IdCardScanScreen() {
 
       <ConfirmModal
         visible={showPermissionModal}
-        iconName="camera-outline"
         title="Camera Access Required"
         description="We need your permission to use the camera to scan your ID Card."
-        cancelLabel="Don't allow"
-        confirmLabel="Confirm"
-        onCancel={() => navigation.goBack()}
+        onCancel={() => router.back()}
         onConfirm={handleConfirmPermission}
       />
     </View>
@@ -99,19 +112,23 @@ export default function IdCardScanScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Theme.colors.g500,
-  },
-  overlay: {
-    flex: 1,
-    justifyContent: "space-between",
-  },
-  maskContainer: {
-    flex: 1,
-    justifyContent: "center",
+  container: { flex: 1, backgroundColor: Theme.colors.g500 },
+  overlay: { flex: 1, justifyContent: "space-between" },
+  instructionContainer: {
     alignItems: "center",
+    marginTop: 20,
   },
+  instructionText: {
+    color: "white",
+    fontSize: Theme.fontSize.textL,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    overflow: "hidden",
+  },
+  boldText: { fontWeight: "800", color: Theme.colors.v300 },
+  maskContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   idCardFrame: {
     width: width * 0.9,
     height: width * 0.58,
@@ -124,38 +141,12 @@ const styles = StyleSheet.create({
     borderColor: Theme.colors.surface,
     borderWidth: 4,
   },
-  topLeft: {
-    top: 0,
-    left: 0,
-    borderRightWidth: 0,
-    borderBottomWidth: 0,
-  },
-  topRight: {
-    top: 0,
-    right: 0,
-    borderLeftWidth: 0,
-    borderBottomWidth: 0,
-  },
-  bottomLeft: {
-    bottom: 0,
-    left: 0,
-    borderRightWidth: 0,
-    borderTopWidth: 0,
-  },
-  bottomRight: {
-    bottom: 0,
-    right: 0,
-    borderLeftWidth: 0,
-    borderTopWidth: 0,
-  },
-  bottomSection: {
-    paddingHorizontal: 30,
-    paddingBottom: 50,
-  },
-  captureContainer: {
-    alignItems: "center",
-    marginBottom: 30,
-  },
+  topLeft: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0 },
+  topRight: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0 },
+  bottomLeft: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0 },
+  bottomRight: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0 },
+  bottomSection: { paddingHorizontal: 30, paddingBottom: 50 },
+  captureContainer: { alignItems: "center", marginBottom: 30 },
   captureOuterRing: {
     width: 70,
     height: 70,

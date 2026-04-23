@@ -3,20 +3,21 @@ import { Dropdown } from "@/src/components/button/dropdown";
 import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
+import { useKYC } from "@/src/hooks/useKYC";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
-    FlatList,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
@@ -65,20 +66,17 @@ const EXP_YEARS = Array.from({ length: 20 }, (_, i) =>
 
 export const IdCardDetailScreen = () => {
   const router = useRouter();
-  const {
-    scannedId = "1103456789123",
-    scannedName = "Somchai",
-    scannedSurname = "Jaidee",
-  } = useLocalSearchParams<{
-    scannedId?: string;
-    scannedName?: string;
-    scannedSurname?: string;
+  const { loading } = useKYC();
+
+  const { frontImageUri, backImageUri } = useLocalSearchParams<{
+    frontImageUri: string;
+    backImageUri: string;
   }>();
 
   const [formData, setFormData] = useState({
-    idNumber: scannedId,
-    name: scannedName,
-    surname: scannedSurname,
+    idNumber: "",
+    name: "",
+    surname: "",
     dobDay: "",
     dobMonth: "",
     dobYear: "",
@@ -99,6 +97,20 @@ export const IdCardDetailScreen = () => {
     targetField: null,
   });
 
+  const isFormValid = useMemo(() => {
+    return (
+      formData.idNumber.length === 13 &&
+      formData.name.trim().length > 0 &&
+      formData.surname.trim().length > 0 &&
+      formData.dobDay !== "" &&
+      formData.dobMonth !== "" &&
+      formData.dobYear !== "" &&
+      formData.expDay !== "" &&
+      formData.expMonth !== "" &&
+      formData.expYear !== ""
+    );
+  }, [formData]);
+
   const updateForm = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -117,6 +129,36 @@ export const IdCardDetailScreen = () => {
     updateForm(field, filteredText);
   };
 
+  const handleNext = async () => {
+    const formatDate = (y: string, m: string, d: string) => {
+      const monthIdx = MONTHS.indexOf(m) + 1;
+      const monthStr = monthIdx.toString().padStart(2, "0");
+      const dayStr = d.padStart(2, "0");
+      return `${y}-${monthStr}-${dayStr} 00:00:00.000000+00`;
+    };
+
+    router.push({
+      pathname: "/faceScan",
+      params: {
+        idCard: formData.idNumber,
+        firstName: formData.name,
+        lastName: formData.surname,
+        birthDate: formatDate(
+          formData.dobYear,
+          formData.dobMonth,
+          formData.dobDay,
+        ),
+        expireDate: formatDate(
+          formData.expYear,
+          formData.expMonth,
+          formData.expDay,
+        ),
+        frontImageUri,
+        backImageUri,
+      },
+    });
+  };
+
   const UnderlineDropdown = ({
     label,
     onPress,
@@ -128,7 +170,7 @@ export const IdCardDetailScreen = () => {
       style={styles.dateDropdown}
       containerStyle={styles.underlineContainer}
       textStyle={{
-        color: label ? Theme.colors.surface : "rgba(255, 255, 255, 0.5)",
+        color: label ? Theme.colors.surface : "rgba(255, 255, 255, 0.4)",
         fontSize: Theme.fontSize.textL,
       }}
       iconColor={Theme.colors.g50}
@@ -172,21 +214,23 @@ export const IdCardDetailScreen = () => {
             contentContainerStyle={styles.scrollContent}
           >
             <GlassCard style={styles.cardContainer}>
-              {/* ID Number */}
+              {/* ID Number Input */}
               <View style={styles.inputSection}>
                 <Text style={styles.label}>ID Card Number</Text>
                 <TextInput
                   style={styles.input}
                   value={formData.idNumber}
-                  onChangeText={(text) => updateForm("idNumber", text)}
-                  keyboardType="numeric"
+                  onChangeText={(text) =>
+                    updateForm("idNumber", text.replace(/[^0-9]/g, ""))
+                  }
+                  keyboardType="number-pad"
                   maxLength={13}
-                  placeholder="Enter 13-digit ID"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                  placeholder="13-digit number"
+                  placeholderTextColor="rgba(255, 255, 255, 0.4)"
                 />
               </View>
 
-              {/* Name */}
+              {/* First Name Input */}
               <View style={styles.inputSection}>
                 <Text style={styles.label}>First Name</Text>
                 <TextInput
@@ -194,11 +238,11 @@ export const IdCardDetailScreen = () => {
                   value={formData.name}
                   onChangeText={(text) => handleNameChange("name", text)}
                   placeholder="Enter first name"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                  placeholderTextColor="rgba(255, 255, 255, 0.4)"
                 />
               </View>
 
-              {/* Surname */}
+              {/* Last Name Input */}
               <View style={styles.inputSection}>
                 <Text style={styles.label}>Last Name</Text>
                 <TextInput
@@ -210,7 +254,7 @@ export const IdCardDetailScreen = () => {
                 />
               </View>
 
-              {/* Date of Birth */}
+              {/* Date of Birth Selection */}
               <View style={styles.inputSection}>
                 <Text style={styles.label}>Date of Birth</Text>
                 <DateDropdownGroup
@@ -223,7 +267,7 @@ export const IdCardDetailScreen = () => {
                 />
               </View>
 
-              {/* Expiry Date */}
+              {/* Expiry Date Selection */}
               <View style={styles.inputSection}>
                 <Text style={styles.label}>Date of Expiry</Text>
                 <DateDropdownGroup
@@ -240,19 +284,17 @@ export const IdCardDetailScreen = () => {
 
           <View style={styles.footer}>
             <Button
-              title="Next"
+              title={loading ? "Submitting..." : "Next"}
+              onPress={handleNext}
+              disabled={loading || !isFormValid}
               variant="solid"
               color="v300"
-              onPress={() => {
-                console.log("Final Data:", formData);
-                router.push("/");
-              }}
               style={styles.submitButton}
             />
           </View>
         </KeyboardAvoidingView>
 
-        {/* Picker Modal */}
+        {/* Custom Picker Modal */}
         <Modal
           visible={pickerConfig.isVisible}
           transparent
