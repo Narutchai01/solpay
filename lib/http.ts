@@ -67,7 +67,10 @@ export class HttpHelper {
   ): Promise<Resp> {
     // Handle FormData - let axios set the Content-Type automatically
     if (options.data instanceof FormData) {
-      delete options.headers?.["Content-Type"];
+      options.headers = {
+        ...options.headers,
+        "Content-Type": "multipart/form-data",
+      };
     }
 
     try {

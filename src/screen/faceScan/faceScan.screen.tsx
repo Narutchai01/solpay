@@ -2,15 +2,23 @@ import { ConfirmModal } from "@/src/components/modal/Confirm";
 import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
 export default function FaceScanScreen() {
   const navigation = useNavigation();
+  const router = useRouter();
+  const params = useLocalSearchParams();
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
@@ -28,6 +36,24 @@ export default function FaceScanScreen() {
 
     if (granted) {
       setShowPermissionModal(false);
+    }
+  };
+
+  const takePicture = async () => {
+    if (cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync();
+        if (!photo) return;
+        router.push({
+          pathname: "/confirmIdentityKYC",
+          params: {
+            ...params,
+            faceImageUri: photo.uri,
+          },
+        });
+      } catch (error) {
+        console.error("Failed to take face picture:", error);
+      }
     }
   };
 
@@ -67,6 +93,16 @@ export default function FaceScanScreen() {
               Make sure your face is in the allotted frame.
             </Text>
           </View>
+        </View>
+
+        <View style={styles.captureContainer}>
+          <TouchableOpacity
+            style={styles.captureOuterRing}
+            onPress={takePicture}
+            activeOpacity={0.7}
+          >
+            <View style={styles.captureInnerCircle} />
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
 
@@ -124,5 +160,24 @@ const styles = StyleSheet.create({
     fontSize: Theme.fontSize.textM,
     fontWeight: "400",
     lineHeight: 20,
+  },
+  captureContainer: {
+    alignItems: "center",
+    marginTop: 30,
+  },
+  captureOuterRing: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    borderWidth: 4,
+    borderColor: Theme.colors.surface,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  captureInnerCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Theme.colors.surface,
   },
 });
