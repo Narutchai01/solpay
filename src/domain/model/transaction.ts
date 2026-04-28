@@ -23,3 +23,41 @@ export interface ConfirmTransaction {
   quoteID: string;
   tx_hash?: string;
 }
+
+export interface TransactionCategory {
+  id: number;
+  name: string;
+}
+
+export interface TransactionOnChainInfo {
+  tx_hash: string;
+  signature: string;
+}
+
+export interface TransactionOffChainInfo {
+  prompt_pay_id: string;
+  slip_url: string;
+}
+
+export interface TransactionHistoryItem {
+  id: number;
+  transaction_uuid: string;
+  account_id: number;
+  transaction_type: string;
+  status: string;
+  category: TransactionCategory;
+  thb_amount: number;
+  usdt_amount: number;
+  fee: number;
+  transaction_on_chain?: TransactionOnChainInfo;
+  transaction_off_chain?: TransactionOffChainInfo;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaginatedTransactionResponse {
+  items: TransactionHistoryItem[];
+  page: number;
+  pageSize: number;
+  total: number;
+}
