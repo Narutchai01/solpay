@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
 import { Theme } from "../../core/theme/theme";
 
@@ -12,27 +12,89 @@ export interface BarChartData {
 
 interface MonthlyBarChartProps {
   data: BarChartData[];
+  selectedMonth: string;
 }
 
-export const MonthlyBarChart = ({ data }: MonthlyBarChartProps) => {
-  const last6Months = data.slice(-6);
+const ALL_MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+export const MonthlyBarChart = ({
+  data,
+  selectedMonth,
+}: MonthlyBarChartProps) => {
+  const shortSelectedMonth = selectedMonth.substring(0, 3);
+  const selectedIndex = ALL_MONTHS.indexOf(shortSelectedMonth);
+  const startIndex = selectedIndex < 6 ? 0 : 6;
+  const displayMonths = ALL_MONTHS.slice(startIndex, startIndex + 6);
+
+  const maxDataValue = Math.max(
+    ...displayMonths.map((monthLabel) => {
+      const foundData = data.find((item) => item.label === monthLabel);
+      return foundData ? foundData.value : 0;
+    }),
+  );
+
+  const rawMax = Math.max(1000, maxDataValue * 1.2);
+  const roundStep = rawMax > 10000 ? 1000 : 100;
+  const chartMaxValue = Math.ceil(rawMax / roundStep) * roundStep;
+
+  const mappedData = displayMonths.map((monthLabel) => {
+    const foundData = data.find((item) => item.label === monthLabel);
+    const isSelected = monthLabel === shortSelectedMonth;
+    const actualValue = foundData ? foundData.value : 0;
+
+    let displayValue = actualValue;
+    if (actualValue === 0) {
+      displayValue = chartMaxValue * 0.01;
+    } else if (actualValue < chartMaxValue * 0.05) {
+      displayValue = chartMaxValue * 0.05;
+    }
+
+    return {
+      value: displayValue,
+      label: monthLabel,
+      frontColor: isSelected ? Theme.colors.v300 : Theme.colors.g50,
+      topLabelComponent: isSelected
+        ? () => <Text style={styles.topLabelText}>{actualValue} THB</Text>
+        : undefined,
+    };
+  });
 
   return (
     <View style={styles.container} pointerEvents="none">
       <BarChart
-        data={last6Months}
-        barWidth={40}
+        data={mappedData}
+        barWidth={35}
         height={285}
         spacing={20}
-        barBorderRadius={10}
-        hideRules
-        hideYAxisText
-        yAxisThickness={0}
-        xAxisThickness={0}
-        noOfSections={3}
-        maxValue={1000}
+        barBorderRadius={8}
+        yAxisThickness={1}
+        xAxisThickness={1}
+        xAxisColor={Theme.colors.g50}
+        yAxisColor={Theme.colors.g50}
+        rulesColor={`${Theme.colors.g50}50`}
+        rulesType="dashed"
+        dashWidth={4}
+        dashGap={8}
+        initialSpacing={15}
+        endSpacing={15}
+        yAxisTextStyle={styles.labelText}
+        yAxisLabelWidth={45}
+        noOfSections={4}
+        maxValue={chartMaxValue}
         xAxisLabelTextStyle={styles.labelText}
-        frontColor={Theme.colors.g50}
       />
     </View>
   );
@@ -40,7 +102,8 @@ export const MonthlyBarChart = ({ data }: MonthlyBarChartProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 15,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -51,8 +114,11 @@ const styles = StyleSheet.create({
   },
   topLabelText: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h7,
+    fontSize: Theme.fontSize.textS,
     marginBottom: 4,
     fontWeight: "500",
+    textAlign: "center",
+    width: 80,
+    left: 0,
   },
 });

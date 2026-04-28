@@ -1,9 +1,15 @@
-import { Button } from "@/src/components/button/button";
 import { Dropdown } from "@/src/components/button/dropdown";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
-import React, { useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import React, { useMemo, useState } from "react";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
 import { ChartSection } from "./chartSection.component";
@@ -33,13 +39,14 @@ const MONTHS = [
 const YEARS = Array.from({ length: 20 }, (_, i) => 2026 - i);
 
 const MONTHLY_DATA: BarChartData[] = [
-  { value: 950, label: "Jul" },
+  { value: 5050, label: "Jul" },
   { value: 350, label: "Aug" },
   { value: 850, label: "Sep" },
-  { value: 600, label: "Oct" },
+  { value: 1600, label: "Oct" },
   { value: 400, label: "Nov" },
   { value: 750, label: "Dec" },
   { value: 500, label: "Jan" },
+  { value: 150, label: "Apr" },
 ];
 
 const HISTORY_CHART_DATA: PieChartData[] = [
@@ -78,68 +85,47 @@ const EXPENSES_HISTORY: ExpenseHistoryData[] = [
     amount: "75.00",
     category: "Others",
   },
+  {
+    id: "5",
+    date: "05 Apr 2026 10:00",
+    transactionId: "transaction id",
+    amount: "150.00",
+    category: "Food/Drink",
+  },
 ];
 
-type HistoryTab = "Software Wallet" | "SolPay";
-
 export const HistoryScreen = () => {
-  const [selectedTab, setSelectedTab] = useState<HistoryTab>("Software Wallet");
+  const [chartTitle, setChartTitle] = useState("Monthly Summary");
   const [isPickerVisible, setPickerVisible] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState("November");
-  const [selectedYear, setSelectedYear] = useState(2025);
+  const [selectedMonth, setSelectedMonth] = useState(
+    MONTHS[new Date().getMonth()],
+  );
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
+  const filteredHistory = useMemo(() => {
+    const shortMonth = selectedMonth.substring(0, 3);
+    const searchString = `${shortMonth} ${selectedYear}`;
+
+    return EXPENSES_HISTORY.filter((item) => item.date.includes(searchString));
+  }, [selectedMonth, selectedYear]);
 
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
         <FlatList
-          data={EXPENSES_HISTORY}
+          data={filteredHistory}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <>
               {/* Header */}
-              <Header title="Transfer" showBackButton={false} />
+              <Header title="History" showBackButton={false} />
 
-              {/* Tabs + Dropdown */}
-              <View style={styles.tabContainer}>
-                <Button
-                  title="Software Wallet"
-                  variant={
-                    selectedTab === "Software Wallet" ? "solid" : "outline"
-                  }
-                  color="v300"
-                  onPress={() => setSelectedTab("Software Wallet")}
-                  style={[
-                    styles.tabButton,
-                    selectedTab !== "Software Wallet" &&
-                      styles.unselectedTabButton,
-                  ]}
-                  textStyle={[
-                    styles.tabButtonText,
-                    selectedTab !== "Software Wallet" &&
-                      styles.unselectedTabText,
-                  ]}
-                />
-
-                <Button
-                  title="SolPay"
-                  variant={selectedTab === "SolPay" ? "solid" : "outline"}
-                  color="v300"
-                  onPress={() => setSelectedTab("SolPay")}
-                  style={[
-                    styles.tabButton,
-                    selectedTab !== "SolPay" && styles.unselectedTabButton,
-                  ]}
-                  textStyle={[
-                    styles.tabButtonText,
-                    selectedTab !== "SolPay" && styles.unselectedTabText,
-                  ]}
-                />
-
+              <View style={styles.chartHeaderRow}>
+                <Text style={styles.chartTitleText}>{chartTitle}</Text>
                 <Dropdown
                   label={`${selectedMonth} ${selectedYear}`}
                   onPress={() => setPickerVisible(true)}
-                  style={styles.dropdownButton}
                 />
               </View>
 
@@ -147,6 +133,8 @@ export const HistoryScreen = () => {
               <ChartSection
                 monthlyData={MONTHLY_DATA}
                 pieData={HISTORY_CHART_DATA}
+                onSlideChange={(newTitle) => setChartTitle(newTitle)}
+                selectedMonth={selectedMonth.substring(0, 3)}
               />
 
               {/* Section title */}
@@ -154,10 +142,25 @@ export const HistoryScreen = () => {
             </>
           }
           renderItem={({ item }) => (
-            <View style={styles.historyItemWrapper}>
+            <TouchableOpacity
+              style={styles.historyItemWrapper}
+              onPress={() =>
+                router.push({
+                  pathname: "/transferSuccessful",
+                  params: { from: "history", id: item.id },
+                })
+              }
+            >
               <ExpenseHistoryItem item={item} />
-            </View>
+            </TouchableOpacity>
           )}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                No transactions found for {selectedMonth} {selectedYear}
+              </Text>
+            </View>
+          }
         />
 
         <MonthYearPickerModal
@@ -178,31 +181,18 @@ export const HistoryScreen = () => {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  tabContainer: {
+  chartHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
-    marginBottom: 24,
-    marginTop: 16,
+    marginTop: 24,
+    marginBottom: 16,
   },
-  tabButton: {
-    minWidth: 100,
-    marginRight: 9,
-    paddingVertical: 10,
-    paddingHorizontal: 13,
-  },
-  unselectedTabButton: {
-    borderColor: Theme.colors.v300,
-  },
-  tabButtonText: {
-    fontSize: Theme.fontSize.h7,
-    fontWeight: "500",
-  },
-  unselectedTabText: {
-    color: Theme.colors.v100,
-  },
-  dropdownButton: {
-    flex: 1,
+  chartTitleText: {
+    fontSize: Theme.fontSize.h6,
+    fontWeight: "600",
+    color: Theme.colors.surface,
   },
   sectionTitle: {
     fontSize: Theme.fontSize.h6,
@@ -213,5 +203,14 @@ const styles = StyleSheet.create({
   },
   historyItemWrapper: {
     paddingHorizontal: 16,
+  },
+  emptyContainer: {
+    padding: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyText: {
+    color: Theme.colors.g100,
+    fontSize: Theme.fontSize.textM,
   },
 });

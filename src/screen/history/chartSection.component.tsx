@@ -1,6 +1,6 @@
 import { GlassCard } from "@/src/components/card/glass";
 import React, { useState } from "react";
-import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
+import { Dimensions, FlatList, StyleSheet, View } from "react-native";
 import { Theme } from "../../core/theme/theme";
 import { BarChartData, MonthlyBarChart } from "./monthlyBarChart.component";
 import { PieChartComponent, PieChartData } from "./pieChart.component";
@@ -10,16 +10,25 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 interface Props {
   monthlyData: BarChartData[];
   pieData: PieChartData[];
+  onSlideChange?: (title: string) => void;
+  selectedMonth: string;
 }
 
-export const ChartSection = ({ monthlyData, pieData }: Props) => {
+export const ChartSection = ({
+  monthlyData,
+  pieData,
+  onSlideChange,
+  selectedMonth,
+}: Props) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const slides = [
     {
       id: "bar",
       title: "Monthly Summary",
-      component: <MonthlyBarChart data={monthlyData} />,
+      component: (
+        <MonthlyBarChart data={monthlyData} selectedMonth={selectedMonth} />
+      ),
     },
     {
       id: "pie",
@@ -37,14 +46,17 @@ export const ChartSection = ({ monthlyData, pieData }: Props) => {
         snapToInterval={SCREEN_WIDTH}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item) => item.id}
-        style={{ height: 410 }}
+        style={{ height: 365 }}
         onMomentumScrollEnd={(e) => {
           const x = e.nativeEvent.contentOffset.x;
-          setActiveIndex(Math.round(x / SCREEN_WIDTH));
+          const newIndex = Math.round(x / SCREEN_WIDTH);
+          setActiveIndex(newIndex);
+          if (onSlideChange) {
+            onSlideChange(slides[newIndex].title);
+          }
         }}
         renderItem={({ item }) => (
           <View style={styles.slideWrapper}>
-            <Text style={styles.title}>{item.title}</Text>
             <GlassCard>{item.component}</GlassCard>
           </View>
         )}
@@ -56,7 +68,7 @@ export const ChartSection = ({ monthlyData, pieData }: Props) => {
         scrollEnabled={false}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.pagination}
-        style={{ width: SCREEN_WIDTH, marginTop: 24 }}
+        style={{ width: SCREEN_WIDTH, marginTop: 16 }}
         renderItem={({ index }) => (
           <View
             style={[
@@ -74,13 +86,6 @@ const styles = StyleSheet.create({
   slideWrapper: {
     width: SCREEN_WIDTH,
     paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  title: {
-    fontSize: Theme.fontSize.h6,
-    fontWeight: "600",
-    color: Theme.colors.surface,
-    marginBottom: 16,
   },
   pagination: {
     flexDirection: "row",
