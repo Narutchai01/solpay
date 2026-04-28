@@ -1,5 +1,6 @@
 import {
   ConfirmTransaction,
+  PaginatedTransactionResponse,
   TransactionResponse,
 } from "@/src/domain/model/transaction";
 
@@ -23,4 +24,10 @@ export interface ITransactionRepository {
     txUUID: string,
     access_token: string,
   ): Promise<TransactionResponse>;
+
+  GetTransactionHistory(
+    page: number,
+    pageSize: number,
+    access_token: string,
+  ): Promise<PaginatedTransactionResponse>;
 }

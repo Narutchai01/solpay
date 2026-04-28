@@ -6,6 +6,7 @@ import { BaseModel } from "../domain/model";
 import {
   ConfirmTopUp,
   ConfirmTransaction,
+  PaginatedTransactionResponse,
   TransactionResponse,
 } from "../domain/model/transaction";
 
@@ -123,6 +124,35 @@ export class TransactionRepositoryImpl implements ITransactionRepository {
         switch (status) {
           case 404:
             throw new Error("Transaction not found");
+          case 500:
+            throw new Error(resp.message || "Internal Server Error");
+        }
+      }
+      throw error;
+    }
+  }
+
+  async GetTransactionHistory(
+    page: number,
+    pageSize: number,
+    access_token: string,
+  ): Promise<PaginatedTransactionResponse> {
+    try {
+      const resp = await this.httpHelper.get<
+        BaseModel<PaginatedTransactionResponse>
+      >(`/api/v1/transactions?page=${page}&pageSize=${pageSize}`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+      return resp.data;
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        const status = error.response.status;
+        const resp = error.response.data as BackendErrorResponse;
+        switch (status) {
+          case 404:
+            throw new Error("Transactions not found");
           case 500:
             throw new Error(resp.message || "Internal Server Error");
         }

@@ -1,5 +1,6 @@
 import {
   ConfirmTransaction,
+  PaginatedTransactionResponse,
   TransactionResponse,
 } from "@/src/domain/model/transaction";
 import { ITransactionRepository } from "../port/transation.repository";
@@ -87,6 +88,24 @@ export class TransactionServiceImpl implements TransactionService {
       return resp;
     } catch (error) {
       console.error("Failed to get transaction by ID:", error);
+      throw error;
+    }
+  }
+
+  async GetTransactionHistory(
+    page: number,
+    pageSize: number,
+    access_token: string,
+  ): Promise<PaginatedTransactionResponse> {
+    try {
+      const resp = await this.transactionRepository.GetTransactionHistory(
+        page,
+        pageSize,
+        access_token,
+      );
+      return resp;
+    } catch (error) {
+      console.error("Failed to get transaction history:", error);
       throw error;
     }
   }

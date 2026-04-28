@@ -1,8 +1,10 @@
 import { Dropdown } from "@/src/components/button/dropdown";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
+import { LoadingSpinner } from "@/src/components/shard/loadingSpinner";
+import { useTransactionHistory } from "@/src/hooks/useTransactionHistory";
 import { router } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -13,12 +15,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
 import { ChartSection } from "./chartSection.component";
-import {
-  ExpenseHistoryData,
-  ExpenseHistoryItem,
-} from "./expenseHistoryItem.component";
+import { EXPENSE_CATEGORY_CONFIG } from "./expenseCategory.config";
+import { ExpenseHistoryItem } from "./expenseHistoryItem.component";
 import { MonthYearPickerModal } from "./monthYearPicker.component";
-import { BarChartData } from "./monthlyBarChart.component";
 import { PieChartData } from "./pieChart.component";
 
 const MONTHS = [
@@ -38,63 +37,8 @@ const MONTHS = [
 
 const YEARS = Array.from({ length: 20 }, (_, i) => 2026 - i);
 
-const MONTHLY_DATA: BarChartData[] = [
-  { value: 5050, label: "Jul" },
-  { value: 350, label: "Aug" },
-  { value: 850, label: "Sep" },
-  { value: 1600, label: "Oct" },
-  { value: 400, label: "Nov" },
-  { value: 750, label: "Dec" },
-  { value: 500, label: "Jan" },
-  { value: 150, label: "Apr" },
-];
-
-const HISTORY_CHART_DATA: PieChartData[] = [
-  { value: 50, color: Theme.colors.violet, label: "Food/Drink" },
-  { value: 20, color: Theme.colors.coral, label: "Shopping" },
-  { value: 20, color: Theme.colors.cyan, label: "Invest" },
-  { value: 10, color: Theme.colors.amber, label: "Others" },
-];
-
-const EXPENSES_HISTORY: ExpenseHistoryData[] = [
-  {
-    id: "1",
-    date: "21 Nov 2025 18:43",
-    transactionId: "transaction id",
-    amount: "125.00",
-    category: "Food/Drink",
-  },
-  {
-    id: "2",
-    date: "20 Nov 2025 12:30",
-    transactionId: "transaction id",
-    amount: "450.00",
-    category: "Shopping",
-  },
-  {
-    id: "3",
-    date: "19 Nov 2025 09:15",
-    transactionId: "transaction id",
-    amount: "300.00",
-    category: "Invest",
-  },
-  {
-    id: "4",
-    date: "18 Nov 2025 14:20",
-    transactionId: "transaction id",
-    amount: "75.00",
-    category: "Others",
-  },
-  {
-    id: "5",
-    date: "05 Apr 2026 10:00",
-    transactionId: "transaction id",
-    amount: "150.00",
-    category: "Food/Drink",
-  },
-];
-
 export const HistoryScreen = () => {
+  const { historyData, isLoading, fetchHistory } = useTransactionHistory();
   const [chartTitle, setChartTitle] = useState("Monthly Summary");
   const [isPickerVisible, setPickerVisible] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(
@@ -102,15 +46,137 @@ export const HistoryScreen = () => {
   );
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
-  const filteredHistory = useMemo(() => {
-    const shortMonth = selectedMonth.substring(0, 3);
-    const searchString = `${shortMonth} ${selectedYear}`;
+  useEffect(() => {
+    fetchHistory(1, 100);
+  }, [fetchHistory]);
 
-    return EXPENSES_HISTORY.filter((item) => item.date.includes(searchString));
-  }, [selectedMonth, selectedYear]);
+  const filteredHistory = useMemo(() => {
+    const monthIndex = MONTHS.indexOf(selectedMonth);
+    const formattedMonth = String(monthIndex + 1).padStart(2, "0");
+    const searchString = `${selectedYear}-${formattedMonth}`;
+
+    const filtered = historyData.filter((item) => {
+      if (!item.created_at) return false;
+      const isCorrectDate = item.created_at.startsWith(searchString);
+      const isCorrectType =
+        item.transaction_type === "ONCHAIN" ||
+        item.transaction_type === "OFFCHAIN";
+      return isCorrectDate && isCorrectType;
+    });
+
+    return filtered.map((item) => {
+      const cleanDateString = item.created_at.split(" +")[0].replace(" ", "T");
+      const dateObj = new Date(cleanDateString);
+
+      const displayDate = `${String(dateObj.getDate()).padStart(2, "0")} ${MONTHS[
+        dateObj.getMonth()
+      ].substring(
+        0,
+        3,
+      )} ${dateObj.getFullYear()} ${String(dateObj.getHours()).padStart(2, "0")}:${String(dateObj.getMinutes()).padStart(2, "0")}`;
+
+      const rawCategory = item.category?.name || "Others";
+      const validCategories = ["Food/Drink", "Shopping", "Invest", "Others"];
+
+      const matchedCategory = validCategories.find(
+        (c) => c.toLowerCase() === rawCategory.toLowerCase(),
+      );
+
+      const finalCategory = matchedCategory ? matchedCategory : "Others";
+
+      return {
+        id: String(item.id),
+        date: displayDate,
+        transactionId: item.transaction_uuid,
+        amount: item.thb_amount.toFixed(2),
+        category: finalCategory as
+          | "Food/Drink"
+          | "Shopping"
+          | "Invest"
+          | "Others",
+        slipUrl: item.transaction_off_chain?.slip_url,
+      };
+    });
+  }, [selectedMonth, selectedYear, historyData]);
+
+  const dynamicBarData = useMemo(() => {
+    const monthlyTotals = Array(12).fill(0);
+
+    historyData.forEach((item) => {
+      if (item.transaction_type === "TOPUP") return;
+      if (!item.created_at) return;
+
+      const cleanDateString = item.created_at.split(" +")[0].replace(" ", "T");
+      const dateObj = new Date(cleanDateString);
+
+      if (dateObj.getFullYear() === selectedYear) {
+        monthlyTotals[dateObj.getMonth()] += item.thb_amount;
+      }
+    });
+
+    return MONTHS.map((month, index) => ({
+      label: month.substring(0, 3),
+      value: monthlyTotals[index],
+    }));
+  }, [historyData, selectedYear]);
+
+  const dynamicPieData = useMemo(() => {
+    const monthIndex = MONTHS.indexOf(selectedMonth);
+    const formattedMonth = String(monthIndex + 1).padStart(2, "0");
+    const searchString = `${selectedYear}-${formattedMonth}`;
+
+    let totalExpense = 0;
+    const categorySums: Record<string, number> = {
+      "Food/Drink": 0,
+      Shopping: 0,
+      Invest: 0,
+      Others: 0,
+    };
+
+    historyData.forEach((item) => {
+      if (item.transaction_type === "TOPUP") return;
+      if (!item.created_at || !item.created_at.startsWith(searchString)) return;
+
+      const rawCategory = item.category?.name || "Others";
+      const validCategories = ["Food/Drink", "Shopping", "Invest", "Others"];
+      const matchedCategory = validCategories.find(
+        (c) => c.toLowerCase() === rawCategory.toLowerCase(),
+      );
+      const finalCategory = matchedCategory ? matchedCategory : "Others";
+
+      categorySums[finalCategory] += item.thb_amount;
+      totalExpense += item.thb_amount;
+    });
+
+    if (totalExpense === 0) {
+      return [{ value: 100, color: Theme.colors.g50, label: "No Data" }];
+    }
+
+    return Object.keys(categorySums)
+      .map((key) => {
+        const amount = categorySums[key];
+        if (amount === 0) return null;
+
+        const percentage = Math.round((amount / totalExpense) * 100);
+
+        const colorName =
+          EXPENSE_CATEGORY_CONFIG[key as keyof typeof EXPENSE_CATEGORY_CONFIG]
+            .color;
+        const actualColor =
+          Theme.colors[colorName as keyof typeof Theme.colors];
+
+        return {
+          label: key,
+          value: percentage,
+          color: actualColor,
+        };
+      })
+      .filter(Boolean) as PieChartData[];
+  }, [historyData, selectedMonth, selectedYear]);
 
   return (
     <GradientLayout>
+      {isLoading && <LoadingSpinner overlay={true} />}
       <SafeAreaView style={styles.safeArea}>
         <FlatList
           data={filteredHistory}
@@ -129,10 +195,9 @@ export const HistoryScreen = () => {
                 />
               </View>
 
-              {/* Charts */}
               <ChartSection
-                monthlyData={MONTHLY_DATA}
-                pieData={HISTORY_CHART_DATA}
+                monthlyData={dynamicBarData}
+                pieData={dynamicPieData}
                 onSlideChange={(newTitle) => setChartTitle(newTitle)}
                 selectedMonth={selectedMonth.substring(0, 3)}
               />
@@ -147,7 +212,11 @@ export const HistoryScreen = () => {
               onPress={() =>
                 router.push({
                   pathname: "/transferSuccessful",
-                  params: { from: "history", id: item.id },
+                  params: {
+                    from: "history",
+                    id: item.transactionId,
+                    slipUrl: item.slipUrl,
+                  },
                 })
               }
             >
@@ -155,11 +224,13 @@ export const HistoryScreen = () => {
             </TouchableOpacity>
           )}
           ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>
-                No transactions found for {selectedMonth} {selectedYear}
-              </Text>
-            </View>
+            !isLoading ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>
+                  No transactions found for {selectedMonth} {selectedYear}
+                </Text>
+              </View>
+            ) : null
           }
         />
 
