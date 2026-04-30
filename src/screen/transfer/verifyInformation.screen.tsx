@@ -3,6 +3,7 @@ import { GlassCard } from "@/src/components/card/glass";
 import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
+import { LoadingSpinner } from "@/src/components/shard/loadingSpinner";
 import { CategoryModel } from "@/src/domain/model/category";
 import { useCategory } from "@/src/hooks/useCategory";
 import { useQuote } from "@/src/hooks/useQuote";
@@ -34,6 +35,7 @@ export const TransferVerifyInformationScreen = () => {
     quoteID: string;
   }>();
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { categories, GetCategories } = useCategory();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
@@ -90,25 +92,42 @@ export const TransferVerifyInformationScreen = () => {
   console.log("quote in Verify", quote);
 
   const handleConfirm = async () => {
-    if (!quote) {
-      return;
-    }
+    if (!quote) return;
 
-    if (quote.quote_type === "OFFCHAIN") {
-      await CreateTransactionOffchain({ quoteID: quote.quote_id });
-    } else if (quote.quote_type === "ONCHAIN") {
-      const signedTx = await ConfirmQuote(quote?.quote_id);
+    setIsSubmitting(true);
 
-      if (!signedTx) {
-        return;
+    try {
+      if (quote.quote_type === "OFFCHAIN") {
+        const tx = await CreateTransactionOffchain({ quoteID: quote.quote_id });
+        if (tx) {
+          router.replace({ pathname: "/transferSuccessful" });
+        }
+      } else if (quote.quote_type === "ONCHAIN") {
+        const signedTx = await ConfirmQuote(quote?.quote_id);
+
+        if (!signedTx) {
+          setIsSubmitting(false);
+          return;
+        }
+
+        const tx = await CreateTransactionOnchain({
+          quoteID: quote.quote_id,
+          tx_hash: signedTx,
+        });
+
+        console.log("transaction in Verify", tx);
+
+        if (tx) {
+          router.replace({
+            pathname: "/transferSuccessful",
+            params: { txHash: signedTx },
+          });
+        }
       }
-
-      const tx = await CreateTransactionOnchain({
-        quoteID: quote.quote_id,
-        tx_hash: signedTx,
-      });
-
-      console.log("transaction in Verify", tx);
+    } catch (error) {
+      console.error("Transaction failed:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -116,6 +135,8 @@ export const TransferVerifyInformationScreen = () => {
 
   return (
     <GradientLayout>
+      {isSubmitting && <LoadingSpinner overlay={true} />}
+
       <SafeAreaView style={styles.safeArea}>
         <Header title="Verify Information" />
 
