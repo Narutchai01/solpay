@@ -135,14 +135,20 @@ export class TransactionRepositoryImpl implements ITransactionRepository {
   async GetTransactionHistory(
     page: number,
     pageSize: number,
+    txTypes: string[],
     access_token: string,
   ): Promise<PaginatedTransactionResponse> {
     try {
       const resp = await this.httpHelper.get<
         BaseModel<PaginatedTransactionResponse>
-      >(`/api/v1/transactions?page=${page}&pageSize=${pageSize}`, {
+      >("/api/v1/transactions/me", {
         headers: {
           Authorization: `Bearer ${access_token}`,
+        },
+        params: {
+          page: page,
+          pageSize: pageSize,
+          txType: txTypes,
         },
       });
       return resp.data;

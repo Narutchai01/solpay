@@ -28,6 +28,7 @@ export interface ITransactionRepository {
   GetTransactionHistory(
     page: number,
     pageSize: number,
+    txTypes: string[],
     access_token: string,
   ): Promise<PaginatedTransactionResponse>;
 }
