@@ -110,12 +110,18 @@ export const TransferScreen = () => {
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.amountInput}
-                  value={reqQuote.thb_amount.toLocaleString()}
+                  value={
+                    reqQuote.thb_amount === 0
+                      ? ""
+                      : reqQuote.thb_amount.toString()
+                  }
                   onChangeText={(text) => {
                     const numericOnly = text.replace(/[^0-9.]/g, "");
+                    const newAmount =
+                      numericOnly === "" ? 0 : parseFloat(numericOnly);
                     setReqQuote({
                       ...reqQuote,
-                      thb_amount: parseFloat(numericOnly),
+                      thb_amount: isNaN(newAmount) ? 0 : newAmount,
                     });
                   }}
                   placeholder="0.00"
