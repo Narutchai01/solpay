@@ -95,12 +95,14 @@ export class TransactionServiceImpl implements TransactionService {
   async GetTransactionHistory(
     page: number,
     pageSize: number,
+    txTypes: string[],
     access_token: string,
   ): Promise<PaginatedTransactionResponse> {
     try {
       const resp = await this.transactionRepository.GetTransactionHistory(
         page,
         pageSize,
+        txTypes,
         access_token,
       );
       return resp;

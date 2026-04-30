@@ -1,7 +1,7 @@
 import { HttpHelper } from "@/lib/http";
 import {
-    PaginatedTransactionResponse,
-    TransactionHistoryItem,
+  PaginatedTransactionResponse,
+  TransactionHistoryItem,
 } from "@/src/domain/model/transaction";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { API_URL } from "../config/config";
@@ -33,7 +33,11 @@ export const useTransactionHistory = () => {
   }, []);
 
   const fetchHistory = useCallback(
-    async (page: number = 1, pageSize: number = 10) => {
+    async (
+      page: number = 1,
+      pageSize: number = 10,
+      txTypes: string[] = ["ONCHAIN", "OFFCHAIN"],
+    ) => {
       if (!accessToken) return;
 
       setIsLoading(true);
@@ -44,6 +48,7 @@ export const useTransactionHistory = () => {
           await transactionService.GetTransactionHistory(
             page,
             pageSize,
+            txTypes,
             accessToken,
           );
 
