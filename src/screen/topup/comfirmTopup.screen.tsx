@@ -26,26 +26,6 @@ export const ConfirmTopupScreen = () => {
   const { quote, GetQuoteByID, ConfirmQuote } = useQuote();
   const { ConfirmTopup } = useTransaction();
 
-  // const handleConfirm = async () => {
-  //   if (!id) {
-  //     Alert.alert("Missing quote", "Quote ID is not available.");
-  //     return;
-  //   }
-
-  //   setIsConfirming(true);
-  //   try {
-  //     const signedTx = await ConfirmQuote(id);
-  //     console.log("Signed transaction:", signedTx);
-  //     router.replace("/topupSuccess");
-  //   } catch (error) {
-  //     const message =
-  //       error instanceof Error ? error.message : "Failed to confirm quote";
-  //     Alert.alert("Confirm failed", message);
-  //   } finally {
-  //     setIsConfirming(false);
-  //   }
-  // };
-
   const handleConfirm = async () => {
     if (!id) {
       Alert.alert("Missing quote", "Quote ID is not available.");
@@ -76,7 +56,10 @@ export const ConfirmTopupScreen = () => {
 
       router.replace({
         pathname: "/topupSuccess",
-        params: { txUUID },
+        params: {
+          txUUID: txUUID,
+          txHash: signedTx,
+        },
       });
     } catch (error) {
       const message =

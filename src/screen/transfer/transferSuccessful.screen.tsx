@@ -72,7 +72,6 @@ export const TransferSuccessfulScreen = () => {
                 variant="solid"
                 color="v300"
                 onPress={() => router.replace("/(tabs)")}
-                style={styles.doneButton}
                 textColor="g300"
               />
             </View>
@@ -100,6 +99,7 @@ const styles = StyleSheet.create({
   explorerLinkContainer: {
     marginTop: 16,
     alignItems: "flex-start",
+    paddingLeft: 16,
   },
   explorerLinkText: {
     color: Theme.colors.v300,
@@ -108,8 +108,5 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingHorizontal: 16,
-  },
-  doneButton: {
-    paddingVertical: 10,
   },
 });

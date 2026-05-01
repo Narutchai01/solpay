@@ -3,8 +3,16 @@ import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
 import { FontAwesome5 } from "@expo/vector-icons";
+import * as WebBrowser from "expo-web-browser";
 import React from "react";
-import { FlatList, StyleSheet, Text, View, ViewStyle } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
 
@@ -13,6 +21,7 @@ interface SuccessLayoutProps {
   buttonTitle?: string;
   onButtonPress: () => void;
   cardStyle?: ViewStyle;
+  txHash?: string;
 }
 
 const DetailRow = ({ label, value }: DetailConfirmationCard) => (
@@ -27,7 +36,15 @@ export const SuccessLayout = ({
   buttonTitle = "Done",
   onButtonPress,
   cardStyle,
+  txHash,
 }: SuccessLayoutProps) => {
+  const handleOpenExplorer = async () => {
+    if (txHash) {
+      const url = `https://explorer.solana.com/tx/${txHash}?cluster=devnet`;
+      await WebBrowser.openBrowserAsync(url);
+    }
+  };
+
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
@@ -49,6 +66,17 @@ export const SuccessLayout = ({
               showsVerticalScrollIndicator={false}
             />
           </GlassCard>
+
+          {txHash && (
+            <TouchableOpacity
+              onPress={handleOpenExplorer}
+              style={styles.explorerLinkContainer}
+            >
+              <Text style={styles.explorerLinkText}>
+                View on Solana Explorer
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Action Button */}
@@ -58,7 +86,6 @@ export const SuccessLayout = ({
             variant="solid"
             color="v300"
             onPress={onButtonPress}
-            style={styles.doneButton}
             textColor="g300"
           />
         </View>
@@ -105,9 +132,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     paddingHorizontal: 16,
   },
-  doneButton: {
-    paddingVertical: 10,
-  },
   iconCircle: {
     width: 85,
     height: 85,
@@ -117,5 +141,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 38,
     marginTop: 10,
+  },
+  explorerLinkContainer: {
+    marginTop: 20,
+    alignSelf: "center",
+  },
+  explorerLinkText: {
+    color: Theme.colors.v300,
+    fontSize: Theme.fontSize.textM,
+    textDecorationLine: "underline",
   },
 });
