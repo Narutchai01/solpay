@@ -37,7 +37,9 @@ export const TransferVerifyInformationScreen = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { categories, GetCategories } = useCategory();
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<
+    number | string | null
+  >(null);
 
   const { ConfirmQuote } = useQuote();
 
@@ -46,7 +48,7 @@ export const TransferVerifyInformationScreen = () => {
   }, [GetCategories]);
 
   const renderCategoryItem = ({ item }: { item: CategoryModel }) => {
-    const isSelected = selectedCategory === item.name;
+    const isSelected = selectedCategoryId === item.id;
     const config =
       EXPENSE_CATEGORY_CONFIG[item.name as ExpenseCategory] ||
       EXPENSE_CATEGORY_CONFIG["Others"];
@@ -56,7 +58,7 @@ export const TransferVerifyInformationScreen = () => {
         title={item.name}
         variant={isSelected ? "solid" : "outline"}
         color={isSelected ? config.color : "surface"}
-        onPress={() => setSelectedCategory(item.name as ExpenseCategory)}
+        onPress={() => setSelectedCategoryId(item.id)}
         style={[
           styles.categoryButton,
           !isSelected && styles.unselectedCategoryButton,
@@ -94,7 +96,10 @@ export const TransferVerifyInformationScreen = () => {
 
     try {
       if (quote.quote_type === "OFFCHAIN") {
-        const tx = await CreateTransactionOffchain({ quoteID: quote.quote_id });
+        const tx = await CreateTransactionOffchain({
+          quoteID: quote.quote_id,
+          category_id: selectedCategoryId,
+        });
         if (tx) {
           router.replace({ pathname: "/transferSuccessful" });
         }
@@ -109,6 +114,7 @@ export const TransferVerifyInformationScreen = () => {
         const tx = await CreateTransactionOnchain({
           quoteID: quote.quote_id,
           tx_hash: signedTx,
+          category_id: selectedCategoryId,
         });
 
         if (tx) {
