@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   },
   explorerLinkContainer: {
     marginTop: 16,
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   explorerLinkText: {
     color: Theme.colors.v300,
