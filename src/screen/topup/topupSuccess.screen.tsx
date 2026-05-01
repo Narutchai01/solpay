@@ -7,7 +7,10 @@ import { useEffect, useMemo } from "react";
 import { Text } from "react-native";
 
 export const TopupSuccessScreen = () => {
-  const params = useLocalSearchParams<{ txUUID?: string | string[] }>();
+  const params = useLocalSearchParams<{
+    txUUID?: string | string[];
+    txHash?: string | string[];
+  }>();
   const txUUID = useMemo(() => {
     const rawTxUUID = params.txUUID;
     if (Array.isArray(rawTxUUID)) {
@@ -15,6 +18,14 @@ export const TopupSuccessScreen = () => {
     }
     return rawTxUUID?.trim() ?? "";
   }, [params.txUUID]);
+
+  const txHash = useMemo(() => {
+    const rawTxHash = params.txHash;
+    if (Array.isArray(rawTxHash)) {
+      return rawTxHash[0]?.trim() ?? "";
+    }
+    return rawTxHash?.trim() ?? "";
+  }, [params.txHash]);
 
   const { GetWsTransaction, isCompleted } = useTransactionWs();
   const { GetTransactionByID, transaction } = useTransaction();
@@ -146,6 +157,7 @@ export const TopupSuccessScreen = () => {
     <SuccessLayout
       details={swapData}
       onButtonPress={() => router.replace("/(tabs)")}
+      txHash={txHash}
     />
   );
 };
