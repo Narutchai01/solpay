@@ -73,6 +73,7 @@ export const TransferSuccessfulScreen = () => {
                 color="v300"
                 onPress={() => router.replace("/(tabs)")}
                 textColor="g300"
+                style={styles.doneButton}
               />
             </View>
           )}
@@ -108,5 +109,8 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingHorizontal: 16,
+  },
+  doneButton: {
+    paddingVertical: 10,
   },
 });
