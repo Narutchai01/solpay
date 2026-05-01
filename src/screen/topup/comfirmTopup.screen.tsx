@@ -9,7 +9,7 @@ import { useQuote } from "@/src/hooks/useQuote";
 import { useTransaction } from "@/src/hooks/useTransaction";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const DetailRow = ({ label, value }: DetailConfirmationCard) => (
@@ -22,23 +22,31 @@ const DetailRow = ({ label, value }: DetailConfirmationCard) => (
 export const ConfirmTopupScreen = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorTitle, setErrorTitle] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { quote, GetQuoteByID, ConfirmQuote } = useQuote();
   const { ConfirmTopup } = useTransaction();
 
+  const showError = (title: string, message: string) => {
+    setErrorTitle(title);
+    setErrorMessage(message);
+    setShowErrorModal(true);
+  };
+
   const handleConfirm = async () => {
     if (!id) {
-      Alert.alert("Missing quote", "Quote ID is not available.");
+      showError("Missing quote", "Quote ID is not available.");
       return;
     }
 
     setIsConfirming(true);
     try {
       const signedTx = await ConfirmQuote(id);
-      console.log("Signed transaction:", signedTx);
 
       if (!signedTx) {
-        Alert.alert("Confirmation failed", "No transaction hash returned.");
+        showError("Confirmation failed", "No transaction hash returned.");
         return;
       }
 
@@ -50,7 +58,7 @@ export const ConfirmTopupScreen = () => {
 
       const txUUID = tx?.transaction_uuid?.trim();
       if (!txUUID) {
-        Alert.alert("Confirmation failed", "Transaction ID was not returned.");
+        showError("Confirmation failed", "Transaction ID was not returned.");
         return;
       }
 
@@ -64,7 +72,7 @@ export const ConfirmTopupScreen = () => {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to confirm quote";
-      Alert.alert("Confirm failed", message);
+      showError("Confirm failed", message);
     } finally {
       setIsConfirming(false);
     }
@@ -111,15 +119,13 @@ export const ConfirmTopupScreen = () => {
 
   useEffect(() => {
     const fetchQuote = async () => {
-      if (id && quote?.quote_id !== id) {
+      if (id) {
         await GetQuoteByID(id);
       }
     };
 
     void fetchQuote();
-  }, [GetQuoteByID, id, quote?.quote_id]);
-
-  console.log("quote inconfirm :", quote);
+  }, [GetQuoteByID, id]);
 
   return (
     <GradientLayout>
@@ -169,6 +175,16 @@ export const ConfirmTopupScreen = () => {
             setShowCancelModal(false);
             router.back();
           }}
+        />
+
+        <ConfirmModal
+          visible={showErrorModal}
+          iconName="close-circle"
+          iconColor={Theme.colors.errorText}
+          title={errorTitle}
+          description={errorMessage}
+          confirmLabel="Close"
+          onConfirm={() => setShowErrorModal(false)}
         />
       </SafeAreaView>
     </GradientLayout>

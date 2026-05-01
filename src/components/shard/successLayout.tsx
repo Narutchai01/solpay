@@ -87,6 +87,7 @@ export const SuccessLayout = ({
             color="v300"
             onPress={onButtonPress}
             textColor="g300"
+            style={styles.doneButton}
           />
         </View>
       </SafeAreaView>
@@ -150,5 +151,8 @@ const styles = StyleSheet.create({
     color: Theme.colors.v300,
     fontSize: Theme.fontSize.textM,
     textDecorationLine: "underline",
+  },
+  doneButton: {
+    paddingVertical: 10,
   },
 });

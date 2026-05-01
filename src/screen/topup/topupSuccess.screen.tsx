@@ -1,10 +1,13 @@
+import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { LoadingSpinner } from "@/src/components/shard/loadingSpinner";
 import { SuccessLayout } from "@/src/components/shard/successLayout";
 import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
 import { useTransaction } from "@/src/hooks/useTransaction";
 import { useTransactionWs } from "@/src/hooks/useTransaction-ws";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo } from "react";
-import { Text } from "react-native";
+import { StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export const TopupSuccessScreen = () => {
   const params = useLocalSearchParams<{
@@ -141,16 +144,14 @@ export const TopupSuccessScreen = () => {
     [transactionByParam, txUUID],
   );
 
-  if (!txUUID) {
-    return <Text>Missing transaction ID.</Text>;
-  }
-
-  if (!isCompleted) {
-    return <Text>Waiting for transaction confirmation...</Text>;
-  }
-
-  if (!transactionByParam) {
-    return <Text>Loading transaction details...</Text>;
+  if (!txUUID || !isCompleted || !transactionByParam) {
+    return (
+      <GradientLayout>
+        <SafeAreaView style={styles.loadingContainer}>
+          <LoadingSpinner overlay={false} />
+        </SafeAreaView>
+      </GradientLayout>
+    );
   }
 
   return (
@@ -161,3 +162,11 @@ export const TopupSuccessScreen = () => {
     />
   );
 };
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
