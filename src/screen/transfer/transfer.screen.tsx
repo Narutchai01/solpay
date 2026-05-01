@@ -9,7 +9,7 @@ import { CreateQuoteRequest } from "@/src/domain/model/quote";
 import { useBalance } from "@/src/hooks/useBalance";
 import { useQuote } from "@/src/hooks/useQuote";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Image,
   ScrollView,
@@ -22,7 +22,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export const TransferScreen = () => {
   const { balance, GetBalance } = useBalance();
-  const { createQuote, quote } = useQuote();
+  const { createQuote } = useQuote();
   const router = useRouter();
 
   const [reqQuote, setReqQuote] = useState<CreateQuoteRequest>({
@@ -37,15 +37,20 @@ export const TransferScreen = () => {
     GetBalance();
   }, [GetBalance]);
 
-  const walletOptions: WalletOption[] = [
-    {
-      id: "1",
-      name: "SolPay",
-      type: "OFFCHAIN",
-      balance: balance ? `${balance.thb_amount.toLocaleString()} THB` : "0 THB",
-    },
-    { id: "2", name: "Software Wallet", type: "ONCHAIN" },
-  ];
+  const walletOptions: WalletOption[] = useMemo(
+    () => [
+      {
+        id: "1",
+        name: "SolPay",
+        type: "OFFCHAIN",
+        balance: balance
+          ? `${balance.thb_amount.toLocaleString()} THB`
+          : "0 THB",
+      },
+      { id: "2", name: "Software Wallet", type: "ONCHAIN" },
+    ],
+    [balance],
+  );
 
   const handleCreateQuote = async () => {
     const newQuote = await createQuote(reqQuote);
@@ -54,8 +59,6 @@ export const TransferScreen = () => {
       params: { quoteID: newQuote?.quote_id },
     });
   };
-
-  console.log("from Transfer", quote);
 
   return (
     <GradientLayout>
