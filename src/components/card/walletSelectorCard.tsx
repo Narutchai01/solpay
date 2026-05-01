@@ -22,7 +22,10 @@ export const WalletSelectorCard = ({
   onWalletChange,
 }: WalletSelectorProps) => {
   const [expanded, setExpanded] = useState(false);
-  const [selectedWallet, setSelectedWallet] = useState(wallets[0]);
+  const [selectedWalletId, setSelectedWalletId] = useState(wallets[0]?.id);
+
+  const selectedWallet =
+    wallets.find((w) => w.id === selectedWalletId) || wallets[0];
 
   const toggleExpand = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -31,7 +34,7 @@ export const WalletSelectorCard = ({
 
   const selectWallet = (wallet: WalletOption) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setSelectedWallet(wallet);
+    setSelectedWalletId(wallet.id);
     setExpanded(false);
     onWalletChange(wallet);
   };
@@ -75,6 +78,7 @@ export const WalletSelectorCard = ({
           </View>
           <View style={styles.textWrapper}>
             <Text style={styles.walletName}>{selectedWallet.name}</Text>
+
             {!expanded && selectedWallet.balance && (
               <Text style={styles.walletBalance}>
                 Available Balance {selectedWallet.balance}
