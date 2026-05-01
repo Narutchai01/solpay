@@ -28,7 +28,7 @@ import {
 
 export const TransferVerifyInformationScreen = () => {
   const { GetQuoteByID, quote } = useQuote();
-  const { CreateTransactionOffchain, transaction, CreateTransactionOnchain } =
+  const { CreateTransactionOffchain, CreateTransactionOnchain } =
     useTransaction();
   const router = useRouter();
   const { quoteID } = useLocalSearchParams<{
@@ -78,8 +78,6 @@ export const TransferVerifyInformationScreen = () => {
     );
   };
 
-  console.log("quoteID in Verify", quoteID);
-
   useEffect(() => {
     const fetchQuote = async () => {
       if (quoteID && quote?.quote_id !== quoteID) {
@@ -88,8 +86,6 @@ export const TransferVerifyInformationScreen = () => {
     };
     void fetchQuote();
   }, [quoteID, GetQuoteByID, quote?.quote_id]);
-
-  console.log("quote in Verify", quote);
 
   const handleConfirm = async () => {
     if (!quote) return;
@@ -115,8 +111,6 @@ export const TransferVerifyInformationScreen = () => {
           tx_hash: signedTx,
         });
 
-        console.log("transaction in Verify", tx);
-
         if (tx) {
           router.replace({
             pathname: "/transferSuccessful",
@@ -130,8 +124,6 @@ export const TransferVerifyInformationScreen = () => {
       setIsSubmitting(false);
     }
   };
-
-  console.log("transaction in Verify", transaction);
 
   return (
     <GradientLayout>
