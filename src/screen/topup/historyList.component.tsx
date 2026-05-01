@@ -34,12 +34,19 @@ export const HistoryListComponent = ({ data }: HistoryListProps) => {
   return (
     <View style={styles.historySection}>
       <Text style={styles.sectionTitle}>Top Up History</Text>
-      <FlatList
-        data={data}
-        renderItem={({ item }) => <HistoryCard item={item} />}
-        keyExtractor={(item) => item.id}
-        scrollEnabled={false}
-      />
+
+      {data.length > 0 ? (
+        <FlatList
+          data={data}
+          renderItem={({ item }) => <HistoryCard item={item} />}
+          keyExtractor={(item) => item.id}
+          scrollEnabled={false}
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No top up history found</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -80,5 +87,15 @@ const styles = StyleSheet.create({
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.textS,
     marginTop: 4,
+  },
+  emptyContainer: {
+    paddingVertical: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyText: {
+    color: Theme.colors.surface,
+    fontSize: Theme.fontSize.textM,
+    opacity: 0.6,
   },
 });

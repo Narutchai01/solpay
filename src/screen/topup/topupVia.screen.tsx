@@ -4,6 +4,7 @@ import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { CreateQuoteRequest } from "@/src/domain/model/quote";
 import { useQuote } from "@/src/hooks/useQuote";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -18,13 +19,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BalanceCardComponent } from "./balanceCard.component";
-import { useRouter } from "expo-router";
 
 const PRESET_AMOUNTS = [200, 500, 1000, 2000];
 
 export const TopupViaScreen = () => {
   const router = useRouter();
-  const { createQuote, quote } = useQuote();
+  const { createQuote } = useQuote();
   const [reqQuote, setReqQuote] = useState<CreateQuoteRequest>({
     thb_amount: 0,
     action_type: "TOPUP",
@@ -41,16 +41,20 @@ export const TopupViaScreen = () => {
   };
 
   const handleCreateQuote = async () => {
-    await createQuote(reqQuote);
-
-    if (quote?.quote_id) {
-      router.push({
-        pathname: "/comfirmTopup/[id]",
-        params: { id: quote?.quote_id },
-      });
+    try {
+      const newQuote = await createQuote(reqQuote);
+      if (newQuote && newQuote.quote_id) {
+        router.push({
+          pathname: "/comfirmTopup/[id]",
+          params: { id: newQuote.quote_id },
+        });
+      } else {
+        console.error("Failed to create quote: No quote ID returned");
+      }
+    } catch (error) {
+      console.error("Error creating quote:", error);
     }
   };
-
   const renderPresetItem = (item: number) => {
     const isSelected = reqQuote.thb_amount === item;
 
@@ -67,8 +71,6 @@ export const TopupViaScreen = () => {
       </TouchableOpacity>
     );
   };
-
-  console.log("Quote:", quote);
 
   return (
     <GradientLayout>
