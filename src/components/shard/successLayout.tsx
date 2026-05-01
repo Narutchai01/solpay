@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
   explorerLinkContainer: {
     marginTop: 20,
-    alignSelf: "center",
+    alignSelf: "flex-start",
   },
   explorerLinkText: {
     color: Theme.colors.v300,
