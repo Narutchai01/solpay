@@ -22,6 +22,7 @@ export interface ConfirmTopUp {
 export interface ConfirmTransaction {
   quoteID: string;
   tx_hash?: string;
+  category_id?: string | number | null;
 }
 
 export interface TransactionCategory {
