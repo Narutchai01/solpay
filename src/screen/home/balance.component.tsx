@@ -42,7 +42,7 @@ export const BalanceComponent = ({
             }
             iconBgColor="v300"
             style={{ minWidth: 110 }}
-            onPress={() => router.replace("/topup")}
+            onPress={() => router.push("/topup")}
           />
 
           <Button
@@ -57,7 +57,7 @@ export const BalanceComponent = ({
             }
             iconBgColor="v300"
             style={{ minWidth: 110 }}
-            onPress={() => router.replace("/swap")}
+            onPress={() => router.push("/swap")}
           />
         </View>
       </View>

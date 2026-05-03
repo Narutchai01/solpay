@@ -3,6 +3,7 @@ import { Theme } from "@/src/core/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   StyleSheet,
@@ -23,6 +24,7 @@ export interface AssetData {
 
 interface AssetsComponentProps {
   assets: AssetData[];
+  loading?: boolean;
 }
 
 const AssetItem = ({
@@ -59,7 +61,7 @@ const AssetItem = ({
   </View>
 );
 
-export const AssetsComponent = ({ assets }: AssetsComponentProps) => {
+export const AssetsComponent = ({ assets, loading }: AssetsComponentProps) => {
   return (
     <GlassCard style={styles.assetsCard}>
       <View style={styles.assetsContent}>
@@ -70,22 +72,28 @@ export const AssetsComponent = ({ assets }: AssetsComponentProps) => {
           </TouchableOpacity>
         </View>
 
-        <FlatList
-          data={assets}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <AssetItem
-              name={item.name}
-              sub={item.sub}
-              val={item.val}
-              icon={item.icon}
-              currency={item.currency}
-              imageUri={item.imageUri}
-            />
-          )}
-          scrollEnabled={false}
-          showsVerticalScrollIndicator={false}
-        />
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Theme.colors.surface} />
+          </View>
+        ) : (
+          <FlatList
+            data={assets}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <AssetItem
+                name={item.name}
+                sub={item.sub}
+                val={item.val}
+                icon={item.icon}
+                currency={item.currency}
+                imageUri={item.imageUri}
+              />
+            )}
+            scrollEnabled={false}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </View>
     </GlassCard>
   );
@@ -150,5 +158,10 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
+  },
+  loadingContainer: {
+    paddingVertical: 40,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

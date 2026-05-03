@@ -20,7 +20,7 @@ import { BalanceComponent } from "./balance.component";
 
 export const HomeScreen = () => {
   const { balance, GetBalance } = useBalance();
-  const { assets, fetchAssets } = useTokenAccounts();
+  const { assets, fetchAssets, loading: assetsLoading } = useTokenAccounts();
   const { getSwapQuote } = useSwap();
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -79,7 +79,7 @@ export const HomeScreen = () => {
           <BalanceComponent balance={balance?.thb_amount ?? 0} currency="THB" />
 
           {/* Assets Section */}
-          <AssetsComponent assets={assets} />
+          <AssetsComponent assets={assets} loading={assetsLoading} />
         </ScrollView>
       </SafeAreaView>
     </GradientLayout>

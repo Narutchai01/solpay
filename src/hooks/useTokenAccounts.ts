@@ -137,8 +137,8 @@ export const useTokenAccounts = () => {
       const solAsset: AssetData = {
         id: "native-sol",
         name: "Solana",
-        sub: `${solBalance.toFixed(6)} SOL`,
-        val: solBalance.toFixed(6),
+        sub: `${solBalance} SOL`,
+        val: solBalance.toString(),
         icon: "logo-bitcoin",
         currency: "SOL",
         // No Metaplex metadata for native SOL – icon is used as fallback
@@ -187,7 +187,7 @@ export const useTokenAccounts = () => {
           id: mint,
           name,
           sub: `${uiAmountString} ${symbol}`,
-          val: uiAmount.toFixed(6),
+          val: uiAmountString,
           icon,
           currency: symbol,
           imageUri,
