@@ -2,13 +2,13 @@ import { GlassCard } from "@/src/components/card/glass";
 import { Ionicons } from "@expo/vector-icons";
 import React, { ComponentProps } from "react";
 import {
-    FlatList,
-    ListRenderItem,
-    Modal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  ListRenderItem,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Theme } from "../../core/theme/theme";
 
@@ -52,10 +52,10 @@ export const TokenSelectModal = ({
 
           <View style={styles.tokenInfo}>
             <Text style={styles.tokenName}>{item.name}</Text>
-            <Text style={styles.tokenSubText}>{item.sub}</Text>
+            {/*<Text style={styles.tokenSubText}>{item.sub}</Text>*/}
           </View>
 
-          <Text style={styles.tokenValue}>{item.val} THB</Text>
+          <Text style={styles.tokenValue}>{item.sub}</Text>
         </View>
       </GlassCard>
     </TouchableOpacity>

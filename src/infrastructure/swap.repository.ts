@@ -11,7 +11,7 @@ export class SwapRepositoryImpl implements SwapRepository {
   async GetSwapQuote(req: SwapQuoteRequest): Promise<SwapQuote> {
     try {
       const resp = await this.httpHelper.get<BaseModel<SwapQuote>>(
-        "/api/v1/swap/quote",
+        "/api/v1/swaps/quote",
         {
           params: req,
         },

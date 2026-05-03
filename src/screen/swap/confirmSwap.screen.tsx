@@ -3,15 +3,34 @@ import { GlassCard } from "@/src/components/card/glass";
 import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
+import { useSwap } from "@/src/hooks/useSwap";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useState } from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
 
 export const ConfirmSwapScreen = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const {
+    fromToken,
+    amountIn,
+    amountOut,
+    currentPrice,
+    slippage,
+    getSwapQuote,
+    loading,
+  } = useSwap();
+
+  useEffect(() => {
+    if (amountIn) {
+      void getSwapQuote({
+        amountIn: amountIn,
+        slippage: parseFloat(slippage),
+      });
+    }
+  }, []);
 
   return (
     <GradientLayout>
@@ -30,19 +49,27 @@ export const ConfirmSwapScreen = () => {
                     size={18}
                     color={Theme.colors.surface}
                   />
-                  <Text style={styles.balanceText}>5 SOL</Text>
+                  <Text style={styles.balanceText}>
+                    {fromToken?.val || "0"} {fromToken?.name === "Solana" ? "SOL" : fromToken?.name || ""}
+                  </Text>
                 </View>
               </View>
 
               <View style={styles.row}>
                 <View style={styles.tokenDisplay}>
-                  <Image
-                    source={require("@/assets/images/usdt-icon.png")}
-                    style={styles.tokenIcon}
-                  />
-                  <Text style={styles.tokenName}>SOL</Text>
+                  {fromToken?.imageUri ? (
+                    <Image
+                      source={{ uri: fromToken.imageUri }}
+                      style={styles.tokenIcon}
+                    />
+                  ) : (
+                    <View style={[styles.tokenIcon, { backgroundColor: Theme.colors.g300, justifyContent: 'center', alignItems: 'center' }]}>
+                      <Ionicons name={fromToken?.icon || 'help-circle-outline'} size={24} color="white" />
+                    </View>
+                  )}
+                  <Text style={styles.tokenName}>{fromToken?.name || "SOL"}</Text>
                 </View>
-                <Text style={styles.amountText}>125</Text>
+                <Text style={styles.amountText}>{amountIn}</Text>
               </View>
             </GlassCard>
 
@@ -71,7 +98,7 @@ export const ConfirmSwapScreen = () => {
                     size={18}
                     color={Theme.colors.surface}
                   />
-                  <Text style={styles.balanceText}>500 USDT</Text>
+                  <Text style={styles.balanceText}>Balance: -- USDT</Text>
                 </View>
               </View>
 
@@ -83,17 +110,23 @@ export const ConfirmSwapScreen = () => {
                   />
                   <Text style={styles.tokenName}>USDT</Text>
                 </View>
-                <Text style={styles.amountText}>172.587371</Text>
+                {loading ? (
+                  <ActivityIndicator color={Theme.colors.surface} />
+                ) : (
+                  <Text style={styles.amountText}>{amountOut}</Text>
+                )}
               </View>
 
-              <Text style={styles.rateText}>1 USDT ≈ 0.0072 SOL</Text>
+              <Text style={styles.rateText}>
+                1 {fromToken?.name || "SOL"} ≈ {currentPrice} USDT
+              </Text>
             </GlassCard>
           </View>
 
           {/* Fee */}
           <GlassCard style={styles.feeCard}>
             <Text style={styles.feeLabel}>Fee</Text>
-            <Text style={styles.feeAmount}>0.00 THB</Text>
+            <Text style={styles.feeAmount}>0.00</Text>
           </GlassCard>
         </View>
 

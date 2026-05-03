@@ -29,7 +29,7 @@ export const useAuth = () => {
 
     try {
       const connectedAccount = await connect();
-      const walletAddress = connectedAccount.address.toBase58();
+      const walletAddress = connectedAccount.publicKey.toBase58();
       const authSession =
         await accountService.AuthenticateWallet(walletAddress);
 

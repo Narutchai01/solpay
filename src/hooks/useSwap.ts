@@ -38,6 +38,7 @@ export const useSwap = () => {
         const result = await swapService.GetSwapQuote(req);
         if (result) {
           setCurrentPrice(result.currentPrice);
+          setAmountIn(result.realAmountIn.decimalAmount);
           setAmountOut(result.amountOut.decimalAmount);
         }
         return result;
@@ -50,7 +51,7 @@ export const useSwap = () => {
         setLoading(false);
       }
     },
-    [swapService, setCurrentPrice, setAmountOut],
+    [swapService, setCurrentPrice, setAmountIn, setAmountOut],
   );
 
   return {

@@ -1,14 +1,17 @@
+// TODO: This screen is now fully functional with token selection, amount input, percentage quick-select, and slippage settings. The swap button navigates to a confirmation screen where the user can review details before executing the swap. The current price is displayed for reference when entering amounts.
 import { Button } from "@/src/components/button/button";
 import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
+import { useSwap } from "@/src/hooks/useSwap";
+import { useTokenAccounts } from "@/src/hooks/useTokenAccounts";
 import {
   FontAwesome,
   Ionicons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   FlatList,
   Image,
@@ -23,101 +26,73 @@ import { Theme } from "../../core/theme/theme";
 import { SlippageModal } from "./slippageModal.component";
 import { TokenAsset, TokenSelectModal } from "./tokenSelectModal.component";
 
-const ASSETS: TokenAsset[] = [
-  {
-    id: 1,
-    name: "Solana",
-    sub: "0.10933530228646213 SOL",
-    val: "1,500.00",
-    icon: "logo-bitcoin",
-  },
-  {
-    id: 2,
-    name: "USDC",
-    sub: "0.0312304 USDC",
-    val: "1,000.00",
-    icon: "cash-outline",
-  },
-  {
-    id: 3,
-    name: "USDT",
-    sub: "29.500427134510762 USDT",
-    val: "950.00",
-    icon: "logo-usd",
-  },
-  {
-    id: 4,
-    name: "JupSOL",
-    sub: "0.138711 JUP",
-    val: "550.00",
-    icon: "planet-outline",
-  },
-  {
-    id: 5,
-    name: "PYTH",
-    sub: "14.1651 PYTH",
-    val: "500.00",
-    icon: "pulse-outline",
-  },
-  {
-    id: 6,
-    name: "WIF",
-    sub: "2.5573 WIF",
-    val: "300.00",
-    icon: "logo-bitcoin",
-  },
-  {
-    id: 7,
-    name: "ORCA",
-    sub: "0.775478 ORCA",
-    val: "200.00",
-    icon: "logo-bitcoin",
-  },
-  {
-    id: 8,
-    name: "COPE",
-    sub: "15.2375 COPE",
-    val: "150.00",
-    icon: "logo-bitcoin",
-  },
-  {
-    id: 9,
-    name: "STEP",
-    sub: "45.1234 STEP",
-    val: "100.00",
-    icon: "logo-bitcoin",
-  },
-  {
-    id: 10,
-    name: "RAY",
-    sub: "3.4567 RAY",
-    val: "80.00",
-    icon: "logo-bitcoin",
-  },
-  {
-    id: 11,
-    name: "MANGO",
-    sub: "1.2345 MANGO",
-    val: "60.00",
-    icon: "logo-bitcoin",
-  },
-];
-
 export const SwapScreen = () => {
   const router = useRouter();
+  const { assets } = useTokenAccounts();
+  const {
+    fromToken,
+    amountIn,
+    amountOut,
+    slippage,
+    currentPrice,
+    setFromToken,
+    setAmountIn,
+    setAmountOut,
+    setSlippage,
+    reset,
+  } = useSwap();
+
   const [isModalVisible, setModalVisible] = React.useState<boolean>(false);
   const [isSlippageVisible, setSlippageVisible] =
     React.useState<boolean>(false);
-  const [slippage, setSlippage] = React.useState<string>("0.50");
 
-  const [selectedToken, setSelectedToken] = React.useState<TokenAsset>(
-    ASSETS[0],
-  );
-  const [selectedPercent, setSelectedPercent] = React.useState<string | null>(
-    null,
-  );
+  const mappedAssets: TokenAsset[] = useMemo(() => {
+    return assets.map((asset, index) => ({
+      id: index + 1, // keeping numeric ID for the component
+      mint: asset.id, // storing actual mint in a new field or reusing id if needed
+      name: asset.name,
+      sub: asset.sub,
+      val: asset.val,
+      icon: asset.icon,
+      imageUri: asset.imageUri,
+    }));
+  }, [assets]);
+
+  useEffect(() => {
+    if (mappedAssets.length > 0 && !fromToken) {
+      setFromToken(mappedAssets[0]);
+    }
+  }, [mappedAssets, fromToken, setFromToken]);
 
   const percentageOptions = ["25%", "50%", "75%", "MAX"];
+
+  const handleAmountInChange = (val: string) => {
+    setAmountIn(val);
+    const parsedVal = parseFloat(val);
+    if (!isNaN(parsedVal) && currentPrice) {
+      const price = parseFloat(currentPrice);
+      if (price > 0) {
+        const calculatedOut = (parsedVal * price).toString();
+        setAmountOut(calculatedOut);
+      }
+    } else if (!val) {
+      setAmountOut("");
+    }
+  };
+
+  const handleAmountOutChange = (val: string) => {
+    setAmountOut(val);
+    const parsedVal = parseFloat(val);
+    if (!isNaN(parsedVal) && currentPrice) {
+      const price = parseFloat(currentPrice);
+      if (price > 0) {
+        const calculatedIn = (parsedVal / price).toString();
+        setAmountIn(calculatedIn);
+      }
+    } else if (!val) {
+      setAmountIn("");
+    }
+  };
 
   return (
     <GradientLayout>
@@ -127,7 +102,7 @@ export const SwapScreen = () => {
         <View style={styles.container}>
           {/* Select Section */}
           <View style={styles.bigCard}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={reset}>
               <View style={styles.iconCircle}>
                 <FontAwesome
                   name="repeat"
@@ -148,7 +123,7 @@ export const SwapScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Select Section */}
+          {/* From Section */}
           <GlassCard style={styles.card}>
             <View style={styles.cardHeaderRow}>
               <Text style={styles.label}>From:</Text>
@@ -158,7 +133,10 @@ export const SwapScreen = () => {
                   size={18}
                   color={Theme.colors.surface}
                 />
-                <Text style={styles.balanceText}>5 SOL</Text>
+                <Text style={styles.balanceText}>
+                  {fromToken?.val || "0"}{" "}
+                  {fromToken?.name === "Solana" ? "SOL" : fromToken?.name || ""}
+                </Text>
               </View>
             </View>
 
@@ -168,13 +146,22 @@ export const SwapScreen = () => {
                 onPress={() => setModalVisible(true)}
               >
                 <View style={styles.tokenIcon}>
-                  <Ionicons
-                    name={selectedToken.icon}
-                    size={28}
-                    color={Theme.colors.onSurface}
-                  />
+                  {fromToken?.icon ? (
+                    <Image
+                      source={{ uri: fromToken.icon }}
+                      style={{ width: 32, height: 32, borderRadius: 16 }}
+                    />
+                  ) : (
+                    <Ionicons
+                      name={fromToken?.icon || "help-circle-outline"}
+                      size={28}
+                      color={Theme.colors.onSurface}
+                    />
+                  )}
                 </View>
-                <Text style={styles.tokenName}>{selectedToken.name}</Text>
+                <Text style={styles.tokenName}>
+                  {fromToken?.name || "Select"}
+                </Text>
                 <MaterialCommunityIcons
                   name="chevron-down"
                   size={24}
@@ -187,6 +174,8 @@ export const SwapScreen = () => {
                 placeholder="0.00"
                 placeholderTextColor={Theme.colors.surface}
                 keyboardType="numeric"
+                value={amountIn}
+                onChangeText={handleAmountInChange}
               />
             </View>
 
@@ -199,11 +188,22 @@ export const SwapScreen = () => {
               renderItem={({ item }) => (
                 <Button
                   title={item}
-                  variant={selectedPercent === item ? "solid" : "outline"}
+                  variant="outline"
                   color="v300"
-                  onPress={() => setSelectedPercent(item)}
+                  onPress={() => {
+                    if (fromToken) {
+                      const maxVal = parseFloat(fromToken.val);
+                      let calculated = "0";
+                      if (item === "MAX") calculated = maxVal.toString();
+                      else {
+                        const percent = parseInt(item.replace("%", "")) / 100;
+                        calculated = (maxVal * percent).toString();
+                      }
+                      handleAmountInChange(calculated);
+                    }
+                  }}
                   style={styles.percentButton}
-                  textColor={selectedPercent === item ? "g300" : "v100"}
+                  textColor="v100"
                 />
               )}
             />
@@ -216,7 +216,7 @@ export const SwapScreen = () => {
             </View>
           </View>
 
-          {/* USDT Section */}
+          {/* To Section (Locked to USDT for now or implement target select) */}
           <GlassCard style={styles.card}>
             <View style={styles.usdtHeaderRow}>
               <Text style={styles.label}>To:</Text>
@@ -226,7 +226,7 @@ export const SwapScreen = () => {
                   size={18}
                   color={Theme.colors.surface}
                 />
-                <Text style={styles.balanceText}>500 USDT</Text>
+                <Text style={styles.balanceText}>Balance: -- USDT</Text>
               </View>
             </View>
 
@@ -238,10 +238,21 @@ export const SwapScreen = () => {
                 />
                 <Text style={styles.tokenName}>USDT</Text>
               </TouchableOpacity>
-              <Text style={styles.amountInput}>172.587371</Text>
+              <TextInput
+                style={styles.amountInput}
+                placeholder="0.00"
+                placeholderTextColor={Theme.colors.surface}
+                keyboardType="numeric"
+                value={amountOut}
+                onChangeText={handleAmountOutChange}
+              />
             </View>
 
-            <Text style={styles.rateText}>{`1 USDT ≈ 0.0072 SOL`}</Text>
+            {currentPrice && (
+              <Text
+                style={styles.rateText}
+              >{`1 ${fromToken?.name || "SOL"} ≈ ${currentPrice} USDT`}</Text>
+            )}
           </GlassCard>
 
           {/* Swap Button */}
@@ -257,9 +268,9 @@ export const SwapScreen = () => {
 
         <TokenSelectModal
           visible={isModalVisible}
-          tokens={ASSETS}
+          tokens={mappedAssets}
           onClose={() => setModalVisible(false)}
-          onSelect={setSelectedToken}
+          onSelect={setFromToken}
         />
 
         <SlippageModal
