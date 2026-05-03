@@ -1,6 +1,7 @@
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/core/theme/theme";
 import { useBalance } from "@/src/hooks/useBalance";
+import { useSwap } from "@/src/hooks/useSwap";
 import { useTokenAccounts } from "@/src/hooks/useTokenAccounts";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -20,6 +21,7 @@ import { BalanceComponent } from "./balance.component";
 export const HomeScreen = () => {
   const { balance, GetBalance } = useBalance();
   const { assets, fetchAssets } = useTokenAccounts();
+  const { getSwapQuote } = useSwap();
   const [refreshing, setRefreshing] = React.useState(false);
 
   useEffect(() => {
@@ -29,7 +31,14 @@ export const HomeScreen = () => {
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      await Promise.all([GetBalance(), fetchAssets()]);
+      await Promise.all([
+        GetBalance(),
+        fetchAssets(),
+        getSwapQuote({
+          amountIn: "1000000",
+          slippage: 0.5,
+        }),
+      ]);
     } finally {
       setRefreshing(false);
     }
