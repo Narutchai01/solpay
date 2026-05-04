@@ -49,7 +49,7 @@ const PayScreen = () => {
 
     if (isPromptPay) {
       setScanned(true);
-      router.replace({ pathname: "/transfer", params: { qrData: data } });
+      router.push({ pathname: "/transfer", params: { qrData: data } });
     } else {
       setScanned(true);
       setShowInvalidQRModal(true);
