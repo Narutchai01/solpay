@@ -135,7 +135,7 @@ export const useTokenAccounts = () => {
       const solBalance = lamports / LAMPORTS_PER_SOL;
 
       const solAsset: AssetData = {
-        id: "native-sol",
+        id: "So11111111111111111111111111111111111111112",
         name: "Solana",
         sub: `${solBalance} SOL`,
         val: solBalance.toString(),

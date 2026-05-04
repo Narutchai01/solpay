@@ -10,6 +10,7 @@ export interface TransactionResponse {
   status: string;
   thb_amount: number;
   usdt_amount: number;
+  sol_amount: number;
   fee: number;
 }
 

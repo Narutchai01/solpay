@@ -73,7 +73,7 @@ export const BalanceCardComponent = ({
             }
             iconBgColor="v300"
             style={{ minWidth: 110 }}
-            onPress={() => router.replace("/topupVia")}
+            onPress={() => router.push("/topupVia")}
           />
         )}
       </View>
