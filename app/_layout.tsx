@@ -6,7 +6,7 @@ const chain = "solana:devnet";
 const endpoint = clusterApiUrl("devnet");
 const identity = {
   name: "SolPay",
-  uri: "http://localhost:3000",
+  uri: "https://github.com/Narutchai01",
   icon: "favicon.png",
 };
 

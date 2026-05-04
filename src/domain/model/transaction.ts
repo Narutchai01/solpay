@@ -12,6 +12,8 @@ export interface TransactionResponse {
   usdt_amount: number;
   sol_amount: number;
   fee: number;
+  transaction_on_chain?: TransactionOnChainInfo;
+  transaction_off_chain?: TransactionOffChainInfo;
 }
 
 export interface ConfirmTopUp {
