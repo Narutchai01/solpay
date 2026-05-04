@@ -281,18 +281,18 @@ export const IdCardDetailScreen = () => {
               </View>
             </GlassCard>
           </ScrollView>
-
-          <View style={styles.footer}>
-            <Button
-              title={loading ? "Submitting..." : "Next"}
-              onPress={handleNext}
-              disabled={loading || !isFormValid}
-              variant="solid"
-              color="v300"
-              style={styles.submitButton}
-            />
-          </View>
         </KeyboardAvoidingView>
+
+        <View style={styles.footer}>
+          <Button
+            title={loading ? "Submitting..." : "Next"}
+            onPress={handleNext}
+            disabled={loading || !isFormValid}
+            variant="solid"
+            color="v300"
+            style={styles.submitButton}
+          />
+        </View>
 
         {/* Custom Picker Modal */}
         <Modal
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   footer: { paddingHorizontal: 16 },
-  submitButton: { width: "100%" },
+  submitButton: { width: "100%", paddingVertical: 10 },
   modalOverlay: {
     flex: 1,
     justifyContent: "flex-end",
