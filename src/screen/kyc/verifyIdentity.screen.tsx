@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   footerContainer: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: "rgba(255,255,255,0.1)",
@@ -211,5 +211,6 @@ const styles = StyleSheet.create({
   },
   startButton: {
     width: "100%",
+    paddingVertical: 10,
   },
 });

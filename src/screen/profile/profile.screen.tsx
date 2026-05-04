@@ -230,5 +230,6 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     width: "100%",
+    paddingVertical: 10,
   },
 });

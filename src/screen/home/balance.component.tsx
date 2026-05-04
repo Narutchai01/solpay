@@ -41,7 +41,6 @@ export const BalanceComponent = ({
               <Ionicons name="add" size={24} color={Theme.colors.surface} />
             }
             iconBgColor="v300"
-            style={{ minWidth: 110 }}
             onPress={() => router.push("/topup")}
           />
 
@@ -56,7 +55,7 @@ export const BalanceComponent = ({
               />
             }
             iconBgColor="v300"
-            style={{ minWidth: 110 }}
+            style={{ paddingRight: 20 }}
             onPress={() => router.push("/swap")}
           />
         </View>
