@@ -214,8 +214,7 @@ export const HistoryScreen = () => {
                   pathname: "/transferSuccessful",
                   params: {
                     from: "history",
-                    id: item.transactionId,
-                    slipUrl: item.slipUrl,
+                    txUUID: item.transactionId,
                   },
                 })
               }

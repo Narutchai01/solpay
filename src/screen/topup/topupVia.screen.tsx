@@ -4,6 +4,7 @@ import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { CreateQuoteRequest } from "@/src/domain/model/quote";
 import { useQuote } from "@/src/hooks/useQuote";
+import { useTokenAccounts } from "@/src/hooks/useTokenAccounts";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -25,6 +26,11 @@ const PRESET_AMOUNTS = [200, 500, 1000, 2000];
 export const TopupViaScreen = () => {
   const router = useRouter();
   const { createQuote } = useQuote();
+  const { assets } = useTokenAccounts();
+
+  const usdcAsset = assets.find((asset) => asset.currency === "USDC");
+  const usdcBalance = usdcAsset ? usdcAsset.val : "0.00";
+  const thbBalance = (parseFloat(usdcBalance) * 32.23).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const [reqQuote, setReqQuote] = useState<CreateQuoteRequest>({
     thb_amount: 0,
     action_type: "TOPUP",
@@ -90,9 +96,9 @@ export const TopupViaScreen = () => {
             >
               <BalanceCardComponent
                 label="Software Wallet"
-                mainAmount="617.57"
-                mainCurrency="USDT"
-                subAmount="20,000"
+                mainAmount={usdcBalance}
+                mainCurrency="USDC"
+                subAmount={thbBalance}
                 subCurrency="THB"
                 showTopUp={false}
               />

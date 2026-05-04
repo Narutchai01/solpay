@@ -18,6 +18,8 @@ export interface TokenAsset {
   sub: string;
   val: string;
   icon: ComponentProps<typeof Ionicons>["name"];
+  mint?: string;
+  imageUri?: string;
 }
 
 interface TokenSelectModalProps {
