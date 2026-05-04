@@ -34,7 +34,7 @@ export const HomeScreen = () => {
       await Promise.all([
         GetBalance(),
         fetchAssets(),
-        getSwapQuote({
+        getSwapQuote({ inputMint: "So11111111111111111111111111111111111111112", outputMint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
           amountIn: "1000000",
           slippage: 0.5,
         }),

@@ -36,6 +36,15 @@ export const TransferVerifyInformationScreen = () => {
   }>();
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorTitle, setErrorTitle] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const showError = (title: string, message: string) => {
+    setErrorTitle(title);
+    setErrorMessage(message);
+    setShowErrorModal(true);
+  };
   const { categories, GetCategories } = useCategory();
   const [selectedCategoryId, setSelectedCategoryId] = useState<
     number | string | null
@@ -100,8 +109,15 @@ export const TransferVerifyInformationScreen = () => {
           quoteID: quote.quote_id,
           category_id: selectedCategoryId,
         });
-        if (tx) {
-          router.replace({ pathname: "/transferSuccessful" });
+        if (tx && tx.transaction_uuid) {
+          router.replace({
+            pathname: "/transferSuccessful",
+            params: { 
+              txUUID: tx.transaction_uuid.trim(),
+            },
+          });
+        } else {
+           showError("Transaction failed", "Failed to initiate off-chain transfer.");
         }
       } else if (quote.quote_type === "ONCHAIN") {
         const signedTx = await ConfirmQuote(quote?.quote_id);
@@ -117,15 +133,21 @@ export const TransferVerifyInformationScreen = () => {
           category_id: selectedCategoryId,
         });
 
-        if (tx) {
+        if (tx && tx.transaction_uuid) {
           router.replace({
             pathname: "/transferSuccessful",
-            params: { txHash: signedTx },
+            params: { 
+              txUUID: tx.transaction_uuid.trim(),
+              txHash: signedTx 
+            },
           });
+        } else {
+           showError("Transaction failed", "Failed to initiate on-chain transfer.");
         }
       }
     } catch (error) {
       console.error("Transaction failed:", error);
+      showError("Transfer Error", error instanceof Error ? error.message : "An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
     }
@@ -273,6 +295,16 @@ export const TransferVerifyInformationScreen = () => {
             textColor="g300"
           />
         </View>
+
+        <ConfirmModal
+          visible={showErrorModal}
+          iconName="close-circle"
+          iconColor={Theme.colors.errorText}
+          title={errorTitle}
+          description={errorMessage}
+          confirmLabel="Close"
+          onConfirm={() => setShowErrorModal(false)}
+        />
 
         <ConfirmModal
           visible={showCancelModal}

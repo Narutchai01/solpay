@@ -3,16 +3,41 @@ import { GlassCard } from "@/src/components/card/glass";
 import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
+import { useAuthStore } from "@/src/store/auth.store";
 import { useSwap } from "@/src/hooks/useSwap";
 import { Ionicons } from "@expo/vector-icons";
+import { VersionedTransaction } from "@solana/web3.js";
+import {
+  fromUint8Array,
+  useMobileWallet,
+} from "@wallet-ui/react-native-web3js";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
 
 export const ConfirmSwapScreen = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorTitle, setErrorTitle] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const showError = (title: string, message: string) => {
+    setErrorTitle(title);
+    setErrorMessage(message);
+    setShowErrorModal(true);
+  };
+  const [isSigning, setIsSigning] = useState(false);
+  const { signTransaction } = useMobileWallet();
+  const { accessToken } = useAuthStore();
   const {
     fromToken,
     amountIn,
@@ -20,17 +45,89 @@ export const ConfirmSwapScreen = () => {
     currentPrice,
     slippage,
     getSwapQuote,
+    buildSwapTransaction,
+    executeSwap,
     loading,
   } = useSwap();
 
   useEffect(() => {
     if (amountIn) {
       void getSwapQuote({
+        inputMint: "So11111111111111111111111111111111111111112",
+        outputMint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
         amountIn: amountIn,
         slippage: parseFloat(slippage),
       });
     }
-  }, []);
+  }, [amountIn, getSwapQuote, slippage]);
+
+  const handleConfirm = async () => {
+    if (!accessToken || !fromToken || !amountIn) {
+      showError("Error", "Missing swap details or authentication.");
+      return;
+    }
+
+    setIsSigning(true);
+    try {
+      // 1. Build the transaction
+      const swapTx = await buildSwapTransaction(
+        {
+          inputMint: fromToken.mint, // Ensure fromToken has the actual mint address
+          outputMint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", // Replace with dynamic toToken later
+          amountIn: amountIn,
+          slippage: parseFloat(slippage),
+        },
+        accessToken,
+      );
+
+      if (!swapTx || !swapTx.transaction) {
+        throw new Error("Failed to build swap transaction from API");
+      }
+
+      // 2. Deserialize and sign the transaction
+      const swapTransactionBuf = Buffer.from(swapTx.transaction, "base64");
+      const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
+
+      const signedTransaction = await signTransaction(transaction);
+
+      if (signedTransaction) {
+        const signedTxBase64 = fromUint8Array(signedTransaction.serialize());
+
+        const execResult = await executeSwap(
+          {
+            usdt_amount: amountOut,
+            sol_amount: amountIn,
+            tx_hash: signedTxBase64,
+          },
+          accessToken,
+        );
+
+        if (execResult) {
+          router.replace({
+            pathname: "/swapSuccess",
+            params: {
+              txUUID: execResult.transaction_uuid,
+              txHash: execResult.tx_hash,
+            },
+          });
+        } else {
+          throw new Error("Failed to execute swap. Please try again.");
+        }
+      } else {
+        throw new Error("Failed to sign transaction.");
+      }
+    } catch (error) {
+      console.error("Confirmation error:", error);
+      showError(
+        "Swap Failed",
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred.",
+      );
+    } finally {
+      setIsSigning(false);
+    }
+  };
 
   return (
     <GradientLayout>
@@ -50,7 +147,10 @@ export const ConfirmSwapScreen = () => {
                     color={Theme.colors.surface}
                   />
                   <Text style={styles.balanceText}>
-                    {fromToken?.val || "0"} {fromToken?.name === "Solana" ? "SOL" : fromToken?.name || ""}
+                    {fromToken?.val || "0"}{" "}
+                    {fromToken?.name === "Solana"
+                      ? "SOL"
+                      : fromToken?.name || ""}
                   </Text>
                 </View>
               </View>
@@ -63,11 +163,26 @@ export const ConfirmSwapScreen = () => {
                       style={styles.tokenIcon}
                     />
                   ) : (
-                    <View style={[styles.tokenIcon, { backgroundColor: Theme.colors.g300, justifyContent: 'center', alignItems: 'center' }]}>
-                      <Ionicons name={fromToken?.icon || 'help-circle-outline'} size={24} color="white" />
+                    <View
+                      style={[
+                        styles.tokenIcon,
+                        {
+                          backgroundColor: Theme.colors.g300,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        },
+                      ]}
+                    >
+                      <Ionicons
+                        name={fromToken?.icon || "help-circle-outline"}
+                        size={24}
+                        color="white"
+                      />
                     </View>
                   )}
-                  <Text style={styles.tokenName}>{fromToken?.name || "SOL"}</Text>
+                  <Text style={styles.tokenName}>
+                    {fromToken?.name || "SOL"}
+                  </Text>
                 </View>
                 <Text style={styles.amountText}>{amountIn}</Text>
               </View>
@@ -139,14 +254,16 @@ export const ConfirmSwapScreen = () => {
             onPress={() => setShowCancelModal(true)}
             style={styles.footerButton}
             textColor="surface"
+            disabled={isSigning}
           />
           <Button
-            title="Confirm"
+            title={isSigning ? "Signing..." : "Confirm"}
             variant="solid"
             color="v300"
-            onPress={() => router.replace("/swapSuccess")}
+            onPress={handleConfirm}
             style={[styles.footerButton, { marginLeft: 16 }]}
             textColor="g300"
+            disabled={isSigning || loading}
           />
         </View>
 
@@ -160,6 +277,16 @@ export const ConfirmSwapScreen = () => {
             setShowCancelModal(false);
             router.back();
           }}
+        />
+
+        <ConfirmModal
+          visible={showErrorModal}
+          iconName="close-circle"
+          iconColor={Theme.colors.errorText}
+          title={errorTitle}
+          description={errorMessage}
+          confirmLabel="Close"
+          onConfirm={() => setShowErrorModal(false)}
         />
       </SafeAreaView>
     </GradientLayout>

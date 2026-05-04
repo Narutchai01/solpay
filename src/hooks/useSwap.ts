@@ -2,7 +2,11 @@ import { HttpHelper } from "@/lib/http";
 import { useCallback, useMemo, useState } from "react";
 import { API_URL } from "../config/config";
 import { SwapService } from "../core/services/swap.service";
-import { SwapQuoteRequest } from "../domain/model/swap";
+import {
+  BuildSwapTransactionRequest,
+  SwapQuoteRequest,
+  ExecuteSwap,
+} from "../domain/model/swap";
 import { SwapRepositoryImpl } from "../infrastructure/swap.repository";
 import { useSwapStore } from "../store/swap.store";
 
@@ -54,6 +58,41 @@ export const useSwap = () => {
     [swapService, setCurrentPrice, setAmountIn, setAmountOut],
   );
 
+  const buildSwapTransaction = useCallback(
+    async (req: BuildSwapTransactionRequest, access_token: string) => {
+      setLoading(true);
+      try {
+        const result = await swapService.BuildSwapTransaction(
+          req,
+          access_token,
+        );
+        return result;
+      } catch (error) {
+        console.error("useSwap: Failed to build swap transaction", error);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [swapService],
+  );
+
+  const executeSwap = useCallback(
+    async (req: ExecuteSwap, access_token: string) => {
+      setLoading(true);
+      try {
+        const result = await swapService.ExecuteSwap(req, access_token);
+        return result;
+      } catch (error) {
+        console.error("useSwap: Failed to execute swap", error);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [swapService],
+  );
+
   return {
     // State from store
     fromToken,
@@ -73,5 +112,7 @@ export const useSwap = () => {
     // Hook local state/actions
     loading,
     getSwapQuote,
+    buildSwapTransaction,
+    executeSwap,
   };
 };

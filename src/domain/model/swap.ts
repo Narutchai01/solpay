@@ -22,5 +22,24 @@ export interface AmountOut {
 
 export interface SwapQuoteRequest {
   slippage: number;
+  inputMint: string;
+  outputMint: string;
   amountIn: string;
+}
+
+export interface BuildSwapTransactionRequest {
+  inputMint: string;
+  outputMint: string;
+  amountIn: string;
+  slippage: number;
+}
+
+export interface SwapTrasnsaction {
+  transaction: string;
+}
+
+export interface ExecuteSwap {
+  usdt_amount: string;
+  sol_amount: string;
+  tx_hash: string;
 }
