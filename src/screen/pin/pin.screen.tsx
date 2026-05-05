@@ -1,8 +1,10 @@
 import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { PinService } from "@/src/core/services/pin.service";
 import { Theme } from "@/src/core/theme/theme";
+import { useAuthStore } from "@/src/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,6 +15,7 @@ const PIN_LENGTH = 6;
 
 export const PinScreen = () => {
   const navigation = useNavigation();
+  const checkPin = useAuthStore((state) => state.checkPin);
   const [pin, setPin] = useState<string>("");
   const [step, setStep] = useState<"SET" | "CONFIRM">("SET");
   const [tempPin, setTempPin] = useState<string>("");
@@ -31,28 +34,30 @@ export const PinScreen = () => {
   };
 
   useEffect(() => {
-    if (pin.length === PIN_LENGTH) {
-      if (step === "SET") {
-        setTempPin(pin);
-        setStep("CONFIRM");
-        setPin("");
-      } else if (step === "CONFIRM") {
-        if (pin === tempPin) {
-          setIsSuccessModalVisible(true);
-        } else {
-          setErrorMessage("The PIN does not match. Please try again.");
+    const processPin = async () => {
+      if (pin.length === PIN_LENGTH) {
+        if (step === "SET") {
+          setTempPin(pin);
+          setStep("CONFIRM");
           setPin("");
+        } else if (step === "CONFIRM") {
+          if (pin === tempPin) {
+            await PinService.savePin(pin);
+            await checkPin();
+            setIsSuccessModalVisible(true);
+          } else {
+            setErrorMessage("The PIN does not match. Please try again.");
+            setPin("");
+          }
         }
       }
-    }
-  }, [pin, step, tempPin]);
+    };
+    processPin();
+  }, [pin, step, tempPin, checkPin]);
 
   const handleConfirmSuccess = () => {
     setIsSuccessModalVisible(false);
-
-    if (navigation.canGoBack()) {
-      navigation.goBack();
-    }
+    router.replace("/(tabs)");
   };
 
   return (
