@@ -5,6 +5,7 @@ import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
 import { useSwap } from "@/src/hooks/useSwap";
 import { useTokenAccounts } from "@/src/hooks/useTokenAccounts";
+import { useSwapCalculator } from "@/src/hooks/useSwapCalculator";
 import {
   FontAwesome,
   Ionicons,
@@ -31,16 +32,29 @@ export const SwapScreen = () => {
   const { assets } = useTokenAccounts();
   const {
     fromToken,
-    amountIn,
-    amountOut,
     slippage,
-    currentPrice,
     setFromToken,
-    setAmountIn,
-    setAmountOut,
     setSlippage,
     reset,
+    setCurrentPrice,
   } = useSwap();
+
+  // Find USDT/USDC balance for the "To" section
+  const targetAsset = useMemo(() => {
+    return assets.find((a) => a.currency === "USDT" || a.currency === "USDC");
+  }, [assets]);
+
+  const targetBalance = targetAsset?.val || "0";
+  const targetSymbol = targetAsset?.currency || "USDT";
+
+  const {
+    payAmount: amountIn,
+    receiveAmount: amountOut,
+    currentPrice,
+    handlePayAmountChange,
+    handleReceiveAmountChange,
+    canSwap,
+  } = useSwapCalculator();
 
   const [isModalVisible, setModalVisible] = React.useState<boolean>(false);
   const [isSlippageVisible, setSlippageVisible] =
@@ -66,34 +80,6 @@ export const SwapScreen = () => {
 
   const percentageOptions = ["25%", "50%", "75%", "MAX"];
 
-  const handleAmountInChange = (val: string) => {
-    setAmountIn(val);
-    const parsedVal = parseFloat(val);
-    if (!isNaN(parsedVal) && currentPrice) {
-      const price = parseFloat(currentPrice);
-      if (price > 0) {
-        const calculatedOut = (parsedVal * price).toString();
-        setAmountOut(calculatedOut);
-      }
-    } else if (!val) {
-      setAmountOut("");
-    }
-  };
-
-  const handleAmountOutChange = (val: string) => {
-    setAmountOut(val);
-    const parsedVal = parseFloat(val);
-    if (!isNaN(parsedVal) && currentPrice) {
-      const price = parseFloat(currentPrice);
-      if (price > 0) {
-        const calculatedIn = (parsedVal / price).toString();
-        setAmountIn(calculatedIn);
-      }
-    } else if (!val) {
-      setAmountIn("");
-    }
-  };
-
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
@@ -102,7 +88,17 @@ export const SwapScreen = () => {
         <View style={styles.container}>
           {/* Select Section */}
           <View style={styles.bigCard}>
-            <TouchableOpacity onPress={reset}>
+            <TouchableOpacity
+              onPress={() => {
+                const savedPrice = currentPrice;
+                reset();
+                // Restore the price since reset() clears it
+                if (savedPrice) {
+                  setCurrentPrice(savedPrice);
+                }
+                handlePayAmountChange("0");
+              }}
+            >
               <View style={styles.iconCircle}>
                 <FontAwesome
                   name="repeat"
@@ -174,8 +170,8 @@ export const SwapScreen = () => {
                 placeholder="0.00"
                 placeholderTextColor={Theme.colors.surface}
                 keyboardType="numeric"
-                value={amountIn}
-                onChangeText={handleAmountInChange}
+                value={amountIn === "0" ? "" : amountIn}
+                onChangeText={handlePayAmountChange}
               />
             </View>
 
@@ -199,7 +195,7 @@ export const SwapScreen = () => {
                         const percent = parseInt(item.replace("%", "")) / 100;
                         calculated = (maxVal * percent).toString();
                       }
-                      handleAmountInChange(calculated);
+                      handlePayAmountChange(calculated);
                     }
                   }}
                   style={styles.percentButton}
@@ -226,7 +222,9 @@ export const SwapScreen = () => {
                   size={18}
                   color={Theme.colors.surface}
                 />
-                <Text style={styles.balanceText}>Balance: -- USDT</Text>
+                <Text style={styles.balanceText}>
+                  Balance: {targetBalance} {targetSymbol}
+                </Text>
               </View>
             </View>
 
@@ -236,15 +234,15 @@ export const SwapScreen = () => {
                   source={require("@/assets/images/usdt-icon.png")}
                   style={styles.tokenIcon}
                 />
-                <Text style={styles.tokenName}>USDT</Text>
+                <Text style={styles.tokenName}>{targetSymbol}</Text>
               </TouchableOpacity>
               <TextInput
                 style={styles.amountInput}
                 placeholder="0.00"
                 placeholderTextColor={Theme.colors.surface}
                 keyboardType="numeric"
-                value={amountOut}
-                onChangeText={handleAmountOutChange}
+                value={amountOut === "0" ? "" : amountOut}
+                onChangeText={handleReceiveAmountChange}
               />
             </View>
 
@@ -261,8 +259,9 @@ export const SwapScreen = () => {
             variant="solid"
             color="v300"
             onPress={() => router.push("/confirmSwap")}
-            style={styles.swapButton}
+            style={[styles.swapButton, !canSwap && { opacity: 0.5 }]}
             textColor="onSurface"
+            disabled={!canSwap}
           />
         </View>
 
