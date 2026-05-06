@@ -8,15 +8,20 @@ import { CategoryModel } from "@/src/domain/model/category";
 import { useCategory } from "@/src/hooks/useCategory";
 import { useQuote } from "@/src/hooks/useQuote";
 import { useTransaction } from "@/src/hooks/useTransaction";
+import { PinService } from "@/src/core/services/pin.service";
+import { KeypadSection } from "../pin/keypadSection.component";
+import { PinDots } from "../pin/pinDots";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -25,6 +30,8 @@ import {
   EXPENSE_CATEGORY_CONFIG,
   ExpenseCategory,
 } from "../history/expenseCategory.config";
+
+const PIN_LENGTH = 6;
 
 export const TransferVerifyInformationScreen = () => {
   const { GetQuoteByID, quote } = useQuote();
@@ -39,6 +46,10 @@ export const TransferVerifyInformationScreen = () => {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorTitle, setErrorTitle] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pin, setPin] = useState("");
+  const [pinError, setPinError] = useState("");
 
   const showError = (title: string, message: string) => {
     setErrorTitle(title);
@@ -98,7 +109,40 @@ export const TransferVerifyInformationScreen = () => {
     void fetchQuote();
   }, [quoteID, GetQuoteByID, quote?.quote_id]);
 
-  const handleConfirm = async () => {
+  useEffect(() => {
+    const verifyUserPin = async () => {
+      if (pin.length === PIN_LENGTH) {
+        const isValid = await PinService.verifyPin(pin);
+        if (isValid) {
+          setShowPinModal(false);
+          setPin("");
+          await executeTransfer();
+        } else {
+          setPinError("Incorrect PIN. Please try again.");
+          setPin("");
+        }
+      }
+    };
+    verifyUserPin();
+  }, [pin]);
+
+  const handlePinPress = (num: string) => {
+    if (pin.length < PIN_LENGTH) {
+      setPin((prev) => prev + num);
+      setPinError("");
+    }
+  };
+
+  const handlePinDelete = () => {
+    setPin((prev) => prev.slice(0, -1));
+  };
+
+  const handleConfirm = () => {
+    if (!quote) return;
+    setShowPinModal(true);
+  };
+
+  const executeTransfer = async () => {
     if (!quote) return;
 
     setIsSubmitting(true);
@@ -112,12 +156,15 @@ export const TransferVerifyInformationScreen = () => {
         if (tx && tx.transaction_uuid) {
           router.replace({
             pathname: "/transferSuccessful",
-            params: { 
+            params: {
               txUUID: tx.transaction_uuid.trim(),
             },
           });
         } else {
-           showError("Transaction failed", "Failed to initiate off-chain transfer.");
+          showError(
+            "Transaction failed",
+            "Failed to initiate off-chain transfer.",
+          );
         }
       } else if (quote.quote_type === "ONCHAIN") {
         const signedTx = await ConfirmQuote(quote?.quote_id);
@@ -136,18 +183,24 @@ export const TransferVerifyInformationScreen = () => {
         if (tx && tx.transaction_uuid) {
           router.replace({
             pathname: "/transferSuccessful",
-            params: { 
+            params: {
               txUUID: tx.transaction_uuid.trim(),
-              txHash: signedTx 
+              txHash: signedTx,
             },
           });
         } else {
-           showError("Transaction failed", "Failed to initiate on-chain transfer.");
+          showError(
+            "Transaction failed",
+            "Failed to initiate on-chain transfer.",
+          );
         }
       }
     } catch (error) {
       console.error("Transaction failed:", error);
-      showError("Transfer Error", error instanceof Error ? error.message : "An unexpected error occurred");
+      showError(
+        "Transfer Error",
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -317,12 +370,114 @@ export const TransferVerifyInformationScreen = () => {
             router.back();
           }}
         />
+
+        <Modal
+          visible={showPinModal}
+          animationType="slide"
+          transparent={false}
+          onRequestClose={() => {
+            setShowPinModal(false);
+            setPin("");
+            setPinError("");
+          }}
+        >
+          <GradientLayout>
+            <SafeAreaView style={styles.pinScreenContainer}>
+              <TouchableOpacity
+                style={styles.pinScreenCloseButton}
+                onPress={() => {
+                  setShowPinModal(false);
+                  setPin("");
+                  setPinError("");
+                }}
+              >
+                <Ionicons name="close" style={styles.pinScreenCloseIcon} />
+              </TouchableOpacity>
+
+              <View style={styles.pinScreenHeader}>
+                <Text style={styles.pinScreenTitle}>Enter your PIN</Text>
+                <Text style={styles.pinScreenSubtitle}>
+                  Please verify it's you
+                </Text>
+              </View>
+
+              <PinDots pinLength={PIN_LENGTH} currentLength={pin.length} />
+
+              {pinError ? (
+                <View style={styles.pinScreenErrorContainer}>
+                  <Text style={styles.pinScreenErrorText}>{pinError}</Text>
+                </View>
+              ) : (
+                <View style={styles.pinScreenErrorContainer}>
+                  <Text style={styles.pinScreenErrorText}> </Text>
+                </View>
+              )}
+
+              <View style={styles.pinScreenKeypadContainer}>
+                <KeypadSection
+                  onPress={handlePinPress}
+                  onDelete={handlePinDelete}
+                />
+              </View>
+            </SafeAreaView>
+          </GradientLayout>
+        </Modal>
       </SafeAreaView>
     </GradientLayout>
   );
 };
 
 const styles = StyleSheet.create({
+  pinScreenContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "flex-start",
+    paddingVertical: 20,
+  },
+  pinScreenCloseButton: {
+    position: "absolute",
+    top: 44,
+    right: 24,
+    zIndex: 10,
+  },
+  pinScreenCloseIcon: {
+    color: "white",
+    fontSize: 28,
+  },
+  pinScreenHeader: {
+    alignItems: "center",
+    marginTop: 40,
+  },
+  pinScreenTitle: {
+    color: "white",
+    fontSize: Theme.fontSize.h5,
+    fontWeight: "bold",
+    marginBottom: 12,
+  },
+  pinScreenSubtitle: {
+    color: Theme.colors.surface,
+    fontSize: Theme.fontSize.textL,
+    textAlign: "center",
+    marginBottom: 20, // Added margin to space out from dots
+  },
+  pinScreenErrorContainer: {
+    width: "80%",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20, // Added margin
+  },
+  pinScreenErrorText: {
+    color: Theme.colors.errorText,
+    fontSize: Theme.fontSize.textL,
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  pinScreenKeypadContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: "85%",
+    justifyContent: "center",
+  },
   safeArea: { flex: 1 },
   scrollContent: {
     paddingHorizontal: 16,

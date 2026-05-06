@@ -8,22 +8,30 @@ import { Link, Redirect, router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 export const ConnectWalletScreen = () => {
-  const { account, login, isLoading, errorMessage } = useAuth();
+  const { account, login, isLoading, errorMessage, hasPin, isInitialized } =
+    useAuth();
   const accessToken = useAuthStore((state) => state.accessToken);
 
   const handleConnectWallet = async () => {
     try {
       const authSession = await login();
-      if (authSession) router.replace("/(tabs)");
+      if (authSession) {
+        if (hasPin) {
+          router.replace("/(tabs)");
+        } else {
+          router.replace("/pin");
+        }
+      }
     } catch (error) {
       console.error("Wallet connect failed:", error);
     }
   };
 
-  if (account && accessToken) {
-    return <Redirect href="/(tabs)" />;
-  }
+  if (!isInitialized) return null;
 
+  if (account && accessToken) {
+    return <Redirect href={hasPin ? "/(tabs)" : "/pin"} />;
+  }
   return (
     <GradientLayout>
       <View style={styles.container}>

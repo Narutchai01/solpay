@@ -1,5 +1,6 @@
 import { HttpHelper } from "@/lib/http";
 import { AccountService } from "@/src/core/services/account.service";
+import { AccountModel } from "@/src/domain/model/account";
 import { AuthModel } from "@/src/domain/model/auth";
 import { AccountRepositoryImpl } from "@/src/infrastructure/account.repository";
 import { useMobileWallet } from "@wallet-ui/react-native-web3js";
@@ -12,6 +13,7 @@ export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [session, setSession] = useState<AuthModel | null>(null);
+  const [profile, setProfile] = useState<AccountModel | null>(null);
 
   const accountService = useMemo(() => {
     const httpHelper = new HttpHelper(API_URL);
@@ -19,7 +21,8 @@ export const useAuth = () => {
     return new AccountService(accountRepo);
   }, []);
 
-  const { save, clear } = useAuthStore();
+  const { accessToken, save, clear, hasPin, checkPin, isInitialized } =
+    useAuthStore();
 
   const isAuthenticated = Boolean(account);
 
@@ -34,6 +37,7 @@ export const useAuth = () => {
         await accountService.AuthenticateWallet(walletAddress);
 
       save(authSession.access_token, authSession.refresh_token);
+      await checkPin();
       setSession(authSession);
       return authSession;
     } catch (error) {
@@ -63,19 +67,40 @@ export const useAuth = () => {
       await disconnect();
       clear();
       setSession(null);
+      setProfile(null);
       setErrorMessage(null);
     } catch (error) {
       console.error("Logout failed:", error);
     }
   };
 
+  const getProfile = async () => {
+    if (!accessToken) return null;
+    setIsLoading(true);
+    try {
+      const profileData = await accountService.GetProfile(accessToken);
+      setProfile(profileData);
+      return profileData;
+    } catch (error) {
+      console.error("Failed to get profile:", error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isAuthenticated,
+    isInitialized,
     account,
     session,
+    profile,
     isLoading,
     errorMessage,
+    hasPin,
     login,
     logout,
+    getProfile,
+    checkPin,
   };
 };
