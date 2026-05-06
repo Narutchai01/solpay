@@ -8,7 +8,8 @@ import { WalletOption } from "@/src/core/type/wallet-option";
 import { CreateQuoteRequest } from "@/src/domain/model/quote";
 import { useBalance } from "@/src/hooks/useBalance";
 import { useQuote } from "@/src/hooks/useQuote";
-import { useRouter } from "expo-router";
+import { formatPromptPayID } from "@/src/core/utils/promptpay";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Image,
@@ -24,6 +25,7 @@ export const TransferScreen = () => {
   const { balance, GetBalance } = useBalance();
   const { createQuote } = useQuote();
   const router = useRouter();
+  const { qrData } = useLocalSearchParams<{ qrData: string }>();
 
   const [reqQuote, setReqQuote] = useState<CreateQuoteRequest>({
     thb_amount: 0,
@@ -36,6 +38,15 @@ export const TransferScreen = () => {
   useEffect(() => {
     GetBalance();
   }, [GetBalance]);
+
+  useEffect(() => {
+    if (qrData) {
+      setReqQuote((prev) => ({
+        ...prev,
+        promptpay_id: qrData,
+      }));
+    }
+  }, [qrData]);
 
   const walletOptions: WalletOption[] = useMemo(
     () => [
@@ -88,7 +99,9 @@ export const TransferScreen = () => {
               <View style={styles.avatarPlaceholder} />
               <View>
                 <Text style={styles.receiverName}>QR PromptPay</Text>
-                <Text style={styles.receiverDetail}>412-8-25624-3</Text>
+                <Text style={styles.receiverDetail}>
+                  {formatPromptPayID(reqQuote.promptpay_id || "")}
+                </Text>
               </View>
             </View>
 
