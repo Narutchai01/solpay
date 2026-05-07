@@ -10,6 +10,7 @@ interface Props {
   pieData: PieChartData[];
   onSlideChange?: (title: string) => void;
   selectedMonth: string;
+  selectedYear: number;
 }
 
 export const ChartSection = ({
@@ -17,6 +18,7 @@ export const ChartSection = ({
   pieData,
   onSlideChange,
   selectedMonth,
+  selectedYear,
 }: Props) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const { width: SCREEN_WIDTH } = useWindowDimensions();
@@ -26,7 +28,11 @@ export const ChartSection = ({
       id: "bar",
       title: "Monthly Summary",
       component: (
-        <MonthlyBarChart data={monthlyData} selectedMonth={selectedMonth} />
+        <MonthlyBarChart
+          data={monthlyData}
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+        />
       ),
     },
     {
