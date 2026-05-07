@@ -13,16 +13,18 @@ import { KeypadSection } from "../pin/keypadSection.component";
 import { PinDots } from "../pin/pinDots";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   Image,
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
@@ -34,6 +36,9 @@ import {
 const PIN_LENGTH = 6;
 
 export const TransferVerifyInformationScreen = () => {
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
+  const scale = SCREEN_WIDTH / 375;
+
   const { GetQuoteByID, quote } = useQuote();
   const { CreateTransactionOffchain, CreateTransactionOnchain } =
     useTransaction();
@@ -63,6 +68,126 @@ export const TransferVerifyInformationScreen = () => {
 
   const { ConfirmQuote } = useQuote();
 
+  const dynamicStyles = useMemo(
+    () => ({
+      scrollContent: {
+        paddingHorizontal: 16 * scale,
+        paddingTop: 10 * scale,
+        paddingBottom: 100 * scale,
+      },
+      card: {
+        padding: 12 * scale,
+      },
+      accountIconSize: 50 * scale,
+      accountLabel: {
+        fontSize: Math.min(Theme.fontSize.h6, 16 * scale),
+        marginLeft: 16 * scale,
+      },
+      accountValue: {
+        fontSize: Math.min(Theme.fontSize.textM, 14 * scale),
+        marginTop: 4 * scale,
+      },
+      connectorContainer: {
+        left: 31 * scale,
+        top: 100 * scale,
+      },
+      verticalLine: {
+        width: 1.5 * scale,
+        height: 22 * scale,
+      },
+      arrowCircle: {
+        width: 28 * scale,
+        height: 28 * scale,
+        borderRadius: 16 * scale,
+      },
+      arrowIconSize: 18 * scale,
+      avatarContainer: {
+        width: 50 * scale,
+        height: 50 * scale,
+        borderRadius: 25 * scale,
+        marginRight: 16 * scale,
+      },
+      receiverName: {
+        fontSize: Math.min(Theme.fontSize.h6, 16 * scale),
+      },
+      receiverAccount: {
+        fontSize: Math.min(Theme.fontSize.textM, 14 * scale),
+        marginVertical: 4 * scale,
+      },
+      receiverBank: {
+        fontSize: Math.min(Theme.fontSize.textM, 14 * scale),
+      },
+      amountCard: {
+        marginTop: 20 * scale,
+        padding: 16 * scale,
+      },
+      amountContainer: {
+        gap: 12 * scale,
+      },
+      amountLabel: {
+        fontSize: Math.min(Theme.fontSize.textL, 16 * scale),
+      },
+      amountValue: {
+        fontSize: Math.min(Theme.fontSize.h6, 16 * scale),
+        marginLeft: 10 * scale,
+      },
+      sectionTitle: {
+        fontSize: Math.min(Theme.fontSize.h6, 16 * scale),
+        marginBottom: 16 * scale,
+      },
+      categorySection: {
+        marginTop: 25 * scale,
+        paddingBottom: 20 * scale,
+      },
+      categoryButton: {
+        borderRadius: 8 * scale,
+        minWidth: 80 * scale,
+        marginRight: 12 * scale,
+      },
+      categoryButtonText: {
+        fontSize: Math.min(Theme.fontSize.textS, 12 * scale),
+        marginLeft: 4 * scale,
+      },
+      categoryIconSize: 18 * scale,
+      footer: {
+        paddingHorizontal: 16 * scale,
+        paddingBottom: Platform.OS === "ios" ? 0 : 16 * scale,
+      },
+      footerButton: {
+        paddingVertical: 10 * scale,
+      },
+      pinScreenContainer: {
+        paddingVertical: 20 * scale,
+      },
+      pinScreenCloseButton: {
+        top: (Platform.OS === "ios" ? 44 : 24) * scale,
+        right: 24 * scale,
+      },
+      pinScreenCloseIcon: {
+        fontSize: 28 * scale,
+      },
+      pinScreenHeader: {
+        marginTop: 40 * scale,
+      },
+      pinScreenTitle: {
+        fontSize: Math.min(Theme.fontSize.h5, 20 * scale),
+        marginBottom: 12 * scale,
+      },
+      pinScreenSubtitle: {
+        fontSize: Math.min(Theme.fontSize.textL, 16 * scale),
+        marginBottom: 20 * scale,
+      },
+      pinScreenErrorContainer: {
+        marginTop: 20 * scale,
+      },
+      pinScreenErrorText: {
+        fontSize: Math.min(Theme.fontSize.textL, 16 * scale),
+        marginBottom: 10 * scale,
+      },
+    }),
+    [scale],
+  );
+
   useEffect(() => {
     GetCategories();
   }, [GetCategories]);
@@ -81,10 +206,12 @@ export const TransferVerifyInformationScreen = () => {
         onPress={() => setSelectedCategoryId(item.id)}
         style={[
           styles.categoryButton,
+          dynamicStyles.categoryButton,
           !isSelected && styles.unselectedCategoryButton,
         ]}
         textStyle={[
           styles.categoryButtonText,
+          dynamicStyles.categoryButtonText,
           isSelected
             ? { color: Theme.colors.g300 }
             : { color: Theme.colors.surface },
@@ -92,7 +219,7 @@ export const TransferVerifyInformationScreen = () => {
         icon={
           <MaterialCommunityIcons
             name={config.icon}
-            size={18}
+            size={dynamicStyles.categoryIconSize}
             color={isSelected ? Theme.colors.g300 : Theme.colors.surface}
           />
         }
@@ -215,42 +342,56 @@ export const TransferVerifyInformationScreen = () => {
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            dynamicStyles.scrollContent,
+          ]}
         >
           {/* Sender Account */}
-          <GlassCard style={styles.card}>
+          <GlassCard style={[styles.card, dynamicStyles.card]}>
             <View style={styles.accountRow}>
               <Ionicons
                 name="person-circle-outline"
-                size={50}
+                size={dynamicStyles.accountIconSize}
                 color={Theme.colors.surface}
               />
-              <View style={{ marginLeft: 16 }}>
+              <View style={dynamicStyles.accountLabel}>
                 <Text style={styles.accountLabel}>Account</Text>
-                <Text style={styles.accountValue}>XXX-X-X5624-X</Text>
+                <Text style={[styles.accountValue, dynamicStyles.accountValue]}>
+                  XXX-X-X5624-X
+                </Text>
               </View>
             </View>
           </GlassCard>
 
           {/* Connection Line with Arrow */}
-          <View style={{ height: 85 }} />
+          <View style={{ height: 85 * scale }} />
 
-          <View style={styles.connectorContainer}>
-            <View style={styles.verticalLine} />
-            <View style={styles.arrowCircle}>
+          <View
+            style={[
+              styles.connectorContainer,
+              dynamicStyles.connectorContainer,
+            ]}
+          >
+            <View style={[styles.verticalLine, dynamicStyles.verticalLine]} />
+            <View style={[styles.arrowCircle, dynamicStyles.arrowCircle]}>
               <Ionicons
                 name="arrow-down"
-                size={18}
+                size={dynamicStyles.arrowIconSize}
                 color={Theme.colors.surface}
               />
             </View>
-            <View style={styles.verticalLine} />
+            <View style={[styles.verticalLine, dynamicStyles.verticalLine]} />
           </View>
 
           {/* Receiver Info */}
-          <GlassCard style={[styles.card, { marginTop: 12 }]}>
+          <GlassCard
+            style={[styles.card, dynamicStyles.card, { marginTop: 12 * scale }]}
+          >
             <View style={styles.accountRow}>
-              <View style={styles.avatarContainer}>
+              <View
+                style={[styles.avatarContainer, dynamicStyles.avatarContainer]}
+              >
                 <Image
                   source={require("@/assets/images/thaiQR-logo.png")}
                   style={styles.avatarInsideImage}
@@ -259,64 +400,86 @@ export const TransferVerifyInformationScreen = () => {
               </View>
 
               <View>
-                <Text style={styles.receiverName}>Mr. Dee Jai</Text>
-                <Text style={styles.receiverAccount}>
+                <Text style={[styles.receiverName, dynamicStyles.receiverName]}>
+                  Mr. Dee Jai
+                </Text>
+                <Text
+                  style={[
+                    styles.receiverAccount,
+                    dynamicStyles.receiverAccount,
+                  ]}
+                >
                   {quote?.promptpay_id}
                 </Text>
-                <Text style={styles.receiverBank}>PromptPay</Text>
+                <Text style={[styles.receiverBank, dynamicStyles.receiverBank]}>
+                  PromptPay
+                </Text>
               </View>
             </View>
           </GlassCard>
           {/* Amount Display */}
-          <GlassCard style={styles.amountCard}>
+          <GlassCard style={[styles.amountCard, dynamicStyles.amountCard]}>
             {quote?.quote_type === "ONCHAIN" ? (
-              <View style={styles.amountContainer}>
+              <View
+                style={[styles.amountContainer, dynamicStyles.amountContainer]}
+              >
                 <View style={styles.amountDetailRow}>
-                  <Text style={styles.amountLabel}>THB Amount:</Text>
-                  <Text style={styles.amountValue}>
+                  <Text style={[styles.amountLabel, dynamicStyles.amountLabel]}>
+                    THB Amount:
+                  </Text>
+                  <Text style={[styles.amountValue, dynamicStyles.amountValue]}>
                     {quote?.thb_amount} THB
                   </Text>
                 </View>
                 <View style={styles.amountDetailRow}>
-                  <Text style={styles.amountLabel}>USDT Amount:</Text>
+                  <Text style={[styles.amountLabel, dynamicStyles.amountLabel]}>
+                    USDT Amount:
+                  </Text>
                   <Text
                     style={[
                       styles.amountValue,
-                      { fontSize: Theme.fontSize.textM },
+                      dynamicStyles.amountValue,
+                      { fontSize: Math.min(Theme.fontSize.textM, 14 * scale) },
                     ]}
                   >
                     {quote?.usdt_amount} USDT
                   </Text>
                 </View>
                 <View style={styles.amountDetailRow}>
-                  <Text style={styles.amountLabel}>Fee:</Text>
-                  <Text style={styles.amountValue}>{quote?.fee} USDT</Text>
+                  <Text style={[styles.amountLabel, dynamicStyles.amountLabel]}>
+                    Fee:
+                  </Text>
+                  <Text style={[styles.amountValue, dynamicStyles.amountValue]}>
+                    {quote?.fee} USDT
+                  </Text>
                 </View>
                 <View style={styles.amountDetailRow}>
-                  <Text style={styles.amountLabel}>Estimated Time:</Text>
-                  <Text style={styles.amountValue}>4.23 s</Text>
+                  <Text style={[styles.amountLabel, dynamicStyles.amountLabel]}>
+                    Estimated Time:
+                  </Text>
+                  <Text style={[styles.amountValue, dynamicStyles.amountValue]}>
+                    4.23 s
+                  </Text>
                 </View>
               </View>
             ) : (
               <View style={styles.amountRowSimple}>
-                <Text style={styles.amountLabel}>THB Amount:</Text>
-                <Text style={styles.amountValue}>{quote?.thb_amount} THB</Text>
+                <Text style={[styles.amountLabel, dynamicStyles.amountLabel]}>
+                  THB Amount:
+                </Text>
+                <Text style={[styles.amountValue, dynamicStyles.amountValue]}>
+                  {quote?.thb_amount} THB
+                </Text>
               </View>
             )}
           </GlassCard>
 
           {/* Category Selection */}
-          <View style={styles.categorySection}>
-            <Text style={styles.sectionTitle}>Category</Text>
+          <View style={[styles.categorySection, dynamicStyles.categorySection]}>
+            <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle]}>
+              Category
+            </Text>
 
-            {/* TODO(UI-BUG): Fix screen jump when selecting category
-      - Screen shifts/jumps when a category is selected
-      - Likely caused by layout changes (borderWidth, size, font, icon, etc.)
-      - Ensure Button has consistent height/width across all states
-      - Use consistent styles for selected/unselected (avoid layout changes)
-      - Investigate FlatList re-render behavior
-      - Check interaction with parent ScrollView
-  */}
             <FlatList
               data={categories}
               renderItem={renderCategoryItem}
@@ -324,19 +487,23 @@ export const TransferVerifyInformationScreen = () => {
               horizontal={true}
               scrollEnabled={true}
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.categoryListContainer}
+              contentContainerStyle={[
+                styles.categoryListContainer,
+                { paddingRight: 20 * scale },
+              ]}
+              style={{ width: SCREEN_WIDTH - 32 * scale }}
             />
           </View>
         </ScrollView>
 
         {/* Footer Buttons */}
-        <View style={styles.footer}>
+        <View style={[styles.footer, dynamicStyles.footer]}>
           <Button
             title="Cancel"
             variant="solid"
             color="g200"
             onPress={() => setShowCancelModal(true)}
-            style={styles.footerButton}
+            style={[styles.footerButton, dynamicStyles.footerButton]}
             textColor="surface"
           />
           <Button
@@ -344,7 +511,11 @@ export const TransferVerifyInformationScreen = () => {
             variant="solid"
             color="v300"
             onPress={() => handleConfirm()}
-            style={[styles.footerButton, { marginLeft: 16 }]}
+            style={[
+              styles.footerButton,
+              dynamicStyles.footerButton,
+              { marginLeft: 16 * scale },
+            ]}
             textColor="g300"
           />
         </View>
@@ -382,34 +553,83 @@ export const TransferVerifyInformationScreen = () => {
           }}
         >
           <GradientLayout>
-            <SafeAreaView style={styles.pinScreenContainer}>
+            <SafeAreaView
+              style={[
+                styles.pinScreenContainer,
+                dynamicStyles.pinScreenContainer,
+              ]}
+            >
               <TouchableOpacity
-                style={styles.pinScreenCloseButton}
+                style={[
+                  styles.pinScreenCloseButton,
+                  dynamicStyles.pinScreenCloseButton,
+                ]}
                 onPress={() => {
                   setShowPinModal(false);
                   setPin("");
                   setPinError("");
                 }}
               >
-                <Ionicons name="close" style={styles.pinScreenCloseIcon} />
+                <Ionicons
+                  name="close"
+                  style={[
+                    styles.pinScreenCloseIcon,
+                    dynamicStyles.pinScreenCloseIcon,
+                  ]}
+                />
               </TouchableOpacity>
 
-              <View style={styles.pinScreenHeader}>
-                <Text style={styles.pinScreenTitle}>Enter your PIN</Text>
-                <Text style={styles.pinScreenSubtitle}>
-                  Please verify it's you
+              <View
+                style={[styles.pinScreenHeader, dynamicStyles.pinScreenHeader]}
+              >
+                <Text
+                  style={[styles.pinScreenTitle, dynamicStyles.pinScreenTitle]}
+                >
+                  Enter your PIN
+                </Text>
+                <Text
+                  style={[
+                    styles.pinScreenSubtitle,
+                    dynamicStyles.pinScreenSubtitle,
+                  ]}
+                >
+                  Please verify it&apos;s you
                 </Text>
               </View>
 
               <PinDots pinLength={PIN_LENGTH} currentLength={pin.length} />
 
               {pinError ? (
-                <View style={styles.pinScreenErrorContainer}>
-                  <Text style={styles.pinScreenErrorText}>{pinError}</Text>
+                <View
+                  style={[
+                    styles.pinScreenErrorContainer,
+                    dynamicStyles.pinScreenErrorContainer,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.pinScreenErrorText,
+                      dynamicStyles.pinScreenErrorText,
+                    ]}
+                  >
+                    {pinError}
+                  </Text>
                 </View>
               ) : (
-                <View style={styles.pinScreenErrorContainer}>
-                  <Text style={styles.pinScreenErrorText}> </Text>
+                <View
+                  style={[
+                    styles.pinScreenErrorContainer,
+                    dynamicStyles.pinScreenErrorContainer,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.pinScreenErrorText,
+                      dynamicStyles.pinScreenErrorText,
+                    ]}
+                  >
+                    {" "}
+                  </Text>
                 </View>
               )}
 
@@ -432,45 +652,33 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
-    paddingVertical: 20,
   },
   pinScreenCloseButton: {
     position: "absolute",
-    top: 44,
-    right: 24,
     zIndex: 10,
   },
   pinScreenCloseIcon: {
     color: "white",
-    fontSize: 28,
   },
   pinScreenHeader: {
     alignItems: "center",
-    marginTop: 40,
   },
   pinScreenTitle: {
     color: "white",
-    fontSize: Theme.fontSize.h5,
     fontWeight: "bold",
-    marginBottom: 12,
   },
   pinScreenSubtitle: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.textL,
     textAlign: "center",
-    marginBottom: 20, // Added margin to space out from dots
   },
   pinScreenErrorContainer: {
     width: "80%",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 20, // Added margin
   },
   pinScreenErrorText: {
     color: Theme.colors.errorText,
-    fontSize: Theme.fontSize.textL,
     textAlign: "center",
-    marginBottom: 10,
   },
   pinScreenKeypadContainer: {
     flexDirection: "row",
@@ -479,84 +687,54 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   safeArea: { flex: 1 },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 40,
-  },
-  card: {
-    padding: 12,
-    width: "100%",
-  },
+  scrollContent: {},
+  card: {},
   accountRow: {
     flexDirection: "row",
     alignItems: "center",
   },
   avatarCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
     backgroundColor: Theme.colors.v300,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 16,
   },
   accountLabel: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h6,
     fontWeight: "600",
   },
   accountValue: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.textM,
-    marginTop: 4,
   },
   // Connection Line
   connectorContainer: {
     position: "absolute",
-    left: 30,
-    top: 100,
     alignItems: "center",
     zIndex: 10,
   },
   verticalLine: {
-    width: 1.5,
-    height: 22,
     backgroundColor: Theme.colors.v300,
   },
   arrowCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 16,
     backgroundColor: Theme.colors.v300,
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: 0,
   },
   // Receiver
   receiverName: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h6,
     fontWeight: "600",
   },
   receiverAccount: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.textM,
-    marginVertical: 4,
   },
   receiverBank: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.textM,
     opacity: 0.8,
   },
   avatarContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 16,
     backgroundColor: Theme.colors.surface,
   },
   avatarInsideImage: {
@@ -564,11 +742,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   // Amount
-  amountCard: {
-    marginTop: 20,
-    padding: 16,
-    width: "100%",
-  },
+  amountCard: {},
   // SolPay
   amountRowSimple: {
     flexDirection: "row",
@@ -578,7 +752,6 @@ const styles = StyleSheet.create({
   // Software Wallet
   amountContainer: {
     width: "100%",
-    gap: 12,
   },
   amountDetailRow: {
     flexDirection: "row",
@@ -587,43 +760,28 @@ const styles = StyleSheet.create({
   },
   amountLabel: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.textL,
     opacity: 0.9,
   },
   amountValue: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h6,
     fontWeight: "700",
     textAlign: "right",
     flex: 1,
-    marginLeft: 10,
   },
   // Category
   sectionTitle: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h6,
     fontWeight: "600",
-    marginBottom: 16,
   },
-  categorySection: {
-    marginTop: 25,
-    paddingBottom: 20,
-    width: "100%",
-  },
+  categorySection: {},
   categoryListContainer: {
-    flex: 1,
-    justifyContent: "space-between",
+    paddingRight: 16,
   },
   categoryButton: {
     borderWidth: 1,
     borderColor: "transparent",
-    borderRadius: 8,
-    minWidth: 80,
   },
-  categoryButtonText: {
-    fontSize: Theme.fontSize.textS,
-    marginLeft: 4,
-  },
+  categoryButtonText: {},
   unselectedCategoryButton: {
     borderWidth: 1,
     borderColor: Theme.colors.g50,
@@ -631,10 +789,8 @@ const styles = StyleSheet.create({
   // Footer
   footer: {
     flexDirection: "row",
-    paddingHorizontal: 16,
   },
   footerButton: {
     flex: 1,
-    paddingVertical: 10,
   },
 });
