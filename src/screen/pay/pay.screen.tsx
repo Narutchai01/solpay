@@ -1,8 +1,13 @@
 import { ConfirmModal } from "@/src/components/modal/Confirm";
 import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
+import { extractPromptPayID } from "@/src/core/utils/promptpay";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import { CameraView, useCameraPermissions } from "expo-camera";
+import {
+  CameraView,
+  useCameraPermissions,
+  scanFromURLAsync,
+} from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -44,12 +49,11 @@ const PayScreen = () => {
   const handleBarCodeScanned = ({ data }: { data: string }) => {
     if (scanned) return;
 
-    const isPromptPay =
-      data.startsWith("000201") && data.includes("A000000677");
+    const ppInfo = extractPromptPayID(data);
 
-    if (isPromptPay) {
+    if (ppInfo) {
       setScanned(true);
-      router.push({ pathname: "/transfer", params: { qrData: data } });
+      router.push({ pathname: "/transfer", params: { qrData: ppInfo.id } });
     } else {
       setScanned(true);
       setShowInvalidQRModal(true);
@@ -76,7 +80,13 @@ const PayScreen = () => {
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
-        router.replace("/(tabs)");
+        const imageUri = result.assets[0].uri;
+        const scannedResults = await scanFromURLAsync(imageUri, ["qr"]);
+        if (scannedResults && scannedResults.length > 0) {
+          handleBarCodeScanned({ data: scannedResults[0].data });
+        } else {
+          setShowInvalidQRModal(true);
+        }
       }
     } catch {
       alert("This image cannot be used. Please choose another one.");
