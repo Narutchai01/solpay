@@ -3,20 +3,19 @@ import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import {
-  Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const { width } = Dimensions.get("window");
-
 export default function IdCardScanScreen() {
   const router = useRouter();
+  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
 
@@ -24,6 +23,50 @@ export default function IdCardScanScreen() {
 
   const [step, setStep] = useState<"FRONT" | "BACK">("FRONT");
   const [frontImage, setFrontImage] = useState<string | null>(null);
+
+  // Responsive scaling factors
+  const scale = SCREEN_WIDTH / 375; // Based on standard iPhone width
+  const frameWidth = SCREEN_WIDTH * 0.9;
+  const frameHeight = SCREEN_WIDTH * 0.58;
+
+  const dynamicStyles = useMemo(
+    () => ({
+      instructionContainer: {
+        marginTop: 20 * scale,
+      },
+      instructionText: {
+        fontSize: Math.max(14, Math.min(Theme.fontSize.textL, 16 * scale)),
+        paddingHorizontal: 20 * scale,
+        paddingVertical: 10 * scale,
+        borderRadius: 20 * scale,
+      },
+      idCardFrame: {
+        width: frameWidth,
+        height: frameHeight,
+      },
+      corner: {
+        width: 30 * scale,
+        height: 30 * scale,
+        borderWidth: 4 * scale,
+      },
+      bottomSection: {
+        paddingHorizontal: 30 * scale,
+        paddingBottom: Math.max(20, 50 * (SCREEN_HEIGHT / 812)),
+      },
+      captureOuterRing: {
+        width: 70 * scale,
+        height: 70 * scale,
+        borderRadius: 35 * scale,
+        borderWidth: 4 * scale,
+      },
+      captureInnerCircle: {
+        width: 52 * scale,
+        height: 52 * scale,
+        borderRadius: 26 * scale,
+      },
+    }),
+    [scale, SCREEN_HEIGHT, frameWidth, frameHeight],
+  );
 
   useEffect(() => {
     if (permission && !permission.granted && permission.canAskAgain) {
@@ -71,30 +114,48 @@ export default function IdCardScanScreen() {
       <SafeAreaView style={styles.overlay}>
         <Header title="Scan ID Card" />
 
-        <View style={styles.instructionContainer}>
-          <Text style={styles.instructionText}>
+        <View
+          style={[
+            styles.instructionContainer,
+            dynamicStyles.instructionContainer,
+          ]}
+        >
+          <Text style={[styles.instructionText, dynamicStyles.instructionText]}>
             Please scan the <Text style={styles.boldText}>{step}</Text> of your
             ID Card
           </Text>
         </View>
 
         <View style={styles.maskContainer}>
-          <View style={styles.idCardFrame}>
-            <View style={[styles.corner, styles.topLeft]} />
-            <View style={[styles.corner, styles.topRight]} />
-            <View style={[styles.corner, styles.bottomLeft]} />
-            <View style={[styles.corner, styles.bottomRight]} />
+          <View style={[styles.idCardFrame, dynamicStyles.idCardFrame]}>
+            <View
+              style={[styles.corner, styles.topLeft, dynamicStyles.corner]}
+            />
+            <View
+              style={[styles.corner, styles.topRight, dynamicStyles.corner]}
+            />
+            <View
+              style={[styles.corner, styles.bottomLeft, dynamicStyles.corner]}
+            />
+            <View
+              style={[styles.corner, styles.bottomRight, dynamicStyles.corner]}
+            />
           </View>
         </View>
 
-        <View style={styles.bottomSection}>
+        <View style={[styles.bottomSection, dynamicStyles.bottomSection]}>
           <View style={styles.captureContainer}>
             <TouchableOpacity
-              style={styles.captureOuterRing}
+              style={[styles.captureOuterRing, dynamicStyles.captureOuterRing]}
               onPress={takePicture}
               activeOpacity={0.7}
             >
-              <View style={styles.captureInnerCircle} />
+              <View
+                style={[
+                  styles.captureInnerCircle,
+                  dynamicStyles.captureInnerCircle,
+                ]}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -116,50 +177,34 @@ const styles = StyleSheet.create({
   overlay: { flex: 1, justifyContent: "space-between" },
   instructionContainer: {
     alignItems: "center",
-    marginTop: 20,
   },
   instructionText: {
     color: "white",
-    fontSize: Theme.fontSize.textL,
     backgroundColor: "rgba(0,0,0,0.5)",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
     overflow: "hidden",
+    textAlign: "center",
   },
   boldText: { fontWeight: "800", color: Theme.colors.v300 },
   maskContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   idCardFrame: {
-    width: width * 0.9,
-    height: width * 0.58,
     position: "relative",
   },
   corner: {
     position: "absolute",
-    width: 30,
-    height: 30,
     borderColor: Theme.colors.surface,
-    borderWidth: 4,
   },
   topLeft: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0 },
   topRight: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0 },
   bottomLeft: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0 },
   bottomRight: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0 },
-  bottomSection: { paddingHorizontal: 30, paddingBottom: 50 },
+  bottomSection: {},
   captureContainer: { alignItems: "center", marginBottom: 30 },
   captureOuterRing: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    borderWidth: 4,
     borderColor: Theme.colors.surface,
     justifyContent: "center",
     alignItems: "center",
   },
   captureInnerCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
     backgroundColor: Theme.colors.surface,
   },
 });
