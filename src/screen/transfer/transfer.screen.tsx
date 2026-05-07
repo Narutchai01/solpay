@@ -5,19 +5,19 @@ import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
 import { Theme } from "@/src/core/theme/theme";
 import { WalletOption } from "@/src/core/type/wallet-option";
+import { formatPromptPayID } from "@/src/core/utils/promptpay";
 import { CreateQuoteRequest } from "@/src/domain/model/quote";
 import { useBalance } from "@/src/hooks/useBalance";
 import { useQuote } from "@/src/hooks/useQuote";
-import { formatPromptPayID } from "@/src/core/utils/promptpay";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -112,7 +112,7 @@ export const TransferScreen = () => {
                 <GlassCard style={styles.coinCard}>
                   <View style={styles.coinContent}>
                     <Image
-                      source={require("@/assets/images/usdt-icon.png")}
+                      source={require("@/assets/images/usdc-icon.jpg")}
                       style={styles.tokenIcon}
                     />
                     <Text style={styles.coinText}>USDT</Text>
