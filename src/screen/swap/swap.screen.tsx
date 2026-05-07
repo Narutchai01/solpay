@@ -14,13 +14,16 @@ import {
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo } from "react";
 import {
-  FlatList,
   Image,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
+  useWindowDimensions,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
@@ -28,6 +31,7 @@ import { SlippageModal } from "./slippageModal.component";
 import { TokenAsset, TokenSelectModal } from "./tokenSelectModal.component";
 
 export const SwapScreen = () => {
+  const { width, height } = useWindowDimensions();
   const router = useRouter();
   const { assets } = useTokenAccounts();
   const {
@@ -85,185 +89,197 @@ export const SwapScreen = () => {
       <SafeAreaView style={styles.safeArea}>
         <Header title="Swap" />
 
-        <View style={styles.container}>
-          {/* Select Section */}
-          <View style={styles.bigCard}>
-            <TouchableOpacity
-              onPress={() => {
-                const savedPrice = currentPrice;
-                reset();
-                // Restore the price since reset() clears it
-                if (savedPrice) {
-                  setCurrentPrice(savedPrice);
-                }
-                handlePayAmountChange("0");
-              }}
-            >
-              <View style={styles.iconCircle}>
-                <FontAwesome
-                  name="repeat"
-                  size={20}
-                  color={Theme.colors.surface}
-                />
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => setSlippageVisible(true)}>
-              <View style={styles.iconCircle}>
-                <MaterialCommunityIcons
-                  name="timer-settings-outline"
-                  size={20}
-                  color={Theme.colors.surface}
-                />
-              </View>
-            </TouchableOpacity>
-          </View>
-
-          {/* From Section */}
-          <GlassCard style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <Text style={styles.label}>From:</Text>
-              <View style={styles.balanceRow}>
-                <Ionicons
-                  name="wallet-outline"
-                  size={18}
-                  color={Theme.colors.surface}
-                />
-                <Text style={styles.balanceText}>
-                  {fromToken?.val || "0"}{" "}
-                  {fromToken?.name === "Solana" ? "SOL" : fromToken?.name || ""}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.row}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[
+              styles.container,
+              {
+                paddingHorizontal: width * 0.04,
+                paddingTop: height * 0.02,
+              },
+            ]}
+          >
+            {/* Select Section */}
+            <View style={styles.bigCard}>
               <TouchableOpacity
-                style={styles.tokenSelector}
-                onPress={() => setModalVisible(true)}
+                onPress={() => {
+                  const savedPrice = currentPrice;
+                  reset();
+                  // Restore the price since reset() clears it
+                  if (savedPrice) {
+                    setCurrentPrice(savedPrice);
+                  }
+                  handlePayAmountChange("0");
+                }}
               >
-                <View style={styles.tokenIcon}>
-                  {fromToken?.icon ? (
-                    <Image
-                      source={{ uri: fromToken.icon }}
-                      style={{ width: 32, height: 32, borderRadius: 16 }}
-                    />
-                  ) : (
-                    <Ionicons
-                      name={fromToken?.icon || "help-circle-outline"}
-                      size={28}
-                      color={Theme.colors.onSurface}
-                    />
-                  )}
+                <View style={styles.iconCircle}>
+                  <FontAwesome
+                    name="repeat"
+                    size={20}
+                    color={Theme.colors.surface}
+                  />
                 </View>
-                <Text style={styles.tokenName}>
-                  {fromToken?.name || "Select"}
-                </Text>
-                <MaterialCommunityIcons
-                  name="chevron-down"
-                  size={24}
-                  color={Theme.colors.surface}
-                />
               </TouchableOpacity>
 
-              <TextInput
-                style={styles.amountInput}
-                placeholder="0.00"
-                placeholderTextColor={Theme.colors.surface}
-                keyboardType="numeric"
-                value={amountIn === "0" ? "" : amountIn}
-                onChangeText={handlePayAmountChange}
-              />
+              <TouchableOpacity onPress={() => setSlippageVisible(true)}>
+                <View style={styles.iconCircle}>
+                  <MaterialCommunityIcons
+                    name="timer-settings-outline"
+                    size={20}
+                    color={Theme.colors.surface}
+                  />
+                </View>
+              </TouchableOpacity>
             </View>
 
-            <FlatList
-              data={percentageOptions}
-              horizontal
-              scrollEnabled={false}
-              keyExtractor={(item) => item}
-              contentContainerStyle={styles.percentRow}
-              renderItem={({ item }) => (
-                <Button
-                  title={item}
-                  variant="outline"
-                  color="v300"
-                  onPress={() => {
-                    if (fromToken) {
-                      const maxVal = parseFloat(fromToken.val);
-                      let calculated = "0";
-                      if (item === "MAX") calculated = maxVal.toString();
-                      else {
-                        const percent = parseInt(item.replace("%", "")) / 100;
-                        calculated = (maxVal * percent).toString();
+            {/* From Section */}
+            <GlassCard style={styles.card}>
+              <View style={styles.cardHeaderRow}>
+                <Text style={styles.label}>From:</Text>
+                <View style={styles.balanceRow}>
+                  <Ionicons
+                    name="wallet-outline"
+                    size={18}
+                    color={Theme.colors.surface}
+                  />
+                  <Text style={styles.balanceText}>
+                    {fromToken?.val || "0"}{" "}
+                    {fromToken?.name === "Solana"
+                      ? "SOL"
+                      : fromToken?.name || ""}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.row}>
+                <TouchableOpacity
+                  style={styles.tokenSelector}
+                  onPress={() => setModalVisible(true)}
+                >
+                  <View style={styles.tokenIcon}>
+                    {fromToken?.icon ? (
+                      <Image
+                        source={{ uri: fromToken.icon }}
+                        style={{ width: 32, height: 32, borderRadius: 16 }}
+                      />
+                    ) : (
+                      <Ionicons
+                        name={fromToken?.icon || "help-circle-outline"}
+                        size={28}
+                        color={Theme.colors.onSurface}
+                      />
+                    )}
+                  </View>
+                  <Text style={styles.tokenName}>
+                    {fromToken?.name || "Select"}
+                  </Text>
+                  <MaterialCommunityIcons
+                    name="chevron-down"
+                    size={24}
+                    color={Theme.colors.surface}
+                  />
+                </TouchableOpacity>
+
+                <TextInput
+                  style={styles.amountInput}
+                  placeholder="0.00"
+                  placeholderTextColor={Theme.colors.surface}
+                  keyboardType="numeric"
+                  value={amountIn === "0" ? "" : amountIn}
+                  onChangeText={handlePayAmountChange}
+                />
+              </View>
+
+              <View style={styles.percentRow}>
+                {percentageOptions.map((item) => (
+                  <Button
+                    key={item}
+                    title={item}
+                    variant="outline"
+                    color="v300"
+                    onPress={() => {
+                      if (fromToken) {
+                        const maxVal = parseFloat(fromToken.val);
+                        let calculated = "0";
+                        if (item === "MAX") calculated = maxVal.toString();
+                        else {
+                          const percent = parseInt(item.replace("%", "")) / 100;
+                          calculated = (maxVal * percent).toString();
+                        }
+                        handlePayAmountChange(calculated);
                       }
-                      handlePayAmountChange(calculated);
-                    }
-                  }}
-                  style={styles.percentButton}
-                  textColor="v100"
-                />
-              )}
-            />
-          </GlassCard>
+                    }}
+                    style={styles.percentButton}
+                    textColor="v100"
+                  />
+                ))}
+              </View>
+            </GlassCard>
 
-          {/* Swap Arrow Button */}
-          <View style={styles.arrowContainer}>
-            <View style={styles.arrowButton}>
-              <Ionicons name="arrow-down" size={32} color="white" />
-            </View>
-          </View>
-
-          {/* To Section (Locked to USDT for now or implement target select) */}
-          <GlassCard style={styles.card}>
-            <View style={styles.usdtHeaderRow}>
-              <Text style={styles.label}>To:</Text>
-              <View style={styles.balanceRow}>
-                <Ionicons
-                  name="wallet-outline"
-                  size={18}
-                  color={Theme.colors.surface}
-                />
-                <Text style={styles.balanceText}>
-                  Balance: {targetBalance} {targetSymbol}
-                </Text>
+            {/* Swap Arrow Button */}
+            <View style={styles.arrowContainer}>
+              <View style={styles.arrowButton}>
+                <Ionicons name="arrow-down" size={32} color="white" />
               </View>
             </View>
 
-            <View style={styles.row}>
-              <TouchableOpacity style={styles.tokenSelector}>
-                <Image
-                  source={require("@/assets/images/usdt-icon.png")}
-                  style={styles.tokenIcon}
+            {/* To Section (Locked to USDT for now or implement target select) */}
+            <GlassCard style={styles.card}>
+              <View style={styles.usdtHeaderRow}>
+                <Text style={styles.label}>To:</Text>
+                <View style={styles.balanceRow}>
+                  <Ionicons
+                    name="wallet-outline"
+                    size={18}
+                    color={Theme.colors.surface}
+                  />
+                  <Text style={styles.balanceText}>
+                    Balance: {targetBalance} {targetSymbol}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.row}>
+                <TouchableOpacity style={styles.tokenSelector}>
+                  <Image
+                    source={require("@/assets/images/usdt-icon.png")}
+                    style={styles.tokenIcon}
+                  />
+                  <Text style={styles.tokenName}>{targetSymbol}</Text>
+                </TouchableOpacity>
+                <TextInput
+                  style={styles.amountInput}
+                  placeholder="0.00"
+                  placeholderTextColor={Theme.colors.surface}
+                  keyboardType="numeric"
+                  value={amountOut === "0" ? "" : amountOut}
+                  onChangeText={handleReceiveAmountChange}
                 />
-                <Text style={styles.tokenName}>{targetSymbol}</Text>
-              </TouchableOpacity>
-              <TextInput
-                style={styles.amountInput}
-                placeholder="0.00"
-                placeholderTextColor={Theme.colors.surface}
-                keyboardType="numeric"
-                value={amountOut === "0" ? "" : amountOut}
-                onChangeText={handleReceiveAmountChange}
-              />
-            </View>
+              </View>
 
-            {currentPrice && (
-              <Text
-                style={styles.rateText}
-              >{`1 ${fromToken?.name || "SOL"} ≈ ${currentPrice} USDT`}</Text>
-            )}
-          </GlassCard>
+              {currentPrice && (
+                <Text
+                  style={styles.rateText}
+                >{`1 ${fromToken?.name || "SOL"} ≈ ${currentPrice} USDT`}</Text>
+              )}
+            </GlassCard>
 
-          {/* Swap Button */}
-          <Button
-            title="Swap"
-            variant="solid"
-            color="v300"
-            onPress={() => router.push("/confirmSwap")}
-            style={[styles.swapButton, !canSwap && { opacity: 0.5 }]}
-            textColor="onSurface"
-            disabled={!canSwap}
-          />
-        </View>
+            {/* Swap Button */}
+            <Button
+              title="Swap"
+              variant="solid"
+              color="v300"
+              onPress={() => router.push("/confirmSwap")}
+              style={[styles.swapButton, !canSwap && { opacity: 0.5 }]}
+              textColor="onSurface"
+              disabled={!canSwap}
+            />
+          </ScrollView>
+        </KeyboardAvoidingView>
 
         <TokenSelectModal
           visible={isModalVisible}
@@ -286,8 +302,7 @@ export const SwapScreen = () => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   container: {
-    paddingHorizontal: 16,
-    marginTop: 30,
+    paddingBottom: 40,
   },
   bigCard: {
     flexDirection: "row",
@@ -385,14 +400,15 @@ const styles = StyleSheet.create({
   },
   percentRow: {
     width: "80%",
+    alignSelf: "center",
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 20,
     marginBottom: 16,
+    gap: 8,
   },
   percentButton: {
     flex: 1,
-    minWidth: 75,
     paddingVertical: 6,
     paddingHorizontal: 0,
     borderRadius: 12,
