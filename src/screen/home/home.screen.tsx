@@ -34,7 +34,9 @@ export const HomeScreen = () => {
       await Promise.all([
         GetBalance(),
         fetchAssets(),
-        getSwapQuote({ inputMint: "So11111111111111111111111111111111111111112", outputMint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        getSwapQuote({
+          inputMint: "So11111111111111111111111111111111111111112",
+          outputMint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
           amountIn: "1000000",
           slippage: 0.5,
         }),
@@ -64,9 +66,9 @@ export const HomeScreen = () => {
             <TouchableOpacity onPress={() => router.push("/profile")}>
               <Ionicons name="person-circle" style={styles.profileIcon} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push("/notifications")}>
+            {/*<TouchableOpacity onPress={() => router.push("/notifications")}>
               <Ionicons name="notifications-outline" style={styles.iconSize} />
-            </TouchableOpacity>
+            </TouchableOpacity>*/}
           </View>
 
           {/* Welcome Text */}
