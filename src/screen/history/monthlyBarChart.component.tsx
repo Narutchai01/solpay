@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
 import { Theme } from "../../core/theme/theme";
@@ -13,6 +13,7 @@ export interface BarChartData {
 interface MonthlyBarChartProps {
   data: BarChartData[];
   selectedMonth: string;
+  selectedYear?: number;
 }
 
 const ALL_MONTHS = [
@@ -33,12 +34,27 @@ const ALL_MONTHS = [
 export const MonthlyBarChart = ({
   data,
   selectedMonth,
+  selectedYear = new Date().getFullYear(),
 }: MonthlyBarChartProps) => {
   const { width } = useWindowDimensions();
+  const currentDate = new Date();
+  const currentMonthIndex = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+  const isCurrentYear = selectedYear === currentYear;
+
+  const availableMonths = useMemo(() => {
+    if (isCurrentYear) {
+      return ALL_MONTHS.slice(0, currentMonthIndex + 1);
+    }
+    return ALL_MONTHS;
+  }, [isCurrentYear, currentMonthIndex]);
+
   const shortSelectedMonth = selectedMonth.substring(0, 3);
-  const selectedIndex = ALL_MONTHS.indexOf(shortSelectedMonth);
+  let selectedIndex = availableMonths.indexOf(shortSelectedMonth);
+  if (selectedIndex === -1) selectedIndex = 0;
+
   const startIndex = selectedIndex < 6 ? 0 : 6;
-  const displayMonths = ALL_MONTHS.slice(startIndex, startIndex + 6);
+  const displayMonths = availableMonths.slice(startIndex, startIndex + 6);
 
   const maxDataValue = Math.max(
     ...displayMonths.map((monthLabel) => {
@@ -73,20 +89,45 @@ export const MonthlyBarChart = ({
     };
   });
 
-  // Calculate dynamic bar width and spacing based on screen width
-  // Total chart width approx: width - 32 (padding) - 45 (yAxisLabelWidth)
-  const chartWidth = width - 77;
-  // 6 bars + 6 gaps approx. Let's make bars take 50% of available space
-  const barWidth = Math.max(20, Math.floor((chartWidth * 0.5) / 6));
-  const spacing = Math.max(10, Math.floor((chartWidth * 0.5) / 6));
+  const availableWidth = width - 130;
+  const itemCount = displayMonths.length;
+  const barWidth = 24;
+  const sideSpacing = 30;
+
+  let spacing = 0;
+  if (itemCount > 1) {
+    const spaceForGaps =
+      availableWidth - barWidth * itemCount - sideSpacing * 2;
+    spacing = Math.max(0, Math.floor(spaceForGaps / (itemCount - 1)));
+  }
+
+  const dynamicInitialSpacing =
+    itemCount === 1 ? (availableWidth - barWidth) / 2 : sideSpacing;
+
+  const exactChartWidth =
+    dynamicInitialSpacing +
+    barWidth * itemCount +
+    spacing * (itemCount > 1 ? itemCount - 1 : 0) +
+    dynamicInitialSpacing;
+
+  if (mappedData.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.labelText}>No Data Available</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container} pointerEvents="none">
       <BarChart
         data={mappedData}
+        width={exactChartWidth}
         barWidth={barWidth}
         height={285}
         spacing={spacing}
+        initialSpacing={dynamicInitialSpacing}
+        endSpacing={dynamicInitialSpacing}
         barBorderRadius={8}
         yAxisThickness={1}
         xAxisThickness={1}
@@ -96,8 +137,6 @@ export const MonthlyBarChart = ({
         rulesType="dashed"
         dashWidth={4}
         dashGap={8}
-        initialSpacing={10}
-        endSpacing={10}
         yAxisTextStyle={styles.labelText}
         yAxisLabelWidth={45}
         noOfSections={4}
@@ -127,6 +166,5 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     textAlign: "center",
     width: 80,
-    left: -20, // adjust slightly to center over dynamic bar
   },
 });

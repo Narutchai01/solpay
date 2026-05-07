@@ -101,6 +101,9 @@ export const HistoryScreen = () => {
 
   const dynamicBarData = useMemo(() => {
     const monthlyTotals = Array(12).fill(0);
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonthIndex = currentDate.getMonth();
 
     historyData.forEach((item) => {
       if (item.transaction_type === "TOPUP") return;
@@ -114,7 +117,10 @@ export const HistoryScreen = () => {
       }
     });
 
-    return MONTHS.map((month, index) => ({
+    const monthsToShow =
+      selectedYear === currentYear ? currentMonthIndex + 1 : 12;
+
+    return MONTHS.slice(0, monthsToShow).map((month, index) => ({
       label: month.substring(0, 3),
       value: monthlyTotals[index],
     }));
@@ -200,6 +206,7 @@ export const HistoryScreen = () => {
                 pieData={dynamicPieData}
                 onSlideChange={(newTitle) => setChartTitle(newTitle)}
                 selectedMonth={selectedMonth.substring(0, 3)}
+                selectedYear={selectedYear}
               />
 
               {/* Section title */}

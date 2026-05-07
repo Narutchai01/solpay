@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { PieChart } from "react-native-gifted-charts";
@@ -24,6 +25,26 @@ const LegendItem = ({ item }: { item: PieChartData }) => (
 );
 
 export const PieChartComponent = ({ data }: PieChartComponentProps) => {
+  const isEmpty =
+    !data ||
+    data.length === 0 ||
+    (data.length === 1 && data[0].label === "No Data");
+
+  if (isEmpty) {
+    return (
+      <View style={styles.emptyContainer}>
+        <View style={styles.emptyIconWrapper}>
+          <MaterialCommunityIcons
+            name="chart-donut"
+            size={88}
+            color={Theme.colors.g75}
+          />
+        </View>
+        <Text style={styles.emptyTitle}>No expense data</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.chartWrapper} pointerEvents="none">
@@ -92,5 +113,25 @@ const styles = StyleSheet.create({
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h7,
     fontWeight: "500",
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 360,
+  },
+  emptyIconWrapper: {
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.04)",
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    color: Theme.colors.g75,
+    fontSize: Theme.fontSize.h6,
+    fontWeight: "600",
+    marginBottom: 6,
   },
 });
