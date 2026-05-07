@@ -1,11 +1,9 @@
 import { GlassCard } from "@/src/components/card/glass";
 import React, { useState } from "react";
-import { Dimensions, FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View, useWindowDimensions } from "react-native";
 import { Theme } from "../../core/theme/theme";
 import { BarChartData, MonthlyBarChart } from "./monthlyBarChart.component";
 import { PieChartComponent, PieChartData } from "./pieChart.component";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 interface Props {
   monthlyData: BarChartData[];
@@ -21,6 +19,7 @@ export const ChartSection = ({
   selectedMonth,
 }: Props) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
 
   const slides = [
     {
@@ -56,7 +55,7 @@ export const ChartSection = ({
           }
         }}
         renderItem={({ item }) => (
-          <View style={styles.slideWrapper}>
+          <View style={[styles.slideWrapper, { width: SCREEN_WIDTH }]}>
             <GlassCard>{item.component}</GlassCard>
           </View>
         )}
@@ -84,7 +83,6 @@ export const ChartSection = ({
 
 const styles = StyleSheet.create({
   slideWrapper: {
-    width: SCREEN_WIDTH,
     paddingHorizontal: 16,
   },
   pagination: {

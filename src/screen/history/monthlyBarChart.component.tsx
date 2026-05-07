@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
 import { Theme } from "../../core/theme/theme";
 
@@ -34,6 +34,7 @@ export const MonthlyBarChart = ({
   data,
   selectedMonth,
 }: MonthlyBarChartProps) => {
+  const { width } = useWindowDimensions();
   const shortSelectedMonth = selectedMonth.substring(0, 3);
   const selectedIndex = ALL_MONTHS.indexOf(shortSelectedMonth);
   const startIndex = selectedIndex < 6 ? 0 : 6;
@@ -72,13 +73,20 @@ export const MonthlyBarChart = ({
     };
   });
 
+  // Calculate dynamic bar width and spacing based on screen width
+  // Total chart width approx: width - 32 (padding) - 45 (yAxisLabelWidth)
+  const chartWidth = width - 77;
+  // 6 bars + 6 gaps approx. Let's make bars take 50% of available space
+  const barWidth = Math.max(20, Math.floor((chartWidth * 0.5) / 6));
+  const spacing = Math.max(10, Math.floor((chartWidth * 0.5) / 6));
+
   return (
     <View style={styles.container} pointerEvents="none">
       <BarChart
         data={mappedData}
-        barWidth={35}
+        barWidth={barWidth}
         height={285}
-        spacing={20}
+        spacing={spacing}
         barBorderRadius={8}
         yAxisThickness={1}
         xAxisThickness={1}
@@ -88,8 +96,8 @@ export const MonthlyBarChart = ({
         rulesType="dashed"
         dashWidth={4}
         dashGap={8}
-        initialSpacing={15}
-        endSpacing={15}
+        initialSpacing={10}
+        endSpacing={10}
         yAxisTextStyle={styles.labelText}
         yAxisLabelWidth={45}
         noOfSections={4}
@@ -119,6 +127,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     textAlign: "center",
     width: 80,
-    left: 0,
+    left: -20, // adjust slightly to center over dynamic bar
   },
 });
