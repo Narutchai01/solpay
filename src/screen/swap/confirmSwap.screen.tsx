@@ -3,8 +3,8 @@ import { GlassCard } from "@/src/components/card/glass";
 import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
-import { useAuthStore } from "@/src/store/auth.store";
 import { useSwap } from "@/src/hooks/useSwap";
+import { useAuthStore } from "@/src/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
 import { VersionedTransaction } from "@solana/web3.js";
 import {
@@ -15,11 +15,10 @@ import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
@@ -220,7 +219,7 @@ export const ConfirmSwapScreen = () => {
               <View style={styles.row}>
                 <View style={styles.tokenDisplay}>
                   <Image
-                    source={require("@/assets/images/usdt-icon.png")}
+                    source={require("@/assets/images/usdc-icon.jpg")}
                     style={styles.tokenIcon}
                   />
                   <Text style={styles.tokenName}>USDT</Text>
