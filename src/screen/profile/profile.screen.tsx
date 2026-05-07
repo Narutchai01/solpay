@@ -9,17 +9,21 @@ import { useAuthStore } from "@/src/store/auth.store";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export const ProfileScreen = () => {
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
+  const scale = SCREEN_WIDTH / 375;
+
   const [isVisible, setIsVisible] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showKycModal, setShowKycModal] = useState(false);
@@ -27,6 +31,46 @@ export const ProfileScreen = () => {
   const { disconnect } = useWallet();
   const clearAuth = useAuthStore((state) => state.clear);
   const fullAddress = profile?.public_address ?? "";
+
+  const dynamicStyles = useMemo(
+    () => ({
+      navHeader: {
+        paddingHorizontal: 16 * scale,
+        paddingBottom: 10 * scale,
+      },
+      scrollContent: {
+        paddingHorizontal: 16 * scale,
+        paddingTop: 8 * scale,
+      },
+      userInfoSection: {
+        marginBottom: 32 * scale,
+      },
+      userAddress: {
+        fontSize: Math.min(Theme.fontSize.h4, 24 * scale),
+        lineHeight: Math.min(Theme.fontSize.h4 * 1.4, 33.6 * scale),
+      },
+      menuItem: {
+        paddingVertical: 18 * scale,
+      },
+      menuText: {
+        fontSize: Math.min(Theme.fontSize.h6, 16 * scale),
+        marginLeft: 14 * scale,
+      },
+      statusTagText: {
+        fontSize: Math.min(Theme.fontSize.textM, 14 * scale),
+      },
+      footer: {
+        paddingHorizontal: 16 * scale,
+      },
+      logoutButton: {
+        paddingVertical: 10 * scale,
+      },
+      iconSize28: 28 * scale,
+      iconSize24: 24 * scale,
+      iconSize20: 20 * scale,
+    }),
+    [scale],
+  );
 
   const maskAddress = (address: string) => {
     return address.length > 8
@@ -58,51 +102,63 @@ export const ProfileScreen = () => {
   return (
     <GradientLayout>
       <SafeAreaView style={styles.container}>
-        <View style={styles.navHeader}>
+        <View style={[styles.navHeader, dynamicStyles.navHeader]}>
           <TouchableOpacity onPress={() => router.back()}>
             <Ionicons
               name="chevron-back"
-              size={28}
+              size={dynamicStyles.iconSize28}
               color={Theme.colors.surface}
             />
           </TouchableOpacity>
         </View>
 
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            dynamicStyles.scrollContent,
+          ]}
           showsVerticalScrollIndicator={false}
         >
           {/* User Info Section */}
-          <View style={styles.userInfoSection}>
+          <View style={[styles.userInfoSection, dynamicStyles.userInfoSection]}>
             <View style={styles.addressWrapper}>
-              <Text style={styles.userAddress}>
+              <Text
+                style={[styles.userAddress, dynamicStyles.userAddress]}
+                numberOfLines={1}
+                ellipsizeMode="middle"
+              >
                 {isVisible ? fullAddress : maskAddress(fullAddress)}
-                {"\u00A0\u00A0"}
-                <Text onPress={() => setIsVisible(!isVisible)}>
-                  <Ionicons
-                    name={isVisible ? "eye-outline" : "eye-off-outline"}
-                    size={24}
-                    color={Theme.colors.surface}
-                  />
-                </Text>
               </Text>
+              <TouchableOpacity
+                onPress={() => setIsVisible(!isVisible)}
+                style={{ marginLeft: 12 * scale }}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={isVisible ? "eye-outline" : "eye-off-outline"}
+                  size={dynamicStyles.iconSize24}
+                  color={Theme.colors.surface}
+                />
+              </TouchableOpacity>
             </View>
           </View>
 
           {/* Menu Section */}
           <View style={styles.menuContainer}>
             <TouchableOpacity
-              style={styles.menuItem}
+              style={[styles.menuItem, dynamicStyles.menuItem]}
               activeOpacity={0.7}
               onPress={() => setShowKycModal(true)}
             >
               <View style={styles.menuLeft}>
                 <MaterialCommunityIcons
                   name="badge-account-horizontal-outline"
-                  size={24}
+                  size={dynamicStyles.iconSize24}
                   color={Theme.colors.amber}
                 />
-                <Text style={styles.menuText}>ยืนยันตัวตน</Text>
+                <Text style={[styles.menuText, dynamicStyles.menuText]}>
+                  ยืนยันตัวตน
+                </Text>
               </View>
 
               <View style={styles.menuRight}>
@@ -114,11 +170,14 @@ export const ProfileScreen = () => {
                   variant="tag"
                   color="surface"
                   style={styles.statusTag}
-                  textStyle={styles.statusTagText}
+                  textStyle={[
+                    styles.statusTagText,
+                    dynamicStyles.statusTagText,
+                  ]}
                 />
                 <Ionicons
                   name="chevron-forward"
-                  size={20}
+                  size={dynamicStyles.iconSize20}
                   color={Theme.colors.g50}
                 />
               </View>
@@ -127,13 +186,13 @@ export const ProfileScreen = () => {
         </ScrollView>
 
         {/* Logout Button */}
-        <View style={styles.footer}>
+        <View style={[styles.footer, dynamicStyles.footer]}>
           <Button
             title="Log Out"
             variant="solid"
             color="v300"
             onPress={() => setShowLogoutModal(true)}
-            style={styles.logoutButton}
+            style={[styles.logoutButton, dynamicStyles.logoutButton]}
           />
         </View>
 
@@ -171,27 +230,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  navHeader: {
-    paddingHorizontal: 16,
-    paddingBottom: 10,
-  },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-  },
-  userInfoSection: {
-    marginBottom: 32,
-  },
+  navHeader: {},
+  scrollContent: {},
+  userInfoSection: {},
   addressWrapper: {
     flexDirection: "row",
-    flexWrap: "wrap",
     alignItems: "center",
   },
   userAddress: {
     color: "white",
-    fontSize: Theme.fontSize.h4,
     fontWeight: "700",
-    lineHeight: Theme.fontSize.h4 * 1.4,
+    flexShrink: 1,
   },
   menuContainer: {
     borderTopWidth: 0.5,
@@ -201,7 +250,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 18,
   },
   menuLeft: {
     flexDirection: "row",
@@ -209,8 +257,6 @@ const styles = StyleSheet.create({
   },
   menuText: {
     color: "white",
-    fontSize: Theme.fontSize.h6,
-    marginLeft: 14,
   },
   menuRight: {
     flexDirection: "row",
@@ -223,13 +269,9 @@ const styles = StyleSheet.create({
   },
   statusTagText: {
     color: Theme.colors.success,
-    fontSize: Theme.fontSize.textM,
   },
-  footer: {
-    paddingHorizontal: 16,
-  },
+  footer: {},
   logoutButton: {
     width: "100%",
-    paddingVertical: 10,
   },
 });
