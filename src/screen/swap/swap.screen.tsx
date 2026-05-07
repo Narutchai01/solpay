@@ -4,8 +4,8 @@ import { GlassCard } from "@/src/components/card/glass";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
 import { useSwap } from "@/src/hooks/useSwap";
-import { useTokenAccounts } from "@/src/hooks/useTokenAccounts";
 import { useSwapCalculator } from "@/src/hooks/useSwapCalculator";
+import { useTokenAccounts } from "@/src/hooks/useTokenAccounts";
 import {
   FontAwesome,
   Ionicons,
@@ -15,15 +15,15 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useMemo } from "react";
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
   useWindowDimensions,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
@@ -246,7 +246,7 @@ export const SwapScreen = () => {
               <View style={styles.row}>
                 <TouchableOpacity style={styles.tokenSelector}>
                   <Image
-                    source={require("@/assets/images/usdt-icon.png")}
+                    source={require("@/assets/images/usdc-icon.jpg")}
                     style={styles.tokenIcon}
                   />
                   <Text style={styles.tokenName}>{targetSymbol}</Text>
