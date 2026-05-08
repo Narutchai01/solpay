@@ -4,9 +4,9 @@ import { Header } from "@/src/components/shard/header";
 import { LoadingSpinner } from "@/src/components/shard/loadingSpinner";
 import { useTransaction } from "@/src/hooks/useTransaction";
 import { useTransactionWs } from "@/src/hooks/useTransaction-ws";
-import React, { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
+import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
@@ -65,8 +65,9 @@ export const TransferSuccessfulScreen = () => {
     transaction?.transaction_uuid === txUUID ? transaction : null;
 
   // Use txHash from database if available, fallback to router param
-  const finalTxHash =
-    transactionByParam?.transaction_on_chain?.tx_hash || paramTxHash;
+  const finalTxHash = (
+    transactionByParam?.transaction_on_chain?.signature || paramTxHash
+  )?.trim();
   // Try to use the slip_url from database
   const finalSlipUrl = transactionByParam?.transaction_off_chain?.slip_url;
 
@@ -88,6 +89,8 @@ export const TransferSuccessfulScreen = () => {
     if (finalTxHash) {
       const url = `https://explorer.solana.com/tx/${finalTxHash}?cluster=devnet`;
       await WebBrowser.openBrowserAsync(url);
+    } else {
+      console.log("finalTxHash is empty/null/undefined");
     }
   };
 
@@ -113,21 +116,6 @@ export const TransferSuccessfulScreen = () => {
                   onLoadEnd={() => setIsLoadingImage(false)}
                 />
               )}
-              {/*{finalSlipUrl ? (
-                <Image
-                  source={{ uri: finalSlipUrl }}
-                  style={styles.successImage}
-                  resizeMode="contain"
-                  onLoadStart={() => setIsLoadingImage(true)}
-                  onLoadEnd={() => setIsLoadingImage(false)}
-                />
-              ) : (
-                <Image
-                  source={require("@/assets/images/transferSuccessful-image.png")}
-                  style={styles.successImage}
-                  resizeMode="contain"
-                />
-              )}*/}
             </View>
             {finalTxHash && (
               <TouchableOpacity

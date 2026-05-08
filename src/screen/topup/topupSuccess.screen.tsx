@@ -111,6 +111,24 @@ export const TopupSuccessScreen = () => {
   const transactionByParam =
     transaction?.transaction_uuid === txUUID ? transaction : null;
 
+  const finalTxHash = (
+    transactionByParam?.transaction_on_chain?.signature || txHash
+  )?.trim();
+
+  // เพิ่มตรงนี้
+  console.log("=== TOPUP DEBUG ===");
+  console.log("txHash from params:", JSON.stringify(txHash));
+  console.log(
+    "signature from DB:",
+    JSON.stringify(transactionByParam?.transaction_on_chain?.signature),
+  );
+  console.log(
+    "tx_hash from DB:",
+    JSON.stringify(transactionByParam?.transaction_on_chain?.tx_hash),
+  );
+  console.log("finalTxHash:", JSON.stringify(finalTxHash));
+  console.log("finalTxHash length:", finalTxHash?.length);
+
   const swapData: DetailConfirmationCard[] = useMemo(
     () => [
       {
@@ -158,7 +176,7 @@ export const TopupSuccessScreen = () => {
     <SuccessLayout
       details={swapData}
       onButtonPress={() => router.replace("/(tabs)")}
-      txHash={txHash}
+      txHash={finalTxHash}
     />
   );
 };
