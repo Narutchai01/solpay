@@ -8,10 +8,8 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { API_URL } from "../config/config";
 import { QuoteService } from "../core/services/quote.service";
-import { TransactionServiceImpl } from "../core/services/transaction.service";
 import { CreateQuoteRequest, Quote } from "../domain/model/quote";
 import { QuoteRepositoryImpl } from "../infrastructure/quote.repository";
-import { TransactionRepositoryImpl } from "../infrastructure/transaction.repository";
 import { useAuthStore } from "../store/auth.store";
 
 export const useQuote = () => {
@@ -28,12 +26,6 @@ export const useQuote = () => {
     const httpHelper = new HttpHelper(API_URL);
     const quoteRepo = new QuoteRepositoryImpl(httpHelper);
     return new QuoteService(quoteRepo);
-  }, []);
-
-  const transactionService = useMemo(() => {
-    const httpHelper = new HttpHelper(API_URL);
-    const transactionRepo = new TransactionRepositoryImpl(httpHelper);
-    return new TransactionServiceImpl(transactionRepo);
   }, []);
 
   useEffect(() => {
@@ -124,11 +116,8 @@ export const useQuote = () => {
         setUnsignTx(unSignTx);
 
         if (unSignTx) {
-          const signedTx = await SignQuoteTransaction(unSignTx);
-
-          // Return transaction hash instead of base64
-          const txHash = signedTx; // The signed transaction base64 is the hash
-          return txHash;
+          const signedTxBase64 = await SignQuoteTransaction(unSignTx);
+          return signedTxBase64;
         }
       } catch (error) {
         console.error("Failed to confirm quote:", error);

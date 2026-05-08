@@ -4,13 +4,11 @@ import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
 import { LoadingSpinner } from "@/src/components/shard/loadingSpinner";
+import { PinService } from "@/src/core/services/pin.service";
 import { CategoryModel } from "@/src/domain/model/category";
 import { useCategory } from "@/src/hooks/useCategory";
 import { useQuote } from "@/src/hooks/useQuote";
 import { useTransaction } from "@/src/hooks/useTransaction";
-import { PinService } from "@/src/core/services/pin.service";
-import { KeypadSection } from "../pin/keypadSection.component";
-import { PinDots } from "../pin/pinDots";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -32,6 +30,8 @@ import {
   EXPENSE_CATEGORY_CONFIG,
   ExpenseCategory,
 } from "../history/expenseCategory.config";
+import { KeypadSection } from "../pin/keypadSection.component";
+import { PinDots } from "../pin/pinDots";
 
 const PIN_LENGTH = 6;
 
@@ -294,16 +294,16 @@ export const TransferVerifyInformationScreen = () => {
           );
         }
       } else if (quote.quote_type === "ONCHAIN") {
-        const signedTx = await ConfirmQuote(quote?.quote_id);
+        const signedTxBase64 = await ConfirmQuote(quote?.quote_id);
 
-        if (!signedTx) {
+        if (!signedTxBase64) {
           setIsSubmitting(false);
           return;
         }
 
         const tx = await CreateTransactionOnchain({
           quoteID: quote.quote_id,
-          tx_hash: signedTx,
+          tx_hash: signedTxBase64,
           category_id: selectedCategoryId,
         });
 
@@ -312,14 +312,9 @@ export const TransferVerifyInformationScreen = () => {
             pathname: "/transferSuccessful",
             params: {
               txUUID: tx.transaction_uuid.trim(),
-              txHash: signedTx,
+              txHash: tx.transaction_on_chain?.signature?.trim() ?? "",
             },
           });
-        } else {
-          showError(
-            "Transaction failed",
-            "Failed to initiate on-chain transfer.",
-          );
         }
       }
     } catch (error) {
@@ -579,21 +574,10 @@ export const TransferVerifyInformationScreen = () => {
                 />
               </TouchableOpacity>
 
-              <View
-                style={[styles.pinScreenHeader, dynamicStyles.pinScreenHeader]}
-              >
-                <Text
-                  style={[styles.pinScreenTitle, dynamicStyles.pinScreenTitle]}
-                >
-                  Enter your PIN
-                </Text>
-                <Text
-                  style={[
-                    styles.pinScreenSubtitle,
-                    dynamicStyles.pinScreenSubtitle,
-                  ]}
-                >
-                  Please verify it&apos;s you
+              <View style={styles.pinScreenHeader}>
+                <Text style={styles.pinScreenTitle}>Enter your PIN</Text>
+                <Text style={styles.pinScreenSubtitle}>
+                  {"Please verify it's you"}
                 </Text>
               </View>
 

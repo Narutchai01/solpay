@@ -66,7 +66,7 @@ export const ConfirmTopupScreen = () => {
         pathname: "/topupSuccess",
         params: {
           txUUID: txUUID,
-          txHash: signedTx,
+          txHash: tx?.transaction_on_chain?.signature?.trim() ?? "",
         },
       });
     } catch (error) {
