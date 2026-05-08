@@ -90,9 +90,9 @@ export const ConfirmTopupScreen = () => {
 
   const formatExchangeRate = (value?: number) => {
     if (typeof value !== "number" || Number.isNaN(value)) {
-      return "1 USDT = 32.39 THB";
+      return "1 USDC = 32.39 THB";
     }
-    return `1 USDT = ${value.toFixed(2)} THB`;
+    return `1 USDC = ${value.toFixed(2)} THB`;
   };
 
   const topupData: DetailConfirmationCard[] = useMemo(
@@ -102,12 +102,12 @@ export const ConfirmTopupScreen = () => {
         value: formatAmount(quote?.thb_amount, "THB"),
       },
       {
-        label: "USDT Amount",
-        value: formatAmount(quote?.usdt_amount, "USDT"),
+        label: "USDC Amount",
+        value: formatAmount(quote?.usdt_amount, "USDC"),
       },
       {
         label: "Fee",
-        value: formatAmount(quote?.fee, "USDT"),
+        value: formatAmount(quote?.fee, "USDC"),
       },
       {
         label: "Exchange Rate",

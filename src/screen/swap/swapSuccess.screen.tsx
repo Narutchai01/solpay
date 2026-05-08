@@ -71,7 +71,7 @@ export const SwapSuccessScreen = () => {
       return "-";
     }
 
-    return `1 SOL ≈ ${(usdtAmount / solAmount).toFixed(2)} USDT`;
+    return `1 SOL ≈ ${(usdtAmount / solAmount).toFixed(2)} USDC`;
   };
 
   const formatCompletionDate = (value?: Date | string) => {
@@ -129,8 +129,8 @@ export const SwapSuccessScreen = () => {
         value: formatAmount(transactionByParam?.sol_amount, "SOL"),
       },
       {
-        label: "USDT Amount",
-        value: formatAmount(transactionByParam?.usdt_amount, "USDT"),
+        label: "USDC Amount",
+        value: formatAmount(transactionByParam?.usdt_amount, "USDC"),
       },
       {
         label: "Completion Date",

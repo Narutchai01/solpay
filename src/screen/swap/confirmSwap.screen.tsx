@@ -13,13 +13,7 @@ import {
 } from "@wallet-ui/react-native-web3js";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
+import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
 
@@ -156,29 +150,10 @@ export const ConfirmSwapScreen = () => {
 
               <View style={styles.row}>
                 <View style={styles.tokenDisplay}>
-                  {fromToken?.imageUri ? (
-                    <Image
-                      source={{ uri: fromToken.imageUri }}
-                      style={styles.tokenIcon}
-                    />
-                  ) : (
-                    <View
-                      style={[
-                        styles.tokenIcon,
-                        {
-                          backgroundColor: Theme.colors.g300,
-                          justifyContent: "center",
-                          alignItems: "center",
-                        },
-                      ]}
-                    >
-                      <Ionicons
-                        name={fromToken?.icon || "help-circle-outline"}
-                        size={24}
-                        color="white"
-                      />
-                    </View>
-                  )}
+                  <Image
+                    source={require("@/assets/images/sol-logo.png")}
+                    style={styles.tokenIcon}
+                  />
                   <Text style={styles.tokenName}>
                     {fromToken?.name || "SOL"}
                   </Text>
@@ -212,7 +187,7 @@ export const ConfirmSwapScreen = () => {
                     size={18}
                     color={Theme.colors.surface}
                   />
-                  <Text style={styles.balanceText}>Balance: -- USDT</Text>
+                  <Text style={styles.balanceText}>Balance: -- USDC</Text>
                 </View>
               </View>
 
@@ -222,7 +197,7 @@ export const ConfirmSwapScreen = () => {
                     source={require("@/assets/images/usdc-icon.jpg")}
                     style={styles.tokenIcon}
                   />
-                  <Text style={styles.tokenName}>USDT</Text>
+                  <Text style={styles.tokenName}>USDC</Text>
                 </View>
                 {loading ? (
                   <ActivityIndicator color={Theme.colors.surface} />
@@ -232,7 +207,7 @@ export const ConfirmSwapScreen = () => {
               </View>
 
               <Text style={styles.rateText}>
-                1 {fromToken?.name || "SOL"} ≈ {currentPrice} USDT
+                1 {fromToken?.name || "SOL"} ≈ {currentPrice} USDC
               </Text>
             </GlassCard>
           </View>
@@ -342,6 +317,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
+    backgroundColor: Theme.colors.onSurface,
   },
   tokenName: {
     color: Theme.colors.surface,

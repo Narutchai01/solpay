@@ -24,8 +24,8 @@ const ASSETS = [
   },
   {
     id: 3,
-    name: "USDT",
-    sub: "29.500427134510762 USDT",
+    name: "USDC",
+    sub: "29.500427134510762 USDC",
     val: "950.00",
     icon: "logo-usd",
   },

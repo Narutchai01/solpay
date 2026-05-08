@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useSwapStore } from "../store/swap.store";
 
 /**
@@ -45,7 +45,6 @@ export const useSwapCalculator = () => {
   // 3. Calculation: Pay -> Receive
   const handlePayAmountChange = useCallback(
     (val: string) => {
-      // Strip leading zeros (e.g., "01" -> "1"), but allow "0."
       let cleaned = val.replace(/^0+(?=\d)/, "");
       if (cleaned === "") cleaned = "0";
 
@@ -56,7 +55,7 @@ export const useSwapCalculator = () => {
 
       if (!isNaN(amount) && price > 0) {
         const calculated = amount * price;
-        setAmountOut(calculated.toFixed(6).replace(/\.?0+$/, ""));
+        setAmountOut(parseFloat(calculated.toFixed(6)).toString());
       } else {
         setAmountOut("0");
       }
@@ -77,7 +76,7 @@ export const useSwapCalculator = () => {
 
       if (!isNaN(amount) && price > 0) {
         const calculated = amount / price;
-        setAmountIn(calculated.toFixed(6).replace(/\.?0+$/, ""));
+        setAmountIn(calculated.toFixed(9).replace(/\.?0+$/, ""));
       } else {
         setAmountIn("0");
       }

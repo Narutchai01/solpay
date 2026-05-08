@@ -47,21 +47,13 @@ export const BalanceCardComponent = ({
                 {mainCurrency}
               </Text>
             </View>
-
-            {!showTopUp && (
-              <Text style={styles.subAmountInline}>
-                ~{subAmount} {subCurrency}
-              </Text>
-            )}
           </View>
 
-          {showTopUp && (
-            <View style={styles.subAmountMargin}>
-              <Text style={styles.subAmount}>
-                ~{subAmount} {subCurrency}
-              </Text>
-            </View>
-          )}
+          <View style={styles.subAmountMargin}>
+            <Text style={styles.subAmount}>
+              ~{subAmount} {subCurrency}
+            </Text>
+          </View>
         </View>
 
         {showTopUp && (
@@ -119,11 +111,6 @@ const styles = StyleSheet.create({
   },
   subAmountMargin: {
     marginTop: 16,
-  },
-  subAmountInline: {
-    color: Theme.colors.surface,
-    fontSize: Theme.fontSize.textM,
-    paddingRight: 4,
   },
   subAmount: {
     color: Theme.colors.surface,
