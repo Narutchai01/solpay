@@ -48,8 +48,44 @@ export const SwapScreen = () => {
     return assets.find((a) => a.currency === "USDT" || a.currency === "USDC");
   }, [assets]);
 
+  const validateInput = (
+    text: string,
+    maxIntDigits: number,
+    maxDecimals: number,
+  ): boolean => {
+    if (text === "" || text === ".") return true;
+    if (!/^\d*\.?\d*$/.test(text)) return false;
+
+    const parts = text.split(".");
+    if (parts.length > 2) return false;
+
+    const intPart = parts[0];
+    const decPart = parts[1] ?? "";
+
+    if (decPart.length > maxDecimals) return false;
+
+    const intDigits = intPart.replace(/^0+/, "").length;
+    if (intDigits > maxIntDigits) return false;
+
+    return true;
+  };
+
+  const getTokenLimits = (
+    tokenName?: string,
+  ): { maxIntDigits: number; maxDecimals: number } => {
+    switch (tokenName?.toLowerCase()) {
+      case "solana":
+        return { maxIntDigits: 16, maxDecimals: 9 };
+      case "usdc":
+      case "usdt":
+        return { maxIntDigits: 6, maxDecimals: 6 };
+      default:
+        return { maxIntDigits: 16, maxDecimals: 9 };
+    }
+  };
+
   const targetBalance = targetAsset?.val || "0";
-  const targetSymbol = targetAsset?.currency || "USDT";
+  const targetSymbol = targetAsset?.currency || "USDC";
 
   const {
     payAmount: amountIn,
@@ -156,33 +192,15 @@ export const SwapScreen = () => {
               </View>
 
               <View style={styles.row}>
-                <TouchableOpacity
-                  style={styles.tokenSelector}
-                  onPress={() => setModalVisible(true)}
-                >
-                  <View style={styles.tokenIcon}>
-                    {fromToken?.icon ? (
-                      <Image
-                        source={{ uri: fromToken.icon }}
-                        style={{ width: 32, height: 32, borderRadius: 16 }}
-                      />
-                    ) : (
-                      <Ionicons
-                        name={fromToken?.icon || "help-circle-outline"}
-                        size={28}
-                        color={Theme.colors.onSurface}
-                      />
-                    )}
-                  </View>
-                  <Text style={styles.tokenName}>
-                    {fromToken?.name || "Select"}
-                  </Text>
-                  <MaterialCommunityIcons
-                    name="chevron-down"
-                    size={24}
-                    color={Theme.colors.surface}
+                <View style={styles.tokenSelector}>
+                  <Image
+                    source={require("@/assets/images/sol-logo.png")}
+                    style={styles.tokenIcon}
                   />
-                </TouchableOpacity>
+                  <Text style={styles.tokenName}>
+                    {fromToken?.name || "Solana"}
+                  </Text>
+                </View>
 
                 <TextInput
                   style={styles.amountInput}
@@ -190,7 +208,14 @@ export const SwapScreen = () => {
                   placeholderTextColor={Theme.colors.surface}
                   keyboardType="numeric"
                   value={amountIn === "0" ? "" : amountIn}
-                  onChangeText={handlePayAmountChange}
+                  onChangeText={(text) => {
+                    const { maxIntDigits, maxDecimals } = getTokenLimits(
+                      fromToken?.name,
+                    );
+                    if (validateInput(text, maxIntDigits, maxDecimals)) {
+                      handlePayAmountChange(text);
+                    }
+                  }}
                 />
               </View>
 
@@ -203,12 +228,14 @@ export const SwapScreen = () => {
                     color="v300"
                     onPress={() => {
                       if (fromToken) {
+                        const { maxDecimals } = getTokenLimits(fromToken.name);
                         const maxVal = parseFloat(fromToken.val);
                         let calculated = "0";
-                        if (item === "MAX") calculated = maxVal.toString();
-                        else {
+                        if (item === "MAX") {
+                          calculated = maxVal.toFixed(maxDecimals);
+                        } else {
                           const percent = parseInt(item.replace("%", "")) / 100;
-                          calculated = (maxVal * percent).toString();
+                          calculated = (maxVal * percent).toFixed(maxDecimals);
                         }
                         handlePayAmountChange(calculated);
                       }
@@ -244,27 +271,32 @@ export const SwapScreen = () => {
               </View>
 
               <View style={styles.row}>
-                <TouchableOpacity style={styles.tokenSelector}>
+                <View style={styles.tokenSelector}>
                   <Image
                     source={require("@/assets/images/usdc-icon.jpg")}
                     style={styles.tokenIcon}
                   />
                   <Text style={styles.tokenName}>{targetSymbol}</Text>
-                </TouchableOpacity>
+                </View>
+
                 <TextInput
                   style={styles.amountInput}
                   placeholder="0.00"
                   placeholderTextColor={Theme.colors.surface}
                   keyboardType="numeric"
                   value={amountOut === "0" ? "" : amountOut}
-                  onChangeText={handleReceiveAmountChange}
+                  onChangeText={(text) => {
+                    if (validateInput(text, 6, 6)) {
+                      handleReceiveAmountChange(text);
+                    }
+                  }}
                 />
               </View>
 
               {currentPrice && (
                 <Text
                   style={styles.rateText}
-                >{`1 ${fromToken?.name || "SOL"} ≈ ${currentPrice} USDT`}</Text>
+                >{`1 ${fromToken?.name || "SOL"} ≈ ${currentPrice} USDC`}</Text>
               )}
             </GlassCard>
 
@@ -340,10 +372,8 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    justifyContent: "center",
-    alignItems: "center",
     marginRight: 12,
-    backgroundColor: Theme.colors.g50,
+    backgroundColor: Theme.colors.onSurface,
   },
   tokenName: {
     color: Theme.colors.surface,

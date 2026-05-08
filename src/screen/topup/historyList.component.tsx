@@ -24,7 +24,7 @@ const HistoryCard = ({ item }: { item: HistoryItem }) => (
       </View>
       <View style={styles.historyRight}>
         <Text style={styles.historyAmount}>+ {item.amount} THB</Text>
-        <Text style={styles.historyUsdt}>~{item.usdt} USDT</Text>
+        <Text style={styles.historyUsdt}>~{item.usdt} USDC</Text>
       </View>
     </View>
   </GlassCard>

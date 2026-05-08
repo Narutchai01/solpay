@@ -13,16 +13,16 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableWithoutFeedback,
   View,
   useWindowDimensions,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -234,13 +234,13 @@ export const TransferScreen = () => {
                       >
                         <View style={styles.coinContent}>
                           <Image
-                            source={require("@/assets/images/usdt-icon.png")}
+                            source={require("@/assets/images/usdc-icon.jpg")}
                             style={[styles.tokenIcon, dynamicStyles.tokenIcon]}
                           />
                           <Text
                             style={[styles.coinText, dynamicStyles.coinText]}
                           >
-                            USDT
+                            USDC
                           </Text>
                         </View>
                       </GlassCard>

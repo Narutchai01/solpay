@@ -30,7 +30,10 @@ export const TopupViaScreen = () => {
 
   const usdcAsset = assets.find((asset) => asset.currency === "USDC");
   const usdcBalance = usdcAsset ? usdcAsset.val : "0.00";
-  const thbBalance = (parseFloat(usdcBalance) * 32.23).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const thbBalance = (parseFloat(usdcBalance) * 32.23).toLocaleString(
+    undefined,
+    { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+  );
   const [reqQuote, setReqQuote] = useState<CreateQuoteRequest>({
     thb_amount: 0,
     action_type: "TOPUP",
@@ -119,17 +122,17 @@ export const TopupViaScreen = () => {
                 </View>
 
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailText}>USDT Amount :</Text>
+                  <Text style={styles.detailText}>USDC Amount :</Text>
                   <Text style={styles.detailText}>
                     {reqQuote.thb_amount} THB
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailText}>Min :</Text>
-                  <Text style={styles.detailText}>1 USDT</Text>
+                  <Text style={styles.detailText}>1 USDC</Text>
                 </View>
 
-                <Text style={styles.exchangeRateText}>1 USDT = 32.39 THB</Text>
+                <Text style={styles.exchangeRateText}>1 USDC = 32.39 THB</Text>
 
                 <View style={styles.presetContainer}>
                   <FlatList
@@ -179,7 +182,7 @@ const styles = StyleSheet.create({
     color: Theme.colors.g50,
     fontSize: Theme.fontSize.h6,
     fontWeight: "600",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   largeInputContainer: {
     marginBottom: 20,
@@ -188,7 +191,7 @@ const styles = StyleSheet.create({
   },
   largeInput: {
     color: Theme.colors.surface,
-    fontSize: 48,
+    fontSize: Theme.fontSize.h3,
     fontWeight: "bold",
     textAlign: "center",
   },

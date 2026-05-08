@@ -83,7 +83,7 @@ export const TopupScreen = () => {
             mainAmount={balanceDisplay.thb}
             mainCurrency="THB"
             subAmount={balanceDisplay.usdt}
-            subCurrency="USDT"
+            subCurrency="USDC"
             showTopUp={true}
           />
 

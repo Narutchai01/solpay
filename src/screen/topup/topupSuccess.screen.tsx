@@ -71,7 +71,7 @@ export const TopupSuccessScreen = () => {
       return "-";
     }
 
-    return `1 USDT = ${(thbAmount / usdtAmount).toFixed(2)} THB`;
+    return `1 USDC = ${(thbAmount / usdtAmount).toFixed(2)} THB`;
   };
 
   const formatCompletionDate = (value?: Date | string) => {
@@ -115,20 +115,6 @@ export const TopupSuccessScreen = () => {
     transactionByParam?.transaction_on_chain?.signature || txHash
   )?.trim();
 
-  // เพิ่มตรงนี้
-  console.log("=== TOPUP DEBUG ===");
-  console.log("txHash from params:", JSON.stringify(txHash));
-  console.log(
-    "signature from DB:",
-    JSON.stringify(transactionByParam?.transaction_on_chain?.signature),
-  );
-  console.log(
-    "tx_hash from DB:",
-    JSON.stringify(transactionByParam?.transaction_on_chain?.tx_hash),
-  );
-  console.log("finalTxHash:", JSON.stringify(finalTxHash));
-  console.log("finalTxHash length:", finalTxHash?.length);
-
   const swapData: DetailConfirmationCard[] = useMemo(
     () => [
       {
@@ -144,15 +130,15 @@ export const TopupSuccessScreen = () => {
       },
       {
         label: "Fee",
-        value: formatAmount(transactionByParam?.fee, "USDT"),
+        value: formatAmount(transactionByParam?.fee, "USDC"),
       },
       {
         label: "THB Amount",
         value: formatAmount(transactionByParam?.thb_amount, "THB"),
       },
       {
-        label: "USDT Amount",
-        value: formatAmount(transactionByParam?.usdt_amount, "USDT"),
+        label: "USDC Amount",
+        value: formatAmount(transactionByParam?.usdt_amount, "USDC"),
       },
       {
         label: "Completion Date",

@@ -428,7 +428,7 @@ export const TransferVerifyInformationScreen = () => {
                 </View>
                 <View style={styles.amountDetailRow}>
                   <Text style={[styles.amountLabel, dynamicStyles.amountLabel]}>
-                    USDT Amount:
+                    USDC Amount:
                   </Text>
                   <Text
                     style={[
@@ -437,7 +437,7 @@ export const TransferVerifyInformationScreen = () => {
                       { fontSize: Math.min(Theme.fontSize.textM, 14 * scale) },
                     ]}
                   >
-                    {quote?.usdt_amount} USDT
+                    {quote?.usdt_amount} USDC
                   </Text>
                 </View>
                 <View style={styles.amountDetailRow}>
@@ -445,7 +445,7 @@ export const TransferVerifyInformationScreen = () => {
                     Fee:
                   </Text>
                   <Text style={[styles.amountValue, dynamicStyles.amountValue]}>
-                    {quote?.fee} USDT
+                    {quote?.fee} USDC
                   </Text>
                 </View>
                 <View style={styles.amountDetailRow}>
