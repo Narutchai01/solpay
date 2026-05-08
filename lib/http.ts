@@ -37,6 +37,10 @@ export class HttpHelper {
     });
   }
 
+  get baseUrl(): string {
+    return this.instance.defaults.baseURL || "";
+  }
+
   private buildFullUrl(url: string): string {
     return `${this.instance.defaults.baseURL || ""}${url}`;
   }
