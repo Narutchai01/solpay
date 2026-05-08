@@ -12,16 +12,24 @@ import { useQuote } from "@/src/hooks/useQuote";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  useWindowDimensions,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export const TransferScreen = () => {
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
+  const scale = SCREEN_WIDTH / 375;
+
   const { balance, GetBalance } = useBalance();
   const { createQuote } = useQuote();
   const router = useRouter();
@@ -34,6 +42,82 @@ export const TransferScreen = () => {
   });
 
   const isAmountEmpty = reqQuote.thb_amount === 0;
+
+  const dynamicStyles = useMemo(
+    () => ({
+      scrollContent: {
+        paddingHorizontal: 16 * scale,
+        paddingTop: 20 * scale,
+      },
+      label: {
+        fontSize: Math.min(Theme.fontSize.textL, 16 * scale),
+        marginBottom: 10 * scale,
+      },
+      divider: {
+        marginVertical: 30 * scale,
+      },
+      receiverContainer: {
+        marginTop: 10 * scale,
+      },
+      avatarPlaceholder: {
+        width: 60 * scale,
+        height: 60 * scale,
+        borderRadius: 30 * scale,
+        marginRight: 16 * scale,
+      },
+      receiverName: {
+        fontSize: Math.min(Theme.fontSize.textL, 16 * scale),
+      },
+      receiverDetail: {
+        fontSize: Math.min(Theme.fontSize.textM, 14 * scale),
+        marginTop: 4 * scale,
+      },
+      coinSection: {
+        marginTop: 25 * scale,
+      },
+      coinCard: {
+        paddingVertical: 14 * scale,
+        paddingHorizontal: 16 * scale,
+        marginTop: 10 * scale,
+      },
+      tokenIcon: {
+        width: 48 * scale,
+        height: 48 * scale,
+        borderRadius: 24 * scale,
+        marginRight: 12 * scale,
+      },
+      coinText: {
+        fontSize: Math.min(Theme.fontSize.h6, 16 * scale),
+      },
+      amountSection: {
+        marginTop: 30 * scale,
+      },
+      amountLabel: {
+        fontSize: Math.min(Theme.fontSize.textM, 14 * scale),
+        marginBottom: 16 * scale,
+      },
+      inputWrapper: {
+        borderRadius: 12 * scale,
+        paddingHorizontal: 12 * scale,
+        paddingVertical: 4 * scale,
+      },
+      amountInput: {
+        fontSize: Math.min(Theme.fontSize.h5, 20 * scale),
+      },
+      helperText: {
+        fontSize: Math.min(Theme.fontSize.textS, 12 * scale),
+        marginVertical: 16 * scale,
+      },
+      footer: {
+        paddingHorizontal: 16 * scale,
+        paddingTop: 10 * scale,
+      },
+      nextButton: {
+        paddingVertical: 10 * scale,
+      },
+    }),
+    [scale],
+  );
 
   useEffect(() => {
     GetBalance();
@@ -74,101 +158,156 @@ export const TransferScreen = () => {
   return (
     <GradientLayout>
       <SafeAreaView style={styles.safeArea}>
-        <Header title="Transfer" />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={{ flex: 1 }}>
+              <Header title="Transfer" />
 
-        <View style={styles.mainWrapper}>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-          >
-            <Text style={styles.label}>From:</Text>
-            <WalletSelectorCard
-              wallets={walletOptions}
-              onWalletChange={(wallet) =>
-                setReqQuote({
-                  ...reqQuote,
-                  action_type: wallet.type,
-                })
-              }
-            />
+              <View style={styles.mainWrapper}>
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={[
+                    styles.scrollContent,
+                    dynamicStyles.scrollContent,
+                  ]}
+                  keyboardShouldPersistTaps="handled"
+                >
+                  <Text style={[styles.label, dynamicStyles.label]}>From:</Text>
+                  <WalletSelectorCard
+                    wallets={walletOptions}
+                    onWalletChange={(wallet) =>
+                      setReqQuote({
+                        ...reqQuote,
+                        action_type: wallet.type,
+                      })
+                    }
+                  />
 
-            <View style={styles.divider} />
+                  <View style={[styles.divider, dynamicStyles.divider]} />
 
-            <Text style={styles.label}>To:</Text>
-            <View style={styles.receiverContainer}>
-              <View style={styles.avatarPlaceholder} />
-              <View>
-                <Text style={styles.receiverName}>QR PromptPay</Text>
-                <Text style={styles.receiverDetail}>
-                  {formatPromptPayID(reqQuote.promptpay_id || "")}
-                </Text>
-              </View>
-            </View>
-
-            {/* Coins Section */}
-            {reqQuote.action_type === "ONCHAIN" && (
-              <View style={styles.coinSection}>
-                <Text style={styles.label}>Coins:</Text>
-                <GlassCard style={styles.coinCard}>
-                  <View style={styles.coinContent}>
-                    <Image
-                      source={require("@/assets/images/usdc-icon.jpg")}
-                      style={styles.tokenIcon}
+                  <Text style={[styles.label, dynamicStyles.label]}>To:</Text>
+                  <View
+                    style={[
+                      styles.receiverContainer,
+                      dynamicStyles.receiverContainer,
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.avatarPlaceholder,
+                        dynamicStyles.avatarPlaceholder,
+                      ]}
                     />
-                    <Text style={styles.coinText}>USDT</Text>
+                    <View>
+                      <Text
+                        style={[
+                          styles.receiverName,
+                          dynamicStyles.receiverName,
+                        ]}
+                      >
+                        QR PromptPay
+                      </Text>
+                      <Text
+                        style={[
+                          styles.receiverDetail,
+                          dynamicStyles.receiverDetail,
+                        ]}
+                      >
+                        {formatPromptPayID(reqQuote.promptpay_id || "")}
+                      </Text>
+                    </View>
                   </View>
-                </GlassCard>
-              </View>
-            )}
 
-            <View style={styles.amountSection}>
-              <Text style={styles.amountLabel}>THB Amount:</Text>
-              <View style={styles.inputWrapper}>
-                <TextInput
-                  style={styles.amountInput}
-                  value={
-                    reqQuote.thb_amount === 0
-                      ? ""
-                      : reqQuote.thb_amount.toString()
-                  }
-                  onChangeText={(text) => {
-                    const numericOnly = text.replace(/[^0-9.]/g, "");
-                    const newAmount =
-                      numericOnly === "" ? 0 : parseFloat(numericOnly);
-                    setReqQuote({
-                      ...reqQuote,
-                      thb_amount: isNaN(newAmount) ? 0 : newAmount,
-                    });
-                  }}
-                  placeholder="0.00"
-                  placeholderTextColor={Theme.colors.g100}
-                  keyboardType="numeric"
-                  textAlign="right"
-                />
+                  {/* Coins Section */}
+                  {reqQuote.action_type === "ONCHAIN" && (
+                    <View
+                      style={[styles.coinSection, dynamicStyles.coinSection]}
+                    >
+                      <Text style={[styles.label, dynamicStyles.label]}>
+                        Coins:
+                      </Text>
+                      <GlassCard
+                        style={[styles.coinCard, dynamicStyles.coinCard]}
+                      >
+                        <View style={styles.coinContent}>
+                          <Image
+                            source={require("@/assets/images/usdt-icon.png")}
+                            style={[styles.tokenIcon, dynamicStyles.tokenIcon]}
+                          />
+                          <Text
+                            style={[styles.coinText, dynamicStyles.coinText]}
+                          >
+                            USDT
+                          </Text>
+                        </View>
+                      </GlassCard>
+                    </View>
+                  )}
+
+                  <View
+                    style={[styles.amountSection, dynamicStyles.amountSection]}
+                  >
+                    <Text
+                      style={[styles.amountLabel, dynamicStyles.amountLabel]}
+                    >
+                      THB Amount:
+                    </Text>
+                    <View
+                      style={[styles.inputWrapper, dynamicStyles.inputWrapper]}
+                    >
+                      <TextInput
+                        style={[styles.amountInput, dynamicStyles.amountInput]}
+                        value={
+                          reqQuote.thb_amount === 0
+                            ? ""
+                            : reqQuote.thb_amount.toString()
+                        }
+                        onChangeText={(text) => {
+                          const numericOnly = text.replace(/[^0-9.]/g, "");
+                          const newAmount =
+                            numericOnly === "" ? 0 : parseFloat(numericOnly);
+                          setReqQuote({
+                            ...reqQuote,
+                            thb_amount: isNaN(newAmount) ? 0 : newAmount,
+                          });
+                        }}
+                        placeholder="0.00"
+                        placeholderTextColor={Theme.colors.g100}
+                        keyboardType="numeric"
+                        textAlign="right"
+                      />
+                    </View>
+                    {/* Warning for Software Wallet */}
+                    {reqQuote.action_type === "ONCHAIN" && (
+                      <Text
+                        style={[styles.helperText, dynamicStyles.helperText]}
+                      >
+                        *Enter THB; calculation is automatic.
+                      </Text>
+                    )}
+                  </View>
+                </ScrollView>
+
+                <View style={[styles.footer, dynamicStyles.footer]}>
+                  <Button
+                    title="Next"
+                    variant="solid"
+                    color={isAmountEmpty ? "g200" : "v300"}
+                    disabled={isAmountEmpty}
+                    onPress={() => {
+                      handleCreateQuote();
+                    }}
+                    style={[styles.nextButton, dynamicStyles.nextButton]}
+                    textColor={isAmountEmpty ? "surface" : "g300"}
+                  />
+                </View>
               </View>
-              {/* Warning for Software Wallet */}
-              {reqQuote.action_type === "ONCHAIN" && (
-                <Text style={styles.helperText}>
-                  *Enter THB; calculation is automatic.
-                </Text>
-              )}
             </View>
-          </ScrollView>
-
-          <View style={styles.footer}>
-            <Button
-              title="Next"
-              variant="solid"
-              color={isAmountEmpty ? "g200" : "v300"}
-              disabled={isAmountEmpty}
-              onPress={() => {
-                handleCreateQuote();
-              }}
-              style={styles.nextButton}
-              textColor={isAmountEmpty ? "surface" : "g300"}
-            />
-          </View>
-        </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </GradientLayout>
   );
@@ -177,72 +316,50 @@ export const TransferScreen = () => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   mainWrapper: { flex: 1 },
-  scrollContent: { paddingHorizontal: 16, paddingTop: 20 },
+  scrollContent: {},
   label: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.textL,
-    marginBottom: 10,
   },
-  divider: { height: 1, backgroundColor: Theme.colors.g50, marginVertical: 30 },
+  divider: { height: 1, backgroundColor: Theme.colors.g50 },
   receiverContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 10,
   },
   avatarPlaceholder: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
     backgroundColor: Theme.colors.g50,
-    marginRight: 16,
   },
-  receiverName: { color: Theme.colors.surface, fontSize: Theme.fontSize.textL },
+  receiverName: { color: Theme.colors.surface },
   receiverDetail: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.textM,
-    marginTop: 4,
   },
-  coinSection: { marginTop: 25 },
-  coinCard: { paddingVertical: 14, paddingHorizontal: 16, marginTop: 10 },
+  coinSection: {},
+  coinCard: {},
   coinContent: { flexDirection: "row", alignItems: "center" },
   tokenIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
     backgroundColor: Theme.colors.g50,
   },
   coinText: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h6,
     fontWeight: "600",
   },
-  amountSection: { marginTop: 30 },
+  amountSection: {},
   amountLabel: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.textM,
-    marginBottom: 16,
   },
   inputWrapper: {
     borderWidth: 1,
     borderColor: Theme.colors.g75,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
     justifyContent: "center",
   },
   amountInput: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h5,
     fontWeight: "700",
   },
   helperText: {
     color: Theme.colors.errorText,
-    fontSize: Theme.fontSize.textS,
-    marginVertical: 16,
   },
-  footer: { paddingHorizontal: 16, paddingTop: 10 },
-  nextButton: { width: "100%", paddingVertical: 10 },
+  footer: {},
+  nextButton: { width: "100%" },
 });
