@@ -146,6 +146,7 @@ export const ProfileScreen = () => {
           {/* Menu Section */}
           <View style={styles.menuContainer}>
             <TouchableOpacity
+              disabled={profile.is_kyc_verified}
               style={[styles.menuItem, dynamicStyles.menuItem]}
               activeOpacity={0.7}
               onPress={() => setShowKycModal(true)}
@@ -157,15 +158,26 @@ export const ProfileScreen = () => {
                   color={Theme.colors.amber}
                 />
                 <Text style={[styles.menuText, dynamicStyles.menuText]}>
-                  ยืนยันตัวตน
+                  KYC
                 </Text>
               </View>
 
               <View style={styles.menuRight}>
                 {/* Tag Status */}
                 <Button
+                  disabled={true}
                   title={
-                    profile.is_kyc_verified ? "ยืนยันแล้ว" : "ยังไม่ยืนยัน"
+                    profile.is_kyc_verified
+                      ? "KYC Verified"
+                      : profile.user
+                        ? !profile.is_kyc_verified &&
+                          profile.user.status === "PENDING"
+                          ? "KYC Verifying"
+                          : !profile.is_kyc_verified &&
+                              profile.user.status === "REJECTED"
+                            ? "KYC REJECTED"
+                            : "NOT Verified"
+                        : "NOT Verified"
                   }
                   variant="tag"
                   color="surface"

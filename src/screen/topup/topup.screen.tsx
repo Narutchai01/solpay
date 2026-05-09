@@ -1,6 +1,7 @@
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
 import { LoadingSpinner } from "@/src/components/shard/loadingSpinner";
+import { useAccount } from "@/src/hooks/useAccount";
 import { useBalance } from "@/src/hooks/useBalance";
 import { useTransactionHistory } from "@/src/hooks/useTransactionHistory";
 import React, { useEffect, useMemo } from "react";
@@ -12,6 +13,7 @@ import { HistoryListComponent } from "./historyList.component";
 const EXCHANGE_RATE = 32;
 
 export const TopupScreen = () => {
+  const { profile } = useAccount();
   const { balance, GetBalance } = useBalance();
   const { historyData, isLoading, fetchHistory } = useTransactionHistory();
 
@@ -66,6 +68,8 @@ export const TopupScreen = () => {
     });
   }, [historyData]);
 
+  const isKycVerified = profile?.is_kyc_verified ?? false;
+
   return (
     <GradientLayout>
       {isLoading && <LoadingSpinner overlay={true} />}
@@ -85,6 +89,8 @@ export const TopupScreen = () => {
             subAmount={balanceDisplay.usdt}
             subCurrency="USDC"
             showTopUp={true}
+            topUpDisabled={!isKycVerified}
+            topUpTitle={!isKycVerified ? "KYC Required" : "Top Up"}
           />
 
           {/* History Section */}
