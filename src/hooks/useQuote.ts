@@ -17,7 +17,7 @@ export const useQuote = () => {
   const [unsignTx, setUnsignTx] = useState<string | null>(null);
   const [signTx, setSignTx] = useState<string | null>(null);
 
-  const { account, connect, signTransaction } = useMobileWallet();
+  const { account, connect, signTransactions } = useMobileWallet();
 
   const accessToken = useAuthStore((state) => state.accessToken);
   const loadTokens = useAuthStore((state) => state.loadTokens);
@@ -90,19 +90,51 @@ export const useQuote = () => {
 
   const SignQuoteTransaction = useCallback(
     async (rawUnsignTx: string) => {
-      await ensureConnectedAccount();
+      try {
+        console.log("👉 Sign Step 1.1: Start ensureConnectedAccount");
+        await ensureConnectedAccount();
 
-      const serializedTx = toUint8Array(rawUnsignTx);
-      const tx = VersionedTransaction.deserialize(serializedTx);
-      const signedTx = await signTransaction(tx);
-      const signedTxBase64 = fromUint8Array(signedTx.serialize());
+        console.log("👉 Sign Step 1.2: Deserializing transaction");
+        const serializedTx = toUint8Array(rawUnsignTx);
+        const tx = VersionedTransaction.deserialize(serializedTx);
 
-      setSignTx(signedTxBase64);
-      return signedTxBase64;
+        console.log(
+          "👉 Sign Step 1.3: Calling signTransactions with Timeout...",
+        );
+
+        // 🛡️ สร้างระบบ Timeout ตัดจบถ้า Wallet ไม่ตอบสนองภายใน 30 วินาที
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(
+            () =>
+              reject(
+                new Error(
+                  "Wallet request timed out. Please try opening your Wallet app directly.",
+                ),
+              ),
+            30000,
+          ),
+        );
+
+        // แข่งกันว่าใครเสร็จก่อน ระหว่างการ Sign กับ Timeout
+        const [signedTx] = await Promise.race([
+          signTransactions([tx]),
+          timeoutPromise,
+        ]);
+
+        console.log(
+          "👉 Sign Step 1.4: Successfully signed! Converting to Base64",
+        );
+        const signedTxBase64 = fromUint8Array(signedTx.serialize());
+
+        setSignTx(signedTxBase64);
+        return signedTxBase64;
+      } catch (err) {
+        console.error("🚨 Error inside SignQuoteTransaction:", err);
+        throw err;
+      }
     },
-    [ensureConnectedAccount, signTransaction],
+    [ensureConnectedAccount, signTransactions],
   );
-
   const ConfirmQuote = useCallback(
     async (id: string) => {
       try {

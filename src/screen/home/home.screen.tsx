@@ -36,7 +36,7 @@ export const HomeScreen = () => {
         fetchAssets(),
         getSwapQuote({
           inputMint: "So11111111111111111111111111111111111111112",
-          outputMint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+          outputMint: "USDCoctVLVnvTXBEuP9s8hntucdJokbo17RwHuNXemT",
           amountIn: "1000000",
           slippage: 0.5,
         }),
@@ -81,7 +81,11 @@ export const HomeScreen = () => {
           <BalanceComponent balance={balance?.thb_amount ?? 0} currency="THB" />
 
           {/* Assets Section */}
-          <AssetsComponent assets={assets} loading={assetsLoading} />
+          <AssetsComponent
+            assets={assets}
+            loading={assetsLoading}
+            onViewAll={() => router.push("/assetslists")}
+          />
         </ScrollView>
       </SafeAreaView>
     </GradientLayout>

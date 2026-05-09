@@ -9,6 +9,7 @@ import {
   SwapQuote,
   SwapQuoteRequest,
   SwapTrasnsaction,
+  SwapInstructionsResponse,
 } from "../domain/model/swap";
 import { TransactionResponse } from "../domain/model/transaction";
 
@@ -79,9 +80,49 @@ export class SwapRepositoryImpl implements SwapRepository {
         {
           headers: {
             Authorization: `Bearer ${access_token}`,
+            "Content-Type": "application/json",
           },
         },
       );
+      return resp.data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response) {
+          // มี response จาก server (4xx, 5xx)
+          const status = error.response.status;
+          const resp = error.response.data as BackendErrorResponse;
+          switch (status) {
+            case 400:
+              throw new Error("Bad Request: Invalid swap parameters");
+            case 500:
+              throw new Error(resp.message || "Internal Server Error");
+            default:
+              throw new Error(`Unexpected error: ${status}`);
+          }
+        } else if (error.request) {
+          // Request ถูกส่งไปแล้ว แต่ไม่ได้รับ response = HTTP 0
+          throw new Error("Network error: Unable to reach server");
+        } else {
+          // ตั้ง request ไม่สำเร็จเลย (เช่น config ผิด)
+          throw new Error(`Request setup error: ${error.message}`);
+        }
+      }
+      throw error;
+    }
+  }
+
+  async BuildInstruction(
+    req: BuildSwapTransactionRequest,
+    access_token: string,
+  ): Promise<SwapInstructionsResponse> {
+    try {
+      const resp = await this.httpHelper.post<
+        BaseModel<SwapInstructionsResponse>
+      >("/api/v1/swaps/instruction", req, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
       return resp.data;
     } catch (error) {
       if (isAxiosError(error) && error.response) {

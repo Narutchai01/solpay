@@ -25,6 +25,7 @@ export interface AssetData {
 interface AssetsComponentProps {
   assets: AssetData[];
   loading?: boolean;
+  onViewAll?: () => void;
 }
 
 const AssetItem = ({
@@ -61,13 +62,17 @@ const AssetItem = ({
   </View>
 );
 
-export const AssetsComponent = ({ assets, loading }: AssetsComponentProps) => {
+export const AssetsComponent = ({
+  assets,
+  loading,
+  onViewAll,
+}: AssetsComponentProps) => {
   return (
     <GlassCard style={styles.assetsCard}>
       <View style={styles.assetsContent}>
         <View style={styles.assetsHeader}>
           <Text style={styles.assetsTitle}>Assets</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={onViewAll}>
             <Text style={styles.viewAllText}>View All</Text>
           </TouchableOpacity>
         </View>

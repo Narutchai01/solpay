@@ -4,6 +4,7 @@ import {
   BuildSwapTransactionRequest,
   SwapTrasnsaction,
   ExecuteSwap,
+  SwapInstructionsResponse,
 } from "../../domain/model/swap";
 import { TransactionResponse } from "@/src/domain/model/transaction";
 
@@ -17,4 +18,8 @@ export interface SwapRepository {
     req: ExecuteSwap,
     access_token: string,
   ): Promise<TransactionResponse>;
+  BuildInstruction(
+    req: BuildSwapTransactionRequest,
+    access_token: string,
+  ): Promise<SwapInstructionsResponse>;
 }
