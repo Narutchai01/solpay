@@ -13,6 +13,8 @@ interface BalanceCardProps {
   subAmount: string;
   subCurrency: string;
   showTopUp?: boolean;
+  topUpDisabled?: boolean;
+  topUpTitle?: string;
   style?: ViewStyle;
 }
 
@@ -23,6 +25,8 @@ export const BalanceCardComponent = ({
   subAmount,
   subCurrency,
   showTopUp = false,
+  topUpDisabled = false,
+  topUpTitle = "Top Up",
   style,
 }: BalanceCardProps) => {
   const dynamicFontSize = useMemo(() => {
@@ -58,13 +62,14 @@ export const BalanceCardComponent = ({
 
         {showTopUp && (
           <Button
-            title="Top Up"
+            title={topUpTitle}
             rounded
             icon={
               <Ionicons name="add" size={24} color={Theme.colors.surface} />
             }
-            iconBgColor="v300"
+            iconBgColor={topUpDisabled ? "g200" : "v300"}
             style={{ minWidth: 110 }}
+            disabled={topUpDisabled}
             onPress={() => router.push("/topupVia")}
           />
         )}

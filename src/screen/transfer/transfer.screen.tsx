@@ -7,6 +7,7 @@ import { Theme } from "@/src/core/theme/theme";
 import { WalletOption } from "@/src/core/type/wallet-option";
 import { formatPromptPayID } from "@/src/core/utils/promptpay";
 import { CreateQuoteRequest } from "@/src/domain/model/quote";
+import { useAccount } from "@/src/hooks/useAccount";
 import { useBalance } from "@/src/hooks/useBalance";
 import { useQuote } from "@/src/hooks/useQuote";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -30,6 +31,7 @@ export const TransferScreen = () => {
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const scale = SCREEN_WIDTH / 375;
 
+  const { profile } = useAccount();
   const { balance, GetBalance } = useBalance();
   const { createQuote } = useQuote();
   const router = useRouter();
@@ -41,7 +43,9 @@ export const TransferScreen = () => {
     promptpay_id: "1234567890",
   });
 
+  const isKycVerified = profile?.is_kyc_verified ?? false;
   const isAmountEmpty = reqQuote.thb_amount === 0;
+  const isButtonDisabled = isAmountEmpty || !isKycVerified;
 
   const dynamicStyles = useMemo(
     () => ({
@@ -293,15 +297,15 @@ export const TransferScreen = () => {
 
                 <View style={[styles.footer, dynamicStyles.footer]}>
                   <Button
-                    title="Next"
+                    title={!isKycVerified ? "KYC Required" : "Next"}
                     variant="solid"
-                    color={isAmountEmpty ? "g200" : "v300"}
-                    disabled={isAmountEmpty}
+                    color={isButtonDisabled ? "g200" : "v300"}
+                    disabled={isButtonDisabled}
                     onPress={() => {
                       handleCreateQuote();
                     }}
                     style={[styles.nextButton, dynamicStyles.nextButton]}
-                    textColor={isAmountEmpty ? "surface" : "g300"}
+                    textColor={isButtonDisabled ? "surface" : "g300"}
                   />
                 </View>
               </View>

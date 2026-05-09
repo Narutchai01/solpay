@@ -95,11 +95,13 @@ export const Button: FC<ButtonProps> = ({
   iconBgColor,
   iconSize = 30,
   rounded = false,
+  disabled = false,
   style,
   textStyle,
   onPress,
 }) => {
   const variantStyles = VARIANT_MAP[variant](color);
+  const isButtonDisabled = disabled || !!variantStyles.disabled;
 
   const customTextStyle: TextStyle = textColor
     ? { color: COLORS[textColor] }
@@ -133,11 +135,13 @@ export const Button: FC<ButtonProps> = ({
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.8}
+      disabled={isButtonDisabled}
       style={[
         styles.baseContainer,
         variantStyles.container,
         rounded && styles.rounded,
         style,
+        isButtonDisabled && styles.disabled,
       ]}
     >
       {iconPosition === "left" && renderIcon()}
@@ -180,5 +184,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 4,
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });
