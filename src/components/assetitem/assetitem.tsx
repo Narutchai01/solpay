@@ -1,7 +1,7 @@
 import { GlassCard } from "@/src/components/card/glass";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { Theme } from "../../core/theme/theme";
 
 interface AssetItemProps {
@@ -10,6 +10,8 @@ interface AssetItemProps {
     sub: string;
     val: string;
     icon: string;
+    currency?: string;
+    imageUri?: string;
   };
 }
 
@@ -19,20 +21,32 @@ export const AssetItem = ({ item }: AssetItemProps) => {
       <View style={styles.assetInner}>
         <View style={styles.assetLeft}>
           <View style={styles.iconWrapper}>
-            <Ionicons
-              name={item.icon as any}
-              size={24}
-              color={Theme.colors.surface}
-            />
+            {item.imageUri ? (
+              <Image
+                source={{ uri: item.imageUri }}
+                style={styles.tokenImage}
+                resizeMode="contain"
+              />
+            ) : (
+              <Ionicons
+                name={item.icon as any}
+                size={24}
+                color={Theme.colors.surface}
+              />
+            )}
           </View>
 
           <View>
             <Text style={styles.assetName}>{item.name}</Text>
-            <Text style={styles.assetSub}>{item.sub}</Text>
+            <Text style={styles.assetSub} numberOfLines={1}>
+              {item.sub}
+            </Text>
           </View>
         </View>
 
-        <Text style={styles.assetValue}>{item.val} THB</Text>
+        <Text style={styles.assetValue}>
+          {item.val} {item.currency ?? "THB"}
+        </Text>
       </View>
     </GlassCard>
   );
@@ -71,10 +85,16 @@ const styles = StyleSheet.create({
     color: Theme.colors.g50,
     fontSize: Theme.fontSize.textS,
     marginTop: 4,
+    maxWidth: 200,
   },
   assetValue: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h7,
     fontWeight: "semibold",
+  },
+  tokenImage: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
   },
 });
