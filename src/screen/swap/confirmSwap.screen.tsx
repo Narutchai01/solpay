@@ -6,11 +6,6 @@ import { Header } from "@/src/components/shard/header";
 import { useSwap } from "@/src/hooks/useSwap";
 import { useAuthStore } from "@/src/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
-import { VersionedTransaction } from "@solana/web3.js";
-import {
-  fromUint8Array,
-  useMobileWallet,
-} from "@wallet-ui/react-native-web3js";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
@@ -29,8 +24,6 @@ export const ConfirmSwapScreen = () => {
     setShowErrorModal(true);
   };
   const [isSigning, setIsSigning] = useState(false);
-  const { signTransaction } = useMobileWallet();
-  const { accessToken } = useAuthStore();
   const {
     fromToken,
     amountIn,
@@ -38,7 +31,7 @@ export const ConfirmSwapScreen = () => {
     currentPrice,
     slippage,
     getSwapQuote,
-    buildSwapTransaction,
+    buildSwapTransactionByInstruction,
     executeSwap,
     loading,
   } = useSwap();
@@ -47,78 +40,82 @@ export const ConfirmSwapScreen = () => {
     if (amountIn) {
       void getSwapQuote({
         inputMint: "So11111111111111111111111111111111111111112",
-        outputMint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        outputMint: "USDCoctVLVnvTXBEuP9s8hntucdJokbo17RwHuNXemT",
         amountIn: amountIn,
-        slippage: parseFloat(slippage),
+        slippage: parseFloat(slippage) / 100,
       });
     }
   }, [amountIn, getSwapQuote, slippage]);
 
   const handleConfirm = async () => {
-    if (!accessToken || !fromToken || !amountIn) {
-      showError("Error", "Missing swap details or authentication.");
+    // Capture current values to ensure consistency throughout the async flow
+    const currentAmountIn = amountIn;
+    const currentAmountOut = amountOut;
+    const currentSlippage = slippage;
+
+    if (!currentAmountIn || !currentAmountOut) {
+      showError("Error", "Missing amount information.");
       return;
     }
 
     setIsSigning(true);
     try {
-      // 1. Build the transaction
-      const swapTx = await buildSwapTransaction(
-        {
-          inputMint: fromToken.mint, // Ensure fromToken has the actual mint address
-          outputMint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", // Replace with dynamic toToken later
-          amountIn: amountIn,
-          slippage: parseFloat(slippage),
-        },
-        accessToken,
+      console.log("--- Starting Swap Confirmation ---");
+      console.log(
+        `[Screen] Input: ${currentAmountIn}, Expected: ${currentAmountOut}, Slippage: ${currentSlippage}`,
       );
 
-      if (!swapTx || !swapTx.transaction) {
-        throw new Error("Failed to build swap transaction from API");
+      // 1 & 2. Build instructions, get FRESH blockhash, and sign transaction
+      console.log(
+        "[Screen] Step 1: Initiating instruction-based transaction building...",
+      );
+      const signedTxBase64 = await buildSwapTransactionByInstruction({
+        inputMint: "So11111111111111111111111111111111111111112",
+        outputMint: "USDCoctVLVnvTXBEuP9s8hntucdJokbo17RwHuNXemT",
+        amountIn: currentAmountIn,
+        slippage: parseFloat(currentSlippage) / 100,
+      });
+
+      if (!signedTxBase64) {
+        throw new Error("Failed to build or sign transaction.");
       }
 
-      // 2. Deserialize and sign the transaction
-      const swapTransactionBuf = Buffer.from(swapTx.transaction, "base64");
-      const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
+      // 3. Execute the swap via backend
+      console.log("[Screen] Step 2: Sending signed transaction to backend...");
+      const result = await executeSwap({
+        sol_amount: currentAmountIn,
+        usdt_amount: currentAmountOut,
+        tx_hash: signedTxBase64,
+      });
 
-      const signedTransaction = await signTransaction(transaction);
+      console.log("[Screen] Step 3: Result received from backend");
 
-      if (signedTransaction) {
-        const signedTxBase64 = fromUint8Array(signedTransaction.serialize());
-
-        const execResult = await executeSwap(
-          {
-            usdt_amount: amountOut,
-            sol_amount: amountIn,
-            tx_hash: signedTxBase64,
+      if (result) {
+        console.log("[Screen] Success! Redirecting to swapSuccess");
+        router.replace({
+          pathname: "/swapSuccess",
+          params: {
+            txUUID: result.transaction_uuid,
+            txHash: result.transaction_on_chain?.signature,
           },
-          accessToken,
-        );
-
-        if (execResult) {
-          router.replace({
-            pathname: "/swapSuccess",
-            params: {
-              txUUID: execResult.transaction_uuid,
-              txHash: execResult.tx_hash,
-            },
-          });
-        } else {
-          throw new Error("Failed to execute swap. Please try again.");
-        }
+        });
       } else {
-        throw new Error("Failed to sign transaction.");
+        showError(
+          "Execution Failed",
+          "The server could not process the swap. The blockhash might have expired or the price moved beyond your slippage.",
+        );
       }
     } catch (error) {
-      console.error("Confirmation error:", error);
+      console.error("[Screen] handleConfirm Error Detail:", error);
       showError(
         "Swap Failed",
         error instanceof Error
           ? error.message
-          : "An unexpected error occurred.",
+          : "An unexpected error occurred. Please try again.",
       );
     } finally {
       setIsSigning(false);
+      console.log("--- Swap Confirmation Flow Finished ---");
     }
   };
 
@@ -213,10 +210,10 @@ export const ConfirmSwapScreen = () => {
           </View>
 
           {/* Fee */}
-          <GlassCard style={styles.feeCard}>
+          {/*<GlassCard style={styles.feeCard}>
             <Text style={styles.feeLabel}>Fee</Text>
             <Text style={styles.feeAmount}>0.00</Text>
-          </GlassCard>
+          </GlassCard>*/}
         </View>
 
         {/* Button */}

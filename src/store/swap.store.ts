@@ -23,7 +23,7 @@ export const useSwapStore = create<SwapState>((set) => ({
   toToken: null,
   amountIn: "",
   amountOut: "",
-  slippage: "0.50",
+  slippage: "1.00",
   currentPrice: null,
 
   setFromToken: (token) => set({ fromToken: token }),
@@ -38,7 +38,7 @@ export const useSwapStore = create<SwapState>((set) => ({
       toToken: null,
       amountIn: "",
       amountOut: "",
-      slippage: "0.50",
+      slippage: "1.00",
       currentPrice: null,
     }),
 }));

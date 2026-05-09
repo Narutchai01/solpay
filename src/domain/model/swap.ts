@@ -43,3 +43,17 @@ export interface ExecuteSwap {
   sol_amount: string;
   tx_hash: string;
 }
+
+export interface SwapInstruction {
+  programId: string;
+  keys: {
+    pubkey: string;
+    isSigner: boolean;
+    isWritable: boolean;
+  }[];
+  data: string;
+}
+
+export interface SwapInstructionsResponse {
+  instructions: SwapInstruction[];
+}
