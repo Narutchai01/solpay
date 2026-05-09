@@ -11,7 +11,7 @@ import {
   Ionicons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import React, { useEffect, useMemo } from "react";
 import {
   Image,
@@ -33,7 +33,7 @@ import { TokenAsset, TokenSelectModal } from "./tokenSelectModal.component";
 export const SwapScreen = () => {
   const { width, height } = useWindowDimensions();
   const router = useRouter();
-  const { assets } = useTokenAccounts();
+  const { assets, fetchAssets } = useTokenAccounts();
   const {
     fromToken,
     slippage,
@@ -42,6 +42,12 @@ export const SwapScreen = () => {
     reset,
     setCurrentPrice,
   } = useSwap();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      void fetchAssets();
+    }, [fetchAssets]),
+  );
 
   // Find USDT/USDC balance for the "To" section
   const targetAsset = useMemo(() => {

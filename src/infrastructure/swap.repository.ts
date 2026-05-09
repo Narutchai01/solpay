@@ -76,11 +76,7 @@ export class SwapRepositoryImpl implements SwapRepository {
     try {
       const resp = await this.httpHelper.post<BaseModel<TransactionResponse>>(
         "/api/v1/swaps/execute",
-        {
-          amount: req.sol_amount,
-          usdt_amount: req.usdt_amount,
-          tx_hash: req.tx_hash,
-        },
+        req,
         {
           headers: {
             Authorization: `Bearer ${access_token}`,
