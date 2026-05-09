@@ -69,7 +69,12 @@ export default function IdCardScanScreen() {
   );
 
   useEffect(() => {
-    if (permission && !permission.granted && permission.canAskAgain) {
+    // Only show modal if permission is definitely not granted and we haven't asked yet
+    if (
+      permission &&
+      !permission.granted &&
+      permission.status === "undetermined"
+    ) {
       setShowPermissionModal(true);
     }
   }, [permission]);
