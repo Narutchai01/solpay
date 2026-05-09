@@ -4,6 +4,9 @@ import { SuccessLayout } from "@/src/components/shard/successLayout";
 import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
 import { useTransaction } from "@/src/hooks/useTransaction";
 import { useTransactionWs } from "@/src/hooks/useTransaction-ws";
+import { VersionedTransaction } from "@solana/web3.js";
+import { fromUint8Array } from "@wallet-ui/react-native-web3js";
+import { Buffer } from "buffer";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
@@ -48,6 +51,26 @@ export const SwapSuccessScreen = () => {
 
     void GetTransactionByID(txUUID);
   }, [GetTransactionByID, isCompleted, txUUID]);
+
+  const finalTxHash = useMemo(() => {
+    const rawValue = (
+      transaction?.transaction_on_chain?.signature || txHash
+    )?.trim();
+
+    if (!rawValue) return "";
+
+    if (rawValue.length > 100) {
+      try {
+        const transactionBuf = Buffer.from(rawValue, "base64");
+        const txObj = VersionedTransaction.deserialize(transactionBuf);
+        return fromUint8Array(txObj.signatures[0]);
+      } catch (e) {
+        console.error("Failed to extract signature in SwapSuccess:", e);
+        return rawValue;
+      }
+    }
+    return rawValue;
+  }, [transaction, txHash]);
 
   const formatAmount = (amount?: number, currency?: string) => {
     if (typeof amount !== "number" || Number.isNaN(amount)) {
@@ -154,7 +177,7 @@ export const SwapSuccessScreen = () => {
     <SuccessLayout
       details={swapData}
       onButtonPress={() => router.replace("/")}
-      txHash={txHash}
+      txHash={finalTxHash}
     />
   );
 };
