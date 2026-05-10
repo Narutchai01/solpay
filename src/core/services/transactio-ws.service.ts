@@ -25,7 +25,15 @@ export class WSTransactionService {
         return;
       }
 
-      const isCompleted = mappedStatus === "COMPLETED";
+      const terminalStatuses = [
+        "COMPLETED",
+        "SUCCESS",
+        "FAILED",
+        "SOLANA_FAILED",
+        "BALANCE_FAILED",
+        "PAYMENT_FAILED",
+      ];
+      const isCompleted = terminalStatuses.includes(mappedStatus);
 
       // ส่งข้อมูลที่ผ่านการจัดการแล้วกลับไป
       onStatusUpdate(mappedStatus, isCompleted);

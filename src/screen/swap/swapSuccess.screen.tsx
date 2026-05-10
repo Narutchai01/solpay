@@ -1,6 +1,8 @@
+import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { LoadingSpinner } from "@/src/components/shard/loadingSpinner";
 import { SuccessLayout } from "@/src/components/shard/successLayout";
+import { Theme } from "@/src/core/theme/theme";
 import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
 import { useTransaction } from "@/src/hooks/useTransaction";
 import { useTransactionWs } from "@/src/hooks/useTransaction-ws";
@@ -11,6 +13,13 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const FAILED_STATUSES = [
+  "SOLANA_FAILED",
+  "BALANCE_FAILED",
+  "PAYMENT_FAILED",
+  "FAILED",
+];
 
 export const SwapSuccessScreen = () => {
   const params = useLocalSearchParams<{
@@ -102,7 +111,15 @@ export const SwapSuccessScreen = () => {
       return "-";
     }
 
-    const date = new Date(value);
+    let date: Date;
+    if (typeof value === "string") {
+      // Handle Go style date: "2023-10-27 10:00:00 +0000 UTC" -> "2023-10-27T10:00:00"
+      const cleanValue = value.split(" +")[0].replace(" ", "T");
+      date = new Date(cleanValue);
+    } else {
+      date = value;
+    }
+
     if (Number.isNaN(date.getTime())) {
       return "-";
     }
@@ -134,6 +151,10 @@ export const SwapSuccessScreen = () => {
   const transactionByParam =
     transaction?.transaction_uuid === txUUID ? transaction : null;
 
+  const isFailed = useMemo(() => {
+    return FAILED_STATUSES.includes(transactionByParam?.status || "");
+  }, [transactionByParam?.status]);
+
   const swapData: DetailConfirmationCard[] = useMemo(
     () => [
       {
@@ -157,13 +178,18 @@ export const SwapSuccessScreen = () => {
       },
       {
         label: "Completion Date",
-        value: formatCompletionDate(transactionByParam?.created_at),
+        value: formatCompletionDate(
+          transactionByParam?.created_at ||
+            (transactionByParam as any)?.createdAt,
+        ),
       },
     ],
     [transactionByParam, txUUID],
   );
 
-  if (!txUUID || !isCompleted || !transactionByParam) {
+  const isDataLoading = !transactionByParam || !isCompleted;
+
+  if (isDataLoading) {
     return (
       <GradientLayout>
         <SafeAreaView style={styles.loadingContainer}>
@@ -173,10 +199,26 @@ export const SwapSuccessScreen = () => {
     );
   }
 
+  if (isFailed) {
+    return (
+      <GradientLayout>
+        <ConfirmModal
+          visible={true}
+          title="Transaction Failed"
+          description={`Reason: ${transactionByParam?.status}`}
+          confirmLabel="Back to Home"
+          onConfirm={() => router.replace("/(tabs)")}
+          iconName="close-circle"
+          iconColor={Theme.colors.errorText}
+        />
+      </GradientLayout>
+    );
+  }
+
   return (
     <SuccessLayout
       details={swapData}
-      onButtonPress={() => router.replace("/")}
+      onButtonPress={() => router.replace("/(tabs)")}
       txHash={finalTxHash}
     />
   );
