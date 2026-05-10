@@ -1,4 +1,5 @@
 import { Button } from "@/src/components/button/button";
+import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
 import { LoadingSpinner } from "@/src/components/shard/loadingSpinner";
@@ -10,6 +11,13 @@ import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
+
+const FAILED_STATUSES = [
+  "SOLANA_FAILED",
+  "BALANCE_FAILED",
+  "PAYMENT_FAILED",
+  "FAILED",
+];
 
 export const TransferSuccessfulScreen = () => {
   const params = useLocalSearchParams<{
@@ -64,6 +72,10 @@ export const TransferSuccessfulScreen = () => {
   const transactionByParam =
     transaction?.transaction_uuid === txUUID ? transaction : null;
 
+  const isFailed = React.useMemo(() => {
+    return FAILED_STATUSES.includes(transactionByParam?.status || "");
+  }, [transactionByParam?.status]);
+
   // Use txHash from database if available, fallback to router param
   const finalTxHash = (
     transactionByParam?.transaction_on_chain?.signature || paramTxHash
@@ -71,8 +83,7 @@ export const TransferSuccessfulScreen = () => {
   // Try to use the slip_url from database
   const finalSlipUrl = transactionByParam?.transaction_off_chain?.slip_url;
 
-  const isDataLoading =
-    (!transactionByParam && isFromHistory) || (!isFromHistory && !isCompleted);
+  const isDataLoading = !transactionByParam || (!isFromHistory && !isCompleted);
 
   if (isDataLoading) {
     return (
@@ -80,6 +91,22 @@ export const TransferSuccessfulScreen = () => {
         <SafeAreaView style={styles.loadingContainer}>
           <LoadingSpinner overlay={false} />
         </SafeAreaView>
+      </GradientLayout>
+    );
+  }
+
+  if (isFailed && !isFromHistory) {
+    return (
+      <GradientLayout>
+        <ConfirmModal
+          visible={true}
+          title="Transaction Failed"
+          description={`Reason: ${transactionByParam?.status}`}
+          confirmLabel="Back to Home"
+          onConfirm={() => router.replace("/(tabs)")}
+          iconName="close-circle"
+          iconColor={Theme.colors.errorText}
+        />
       </GradientLayout>
     );
   }

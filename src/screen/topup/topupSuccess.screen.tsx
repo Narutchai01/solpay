@@ -1,6 +1,8 @@
+import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { LoadingSpinner } from "@/src/components/shard/loadingSpinner";
 import { SuccessLayout } from "@/src/components/shard/successLayout";
+import { Theme } from "@/src/core/theme/theme";
 import { DetailConfirmationCard } from "@/src/core/type/detail-confirmation-card.type";
 import { useTransaction } from "@/src/hooks/useTransaction";
 import { useTransactionWs } from "@/src/hooks/useTransaction-ws";
@@ -8,6 +10,13 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const FAILED_STATUSES = [
+  "SOLANA_FAILED",
+  "BALANCE_FAILED",
+  "PAYMENT_FAILED",
+  "FAILED",
+];
 
 export const TopupSuccessScreen = () => {
   const params = useLocalSearchParams<{
@@ -111,6 +120,10 @@ export const TopupSuccessScreen = () => {
   const transactionByParam =
     transaction?.transaction_uuid === txUUID ? transaction : null;
 
+  const isFailed = useMemo(() => {
+    return FAILED_STATUSES.includes(transactionByParam?.status || "");
+  }, [transactionByParam?.status]);
+
   const finalTxHash = (
     transactionByParam?.transaction_on_chain?.signature || txHash
   )?.trim();
@@ -148,12 +161,30 @@ export const TopupSuccessScreen = () => {
     [transactionByParam, txUUID],
   );
 
-  if (!txUUID || !isCompleted || !transactionByParam) {
+  const isDataLoading = !transactionByParam || !isCompleted;
+
+  if (isDataLoading) {
     return (
       <GradientLayout>
         <SafeAreaView style={styles.loadingContainer}>
           <LoadingSpinner overlay={false} />
         </SafeAreaView>
+      </GradientLayout>
+    );
+  }
+
+  if (isFailed) {
+    return (
+      <GradientLayout>
+        <ConfirmModal
+          visible={true}
+          title="Transaction Failed"
+          description={`Reason: ${transactionByParam?.status}`}
+          confirmLabel="Back to Home"
+          onConfirm={() => router.replace("/(tabs)")}
+          iconName="close-circle"
+          iconColor={Theme.colors.errorText}
+        />
       </GradientLayout>
     );
   }
