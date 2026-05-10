@@ -147,34 +147,6 @@ export const SwapSuccessScreen = () => {
     return FAILED_STATUSES.includes(transactionByParam?.status || "");
   }, [transactionByParam?.status]);
 
-  const isDataLoading = !transactionByParam || !isCompleted;
-
-  if (isDataLoading) {
-    return (
-      <GradientLayout>
-        <SafeAreaView style={styles.loadingContainer}>
-          <LoadingSpinner overlay={false} />
-        </SafeAreaView>
-      </GradientLayout>
-    );
-  }
-
-  if (isFailed) {
-    return (
-      <GradientLayout>
-        <ConfirmModal
-          visible={true}
-          title="Transaction Failed"
-          description={`Reason: ${transactionByParam?.status}`}
-          confirmLabel="Back to Home"
-          onConfirm={() => router.replace("/(tabs)")}
-          iconName="close-circle"
-          iconColor={Theme.colors.errorText}
-        />
-      </GradientLayout>
-    );
-  }
-
   const swapData: DetailConfirmationCard[] = useMemo(
     () => [
       {
@@ -203,6 +175,34 @@ export const SwapSuccessScreen = () => {
     ],
     [transactionByParam, txUUID],
   );
+
+  const isDataLoading = !transactionByParam || !isCompleted;
+
+  if (isDataLoading) {
+    return (
+      <GradientLayout>
+        <SafeAreaView style={styles.loadingContainer}>
+          <LoadingSpinner overlay={false} />
+        </SafeAreaView>
+      </GradientLayout>
+    );
+  }
+
+  if (isFailed) {
+    return (
+      <GradientLayout>
+        <ConfirmModal
+          visible={true}
+          title="Transaction Failed"
+          description={`Reason: ${transactionByParam?.status}`}
+          confirmLabel="Back to Home"
+          onConfirm={() => router.replace("/(tabs)")}
+          iconName="close-circle"
+          iconColor={Theme.colors.errorText}
+        />
+      </GradientLayout>
+    );
+  }
 
   return (
     <SuccessLayout
