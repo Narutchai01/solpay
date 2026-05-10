@@ -111,7 +111,15 @@ export const SwapSuccessScreen = () => {
       return "-";
     }
 
-    const date = new Date(value);
+    let date: Date;
+    if (typeof value === "string") {
+      // Handle Go style date: "2023-10-27 10:00:00 +0000 UTC" -> "2023-10-27T10:00:00"
+      const cleanValue = value.split(" +")[0].replace(" ", "T");
+      date = new Date(cleanValue);
+    } else {
+      date = value;
+    }
+
     if (Number.isNaN(date.getTime())) {
       return "-";
     }
@@ -170,7 +178,10 @@ export const SwapSuccessScreen = () => {
       },
       {
         label: "Completion Date",
-        value: formatCompletionDate(transactionByParam?.created_at),
+        value: formatCompletionDate(
+          transactionByParam?.created_at ||
+            (transactionByParam as any)?.createdAt,
+        ),
       },
     ],
     [transactionByParam, txUUID],
