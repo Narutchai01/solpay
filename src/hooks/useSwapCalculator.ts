@@ -14,7 +14,7 @@ export const useSwapCalculator = () => {
   const setAmountOut = useSwapStore((state) => state.setAmountOut);
   const setCurrentPrice = useSwapStore((state) => state.setCurrentPrice);
 
-  // 0. Force "0" on initial mount of the screen
+  // 0. Initialize with "0" on initial mount as requested
   useEffect(() => {
     setAmountIn("0");
     setAmountOut("0");
@@ -36,28 +36,31 @@ export const useSwapCalculator = () => {
     }
   }, [currentPrice, setCurrentPrice]);
 
-  // 2. Default "0" Maintenance: If amounts become empty (after reset), restore to "0".
-  useEffect(() => {
-    if (amountIn === "") setAmountIn("0");
-    if (amountOut === "") setAmountOut("0");
-  }, [amountIn, amountOut, setAmountIn, setAmountOut]);
-
   // 3. Calculation: Pay -> Receive
   const handlePayAmountChange = useCallback(
     (val: string) => {
-      let cleaned = val.replace(/^0+(?=\d)/, "");
-      if (cleaned === "") cleaned = "0";
+      // Strip leading zero if typing a non-decimal number (e.g., "01" -> "1")
+      let cleaned = val;
+      if (val.length > 1 && val.startsWith("0") && val[1] !== ".") {
+        cleaned = val.substring(1);
+      }
 
       setAmountIn(cleaned);
+
+      if (cleaned === "" || cleaned === "." || parseFloat(cleaned) === 0) {
+        setAmountOut("");
+        return;
+      }
 
       const price = parseFloat(currentPrice || "0");
       const amount = parseFloat(cleaned);
 
       if (!isNaN(amount) && price > 0) {
         const calculated = amount * price;
-        setAmountOut(parseFloat(calculated.toFixed(6)).toString());
+        // USDC typically 6 decimals
+        setAmountOut(calculated.toFixed(6).replace(/\.?0+$/, ""));
       } else {
-        setAmountOut("0");
+        setAmountOut("");
       }
     },
     [setAmountIn, setAmountOut, currentPrice],
@@ -66,19 +69,28 @@ export const useSwapCalculator = () => {
   // 4. Calculation: Receive -> Pay
   const handleReceiveAmountChange = useCallback(
     (val: string) => {
-      let cleaned = val.replace(/^0+(?=\d)/, "");
-      if (cleaned === "") cleaned = "0";
+      // Strip leading zero if typing a non-decimal number (e.g., "01" -> "1")
+      let cleaned = val;
+      if (val.length > 1 && val.startsWith("0") && val[1] !== ".") {
+        cleaned = val.substring(1);
+      }
 
       setAmountOut(cleaned);
+
+      if (cleaned === "" || cleaned === "." || parseFloat(cleaned) === 0) {
+        setAmountIn("");
+        return;
+      }
 
       const price = parseFloat(currentPrice || "0");
       const amount = parseFloat(cleaned);
 
       if (!isNaN(amount) && price > 0) {
         const calculated = amount / price;
+        // SOL typically 9 decimals
         setAmountIn(calculated.toFixed(9).replace(/\.?0+$/, ""));
       } else {
-        setAmountIn("0");
+        setAmountIn("");
       }
     },
     [setAmountIn, setAmountOut, currentPrice],
