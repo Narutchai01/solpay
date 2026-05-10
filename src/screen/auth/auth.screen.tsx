@@ -1,16 +1,25 @@
 import SolpayLogo from "@/assets/solpay-logo.svg";
 import { Button } from "@/src/components/button/button";
+import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Theme } from "@/src/core/theme/theme";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useAuthStore } from "@/src/store/auth.store";
-import { Link, Redirect, router } from "expo-router";
+import { Redirect, router } from "expo-router";
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 export const ConnectWalletScreen = () => {
   const { account, login, isLoading, errorMessage, hasPin, isInitialized } =
     useAuth();
   const accessToken = useAuthStore((state) => state.accessToken);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+
+  useEffect(() => {
+    if (errorMessage) {
+      setShowErrorModal(true);
+    }
+  }, [errorMessage]);
 
   const handleConnectWallet = async () => {
     try {
@@ -24,6 +33,7 @@ export const ConnectWalletScreen = () => {
       }
     } catch (error) {
       console.error("Wallet connect failed:", error);
+      setShowErrorModal(true);
     }
   };
 
@@ -45,15 +55,23 @@ export const ConnectWalletScreen = () => {
           <Button
             title={isLoading ? "Connecting..." : "Connect Wallet"}
             onPress={handleConnectWallet}
+            color="v300"
+            style={styles.connectButton}
           />
-          {errorMessage ? (
-            <Text style={styles.errorText}>{errorMessage}</Text>
-          ) : null}
-          <Link href="/_sitemap" style={{ marginTop: 20, color: "blue" }}>
-            🗺️ เปิดแผนที่หน้าทั้งหมด (Sitemap)
-          </Link>
         </View>
       </View>
+
+      <ConfirmModal
+        visible={showErrorModal}
+        title="Connection Error"
+        description={
+          errorMessage || "Failed to connect wallet. Please try again."
+        }
+        iconName="close-circle"
+        iconColor={Theme.colors.error}
+        confirmLabel="Close"
+        onConfirm={() => setShowErrorModal(false)}
+      />
     </GradientLayout>
   );
 };
@@ -67,6 +85,7 @@ const styles = StyleSheet.create({
   content: {
     justifyContent: "center",
     alignItems: "center",
+    width: "100%",
     paddingHorizontal: 20,
     gap: 24,
   },
@@ -77,17 +96,22 @@ const styles = StyleSheet.create({
   header: {
     fontSize: Theme.fontSize.h4,
     fontWeight: "700",
-    marginBottom: 16,
     color: Theme.colors.surface,
   },
   description: {
+    textAlign: "center",
     fontSize: Theme.fontSize.h6,
-    textAlign: "left",
     color: Theme.colors.surface,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   errorText: {
     fontSize: Theme.fontSize.textS,
     color: Theme.colors.error,
     textAlign: "center",
+  },
+  connectButton: {
+    paddingVertical: 10,
+    width: "100%",
   },
 });
