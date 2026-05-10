@@ -24,10 +24,13 @@ export default function FaceScanScreen() {
   const [showPermissionModal, setShowPermissionModal] = useState(false);
 
   useEffect(() => {
-    if (permission) {
-      if (!permission.granted && permission.canAskAgain) {
-        setShowPermissionModal(true);
-      }
+    // Only show modal if permission is definitely not granted and we haven't asked yet
+    if (
+      permission &&
+      !permission.granted &&
+      permission.status === "undetermined"
+    ) {
+      setShowPermissionModal(true);
     }
   }, [permission]);
 

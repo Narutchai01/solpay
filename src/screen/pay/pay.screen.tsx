@@ -9,8 +9,9 @@ import {
   scanFromURLAsync,
 } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import { useNavigation, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useFocusEffect, useNavigation, useRouter } from "expo-router";
+import { useIsFocused } from "@react-navigation/native";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Dimensions,
   StyleSheet,
@@ -25,17 +26,30 @@ const { width } = Dimensions.get("window");
 const PayScreen = () => {
   const navigation = useNavigation();
   const router = useRouter();
+  const isFocused = useIsFocused();
   const [permission, requestPermission] = useCameraPermissions();
+  const [libraryPermission, requestLibraryPermission] =
+    ImagePicker.useMediaLibraryPermissions();
   const [torch, setTorch] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [showInvalidQRModal, setShowInvalidQRModal] = useState(false);
 
+  // Reset scanned state when user enters the screen
+  useFocusEffect(
+    useCallback(() => {
+      setScanned(false);
+    }, []),
+  );
+
   useEffect(() => {
-    if (permission) {
-      if (!permission.granted && permission.canAskAgain) {
-        setShowPermissionModal(true);
-      }
+    // Only show modal if permission is definitely not granted and we can ask
+    if (
+      permission &&
+      !permission.granted &&
+      permission.status === "undetermined"
+    ) {
+      setShowPermissionModal(true);
     }
   }, [permission]);
 
@@ -66,10 +80,15 @@ const PayScreen = () => {
   };
 
   const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      alert("Permission to access gallery is required!");
-      return;
+    // Check if we already have permission or need to request
+    let currentStatus = libraryPermission;
+
+    if (!currentStatus || currentStatus.status !== "granted") {
+      const result = await requestLibraryPermission();
+      if (!result.granted) {
+        alert("Permission to access gallery is required!");
+        return;
+      }
     }
 
     try {
@@ -96,13 +115,15 @@ const PayScreen = () => {
   return (
     <View style={styles.container}>
       {/* Camera */}
-      <CameraView
-        style={StyleSheet.absoluteFillObject}
-        facing="back"
-        enableTorch={torch}
-        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
-      />
+      {isFocused && permission?.granted && (
+        <CameraView
+          style={StyleSheet.absoluteFillObject}
+          facing="back"
+          enableTorch={torch}
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+          barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+        />
+      )}
 
       {/* Overlay */}
       <View style={[styles.overlay, StyleSheet.absoluteFillObject]}>
