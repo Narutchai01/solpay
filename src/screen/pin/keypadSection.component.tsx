@@ -1,7 +1,7 @@
 import { Theme } from "@/src/core/theme/theme";
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import React, { useMemo } from "react";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 import { KeypadButton } from "./keypadButton.component";
 
 interface KeypadSectionProps {
@@ -10,6 +10,9 @@ interface KeypadSectionProps {
 }
 
 export const KeypadSection = ({ onPress, onDelete }: KeypadSectionProps) => {
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
+  const scale = SCREEN_WIDTH / 375;
+
   const data = [
     { id: "1", value: "1" },
     { id: "2", value: "2" },
@@ -25,57 +28,77 @@ export const KeypadSection = ({ onPress, onDelete }: KeypadSectionProps) => {
     { id: "12", value: "delete" },
   ];
 
-  const renderItem = ({ item }: { item: (typeof data)[0] }) => {
-    return (
-      <View style={styles.columnWrapper}>
-        {item.value === "empty" ? (
-          <View style={styles.keypadButtonPlaceholder} />
-        ) : item.value === "delete" ? (
-          <KeypadButton
-            value={
-              <Ionicons name="backspace-outline" style={styles.iconSize} />
-            }
-            isIcon
-            onPress={onDelete}
-          />
-        ) : (
-          <KeypadButton
-            value={item.value}
-            onPress={() => onPress(item.value)}
-          />
-        )}
-      </View>
-    );
-  };
+  const rows = [
+    [data[0], data[1], data[2]],
+    [data[3], data[4], data[5]],
+    [data[6], data[7], data[8]],
+    [data[9], data[10], data[11]],
+  ];
+
+  const dynamicStyles = useMemo(
+    () => ({
+      keypadButtonPlaceholder: {
+        width: 75 * scale,
+        height: 75 * scale,
+      },
+      iconSize: {
+        fontSize: 36 * scale, // Reduced from 44 to prevent clipping
+      },
+    }),
+    [scale],
+  );
+
   return (
-    <FlatList
-      data={data}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id}
-      numColumns={3}
-      contentContainerStyle={styles.keypadList}
-      scrollEnabled={false}
-    />
+    <View style={styles.gridContainer}>
+      {rows.map((row, rowIndex) => (
+        <View key={rowIndex} style={styles.rowContainer}>
+          {row.map((item) => (
+            <View key={item.id} style={styles.buttonWrapper}>
+              {item.value === "empty" ? (
+                <View style={dynamicStyles.keypadButtonPlaceholder} />
+              ) : item.value === "delete" ? (
+                <KeypadButton
+                  value={
+                    <Ionicons
+                      name="backspace-outline"
+                      style={[styles.iconSize, dynamicStyles.iconSize]}
+                    />
+                  }
+                  isIcon
+                  onPress={onDelete}
+                />
+              ) : (
+                <KeypadButton
+                  value={item.value}
+                  onPress={() => onPress(item.value)}
+                />
+              )}
+            </View>
+          ))}
+        </View>
+      ))}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  keypadList: {
-    marginTop: 20,
+  gridContainer: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "space-evenly",
+  },
+  rowContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     width: "100%",
   },
-  columnWrapper: {
+  buttonWrapper: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: 30,
-  },
-  keypadButtonPlaceholder: {
-    width: 75,
-    height: 75,
   },
   iconSize: {
-    fontSize: 44,
     color: Theme.colors.surface,
   },
 });
