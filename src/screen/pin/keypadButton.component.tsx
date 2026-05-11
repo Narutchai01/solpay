@@ -1,6 +1,11 @@
 import { Theme } from "@/src/core/theme/theme";
-import React from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import React, { useMemo } from "react";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+} from "react-native";
 
 interface KeypadButtonProps {
   value: string | React.ReactNode;
@@ -12,11 +17,41 @@ export const KeypadButton = ({
   value,
   onPress,
   isIcon = false,
-}: KeypadButtonProps) => (
-  <TouchableOpacity style={styles.keypadButton} onPress={onPress}>
-    {isIcon ? value : <Text style={styles.keypadText}>{value}</Text>}
-  </TouchableOpacity>
-);
+}: KeypadButtonProps) => {
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
+  const scale = SCREEN_WIDTH / 375;
+
+  const dynamicStyles = useMemo(
+    () => ({
+      keypadButton: {
+        marginVertical: 10 * scale,
+      },
+      keypadText: {
+        fontSize: Theme.fontSize.h3 * scale,
+        width: 75 * scale,
+        height: 75 * scale,
+        borderRadius: 37.5 * scale,
+        lineHeight: 75 * scale,
+      },
+    }),
+    [scale],
+  );
+
+  return (
+    <TouchableOpacity
+      style={[styles.keypadButton, dynamicStyles.keypadButton]}
+      onPress={onPress}
+    >
+      {isIcon ? (
+        value
+      ) : (
+        <Text style={[styles.keypadText, dynamicStyles.keypadText]}>
+          {value}
+        </Text>
+      )}
+    </TouchableOpacity>
+  );
+};
 
 const styles = StyleSheet.create({
   keypadButton: {
@@ -24,18 +59,12 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: 10,
   },
   keypadText: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.h3,
-    fontWeight: "medium",
+    fontWeight: "500",
     borderWidth: 1,
     borderColor: Theme.colors.surface,
-    width: 75,
-    height: 75,
-    borderRadius: 50,
     textAlign: "center",
-    lineHeight: 75,
   },
 });

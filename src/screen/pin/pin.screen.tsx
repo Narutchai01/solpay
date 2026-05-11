@@ -5,8 +5,14 @@ import { Theme } from "@/src/core/theme/theme";
 import { useAuthStore } from "@/src/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useNavigation } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeypadSection } from "./keypadSection.component";
 import { PinDots } from "./pinDots";
@@ -14,6 +20,9 @@ import { PinDots } from "./pinDots";
 const PIN_LENGTH = 6;
 
 export const PinScreen = () => {
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
+  const scale = SCREEN_WIDTH / 375;
+
   const navigation = useNavigation();
   const checkPin = useAuthStore((state) => state.checkPin);
   const [pin, setPin] = useState<string>("");
@@ -21,6 +30,36 @@ export const PinScreen = () => {
   const [tempPin, setTempPin] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
+
+  const dynamicStyles = useMemo(
+    () => ({
+      closeButton: {
+        top: 44 * scale,
+        right: 24 * scale,
+      },
+      closeIcon: {
+        fontSize: 28 * scale,
+      },
+      header: {
+        marginTop: 40 * scale,
+      },
+      title: {
+        fontSize: Math.min(Theme.fontSize.h5, 20 * scale),
+        marginBottom: 12 * scale,
+      },
+      subtitle: {
+        fontSize: Math.min(Theme.fontSize.textL, 16 * scale),
+      },
+      errorText: {
+        fontSize: Math.min(Theme.fontSize.textL, 16 * scale),
+        marginBottom: 10 * scale,
+      },
+      container: {
+        paddingVertical: 20 * scale,
+      },
+    }),
+    [scale],
+  );
 
   const handlePress = (num: string) => {
     if (pin.length < PIN_LENGTH) {
@@ -62,25 +101,28 @@ export const PinScreen = () => {
 
   return (
     <GradientLayout>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, dynamicStyles.container]}>
         {/* Close Button */}
         <TouchableOpacity
-          style={styles.closeButton}
+          style={[styles.closeButton, dynamicStyles.closeButton]}
           onPress={() => {
             if (navigation.canGoBack()) {
               navigation.goBack();
             }
           }}
         >
-          <Ionicons name="close" style={styles.closeIcon} />
+          <Ionicons
+            name="close"
+            style={[styles.closeIcon, dynamicStyles.closeIcon]}
+          />
         </TouchableOpacity>
 
         {/* Header Section */}
-        <View style={styles.header}>
-          <Text style={styles.title}>
+        <View style={[styles.header, dynamicStyles.header]}>
+          <Text style={[styles.title, dynamicStyles.title]}>
             {step === "SET" ? "Set your PIN" : "Confirm your PIN"}
           </Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.subtitle, dynamicStyles.subtitle]}>
             {step === "SET"
               ? "Enter a 6-digit PIN to secure your account."
               : "Please confirm your 6-digit PIN."}
@@ -93,7 +135,9 @@ export const PinScreen = () => {
         {/* Error Message */}
         {errorMessage ? (
           <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{errorMessage}</Text>
+            <Text style={[styles.errorText, dynamicStyles.errorText]}>
+              {errorMessage}
+            </Text>
           </View>
         ) : null}
 
@@ -107,7 +151,7 @@ export const PinScreen = () => {
           title="PIN Set Successfully!"
           description="Your account is now secured with a 6-digit PIN."
           iconName="checkmark-circle"
-          iconSize={80}
+          iconSize={80 * scale}
           iconColor={Theme.colors.success}
           confirmLabel="Done"
           onConfirm={handleConfirmSuccess}
@@ -122,31 +166,23 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
-    paddingVertical: 20,
   },
   closeButton: {
     position: "absolute",
-    top: 44,
-    right: 24,
     zIndex: 10,
   },
   closeIcon: {
     color: "white",
-    fontSize: 28,
   },
   header: {
     alignItems: "center",
-    marginTop: 40,
   },
   title: {
     color: "white",
-    fontSize: Theme.fontSize.h5,
     fontWeight: "bold",
-    marginBottom: 12,
   },
   subtitle: {
     color: Theme.colors.surface,
-    fontSize: Theme.fontSize.textL,
     textAlign: "center",
   },
   errorContainer: {
@@ -156,14 +192,12 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: Theme.colors.errorText,
-    fontSize: Theme.fontSize.textL,
     textAlign: "center",
-    marginBottom: 10,
   },
   keypadContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flex: 1,
     width: "85%",
     justifyContent: "center",
+    marginBottom: 40,
   },
 });
