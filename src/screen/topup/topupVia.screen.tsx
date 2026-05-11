@@ -22,6 +22,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { BalanceCardComponent } from "./balanceCard.component";
 
 const PRESET_AMOUNTS = [200, 500, 1000, 2000];
+const EXCHANGE_RATE = 32.39;
 
 export const TopupViaScreen = () => {
   const router = useRouter();
@@ -30,22 +31,42 @@ export const TopupViaScreen = () => {
 
   const usdcAsset = assets.find((asset) => asset.currency === "USDC");
   const usdcBalance = usdcAsset ? usdcAsset.val : "0.00";
-  const thbBalance = (parseFloat(usdcBalance) * 32.23).toLocaleString(
+  const thbBalance = (parseFloat(usdcBalance) * EXCHANGE_RATE).toLocaleString(
     undefined,
     { minimumFractionDigits: 2, maximumFractionDigits: 2 },
   );
+
+  const [displayAmount, setDisplayAmount] = useState("");
   const [reqQuote, setReqQuote] = useState<CreateQuoteRequest>({
     thb_amount: 0,
     action_type: "TOPUP",
   });
 
-  const handleAmountChange = (value: number) => {
-    const normalizedValue = value;
-    const parsedValue = Number(normalizedValue);
+  const handleAmountChange = (text: string) => {
+    // Limit to digits and one decimal point
+    const numericValue = text.replace(/[^0-9.]/g, "");
 
+    // Prevent multiple decimal points
+    const parts = numericValue.split(".");
+    const sanitizedValue =
+      parts.length > 2
+        ? `${parts[0]}.${parts.slice(1).join("")}`
+        : numericValue;
+
+    setDisplayAmount(sanitizedValue);
+
+    const parsedValue = parseFloat(sanitizedValue);
     setReqQuote((prev) => ({
       ...prev,
-      thb_amount: Number.isNaN(parsedValue) ? 0 : parsedValue,
+      thb_amount: isNaN(parsedValue) ? 0 : parsedValue,
+    }));
+  };
+
+  const handlePresetSelect = (amount: number) => {
+    setDisplayAmount(amount.toString());
+    setReqQuote((prev) => ({
+      ...prev,
+      thb_amount: amount,
     }));
   };
 
@@ -64,13 +85,16 @@ export const TopupViaScreen = () => {
       console.error("Error creating quote:", error);
     }
   };
+
+  const usdcEquivalent = (reqQuote.thb_amount / EXCHANGE_RATE).toFixed(2);
+
   const renderPresetItem = (item: number) => {
     const isSelected = reqQuote.thb_amount === item;
 
     return (
       <TouchableOpacity
         style={[styles.presetButton, isSelected && styles.presetButtonActive]}
-        onPress={() => handleAmountChange(item)}
+        onPress={() => handlePresetSelect(item)}
       >
         <Text
           style={[styles.presetText, isSelected && styles.presetTextActive]}
@@ -111,28 +135,28 @@ export const TopupViaScreen = () => {
                 <View style={styles.largeInputContainer}>
                   <TextInput
                     style={styles.largeInput}
-                    value={reqQuote.thb_amount.toLocaleString()}
-                    onChangeText={(value) => handleAmountChange(Number(value))}
+                    value={displayAmount}
+                    onChangeText={handleAmountChange}
                     placeholder="0"
                     placeholderTextColor={Theme.colors.g100}
                     keyboardType="numeric"
                   />
 
-                  <Text style={styles.largeInput}> THB</Text>
+                  <Text style={styles.largeInputText}> THB</Text>
                 </View>
 
                 <View style={styles.detailRow}>
                   <Text style={styles.detailText}>USDC Amount :</Text>
-                  <Text style={styles.detailText}>
-                    {reqQuote.thb_amount} THB
-                  </Text>
+                  <Text style={styles.detailText}>{usdcEquivalent} USDC</Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailText}>Min :</Text>
                   <Text style={styles.detailText}>1 USDC</Text>
                 </View>
 
-                <Text style={styles.exchangeRateText}>1 USDC = 32.39 THB</Text>
+                <Text style={styles.exchangeRateText}>
+                  1 USDC ≈ {EXCHANGE_RATE} THB
+                </Text>
 
                 <View style={styles.presetContainer}>
                   <FlatList
@@ -190,6 +214,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   largeInput: {
+    color: Theme.colors.surface,
+    fontSize: Theme.fontSize.h3,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  largeInputText: {
     color: Theme.colors.surface,
     fontSize: Theme.fontSize.h3,
     fontWeight: "bold",

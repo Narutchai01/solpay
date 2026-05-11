@@ -84,7 +84,7 @@ export const SwapScreen = () => {
         return { maxIntDigits: 16, maxDecimals: 9 };
       case "usdc":
       case "usdt":
-        return { maxIntDigits: 6, maxDecimals: 6 };
+        return { maxIntDigits: 12, maxDecimals: 6 };
       default:
         return { maxIntDigits: 16, maxDecimals: 9 };
     }
@@ -213,7 +213,7 @@ export const SwapScreen = () => {
                   placeholder="0.00"
                   placeholderTextColor={Theme.colors.surface}
                   keyboardType="numeric"
-                  value={amountIn === "0" ? "" : amountIn}
+                  value={amountIn}
                   onChangeText={(text) => {
                     const { maxIntDigits, maxDecimals } = getTokenLimits(
                       fromToken?.name,
@@ -290,9 +290,11 @@ export const SwapScreen = () => {
                   placeholder="0.00"
                   placeholderTextColor={Theme.colors.surface}
                   keyboardType="numeric"
-                  value={amountOut === "0" ? "" : amountOut}
+                  value={amountOut}
                   onChangeText={(text) => {
-                    if (validateInput(text, 6, 6)) {
+                    const { maxIntDigits, maxDecimals } =
+                      getTokenLimits(targetSymbol);
+                    if (validateInput(text, maxIntDigits, maxDecimals)) {
                       handleReceiveAmountChange(text);
                     }
                   }}
