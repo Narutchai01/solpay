@@ -4,9 +4,10 @@ import { AccountModel } from "@/src/domain/model/account";
 import { AuthModel } from "@/src/domain/model/auth";
 import { AccountRepositoryImpl } from "@/src/infrastructure/account.repository";
 import { useMobileWallet } from "@wallet-ui/react-native-web3js";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { API_URL } from "../config/config";
 import { useAuthStore } from "../store/auth.store";
+import { router } from "expo-router";
 
 export const useAuth = () => {
   const { account, connect, disconnect } = useMobileWallet();
@@ -26,6 +27,13 @@ export const useAuth = () => {
 
   const isAuthenticated = Boolean(account);
 
+  // Automatically check for PIN when account changes (e.g. on mount if reauthorized)
+  useEffect(() => {
+    if (account?.publicKey) {
+      void checkPin(account.publicKey.toBase58());
+    }
+  }, [account, checkPin]);
+
   const login = async () => {
     setIsLoading(true);
     setErrorMessage(null);
@@ -37,7 +45,7 @@ export const useAuth = () => {
         await accountService.AuthenticateWallet(walletAddress);
 
       save(authSession.access_token, authSession.refresh_token);
-      await checkPin();
+      await checkPin(walletAddress);
       setSession(authSession);
       return authSession;
     } catch (error) {
@@ -69,6 +77,7 @@ export const useAuth = () => {
       setSession(null);
       setProfile(null);
       setErrorMessage(null);
+      router.replace("/(auth)");
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -100,6 +109,7 @@ export const useAuth = () => {
     hasPin,
     login,
     logout,
+    handleLogout: logout,
     getProfile,
     checkPin,
   };

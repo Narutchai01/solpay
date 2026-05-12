@@ -2,6 +2,7 @@ import { ConfirmModal } from "@/src/components/modal/Confirm";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { PinService } from "@/src/core/services/pin.service";
 import { Theme } from "@/src/core/theme/theme";
+import { useAuth } from "@/src/hooks/useAuth";
 import { useAuthStore } from "@/src/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useNavigation } from "expo-router";
@@ -24,12 +25,15 @@ export const PinScreen = () => {
   const scale = SCREEN_WIDTH / 375;
 
   const navigation = useNavigation();
+  const { account } = useAuth();
   const checkPin = useAuthStore((state) => state.checkPin);
   const [pin, setPin] = useState<string>("");
   const [step, setStep] = useState<"SET" | "CONFIRM">("SET");
   const [tempPin, setTempPin] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
+
+  const walletAddress = account?.publicKey?.toBase58();
 
   const dynamicStyles = useMemo(
     () => ({
@@ -81,9 +85,14 @@ export const PinScreen = () => {
           setPin("");
         } else if (step === "CONFIRM") {
           if (pin === tempPin) {
-            await PinService.savePin(pin);
-            await checkPin();
-            setIsSuccessModalVisible(true);
+            if (walletAddress) {
+              await PinService.savePin(walletAddress, pin);
+              await checkPin(walletAddress);
+              setIsSuccessModalVisible(true);
+            } else {
+              setErrorMessage("Wallet not connected.");
+              setPin("");
+            }
           } else {
             setErrorMessage("The PIN does not match. Please try again.");
             setPin("");
@@ -92,7 +101,7 @@ export const PinScreen = () => {
       }
     };
     processPin();
-  }, [pin, step, tempPin, checkPin]);
+  }, [pin, step, tempPin, checkPin, walletAddress]);
 
   const handleConfirmSuccess = () => {
     setIsSuccessModalVisible(false);

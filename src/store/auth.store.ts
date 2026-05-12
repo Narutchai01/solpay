@@ -13,7 +13,7 @@ interface AuthState {
   save: (accessToken: string, refreshToken: string) => void;
   clear: () => void;
   loadTokens: () => Promise<void>;
-  checkPin: () => Promise<void>;
+  checkPin: (walletAddress: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -42,9 +42,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       AsyncStorage.removeItem(AUTH_STORAGE_KEY).catch((error) => {
         console.error("Failed to clear auth tokens:", error);
       });
-      PinService.deletePin().catch((error) => {
-        console.error("Failed to delete PIN:", error);
-      });
+      // Requirement: Does NOT delete the PIN from secure storage
     } catch (error) {
       console.error("Failed to clear auth tokens:", error);
     }
@@ -56,15 +54,16 @@ export const useAuthStore = create<AuthState>((set) => ({
         const { accessToken, refreshToken } = JSON.parse(authData);
         set({ accessToken, refreshToken });
       }
-      const hasPin = await PinService.hasPin();
-      set({ hasPin, isInitialized: true });
+      // Note: We don't check PIN here because we need walletAddress.
+      // PIN check will be triggered after wallet connection/reauthorization.
+      set({ isInitialized: true });
     } catch (error) {
       console.error("Failed to load auth tokens:", error);
       set({ isInitialized: true });
     }
   },
-  checkPin: async () => {
-    const hasPin = await PinService.hasPin();
+  checkPin: async (walletAddress: string) => {
+    const hasPin = await PinService.hasPin(walletAddress);
     set({ hasPin });
   },
 }));

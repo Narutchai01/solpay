@@ -6,6 +6,7 @@ import { Header } from "@/src/components/shard/header";
 import { LoadingSpinner } from "@/src/components/shard/loadingSpinner";
 import { PinService } from "@/src/core/services/pin.service";
 import { CategoryModel } from "@/src/domain/model/category";
+import { useAuth } from "@/src/hooks/useAuth";
 import { useCategory } from "@/src/hooks/useCategory";
 import { useQuote } from "@/src/hooks/useQuote";
 import { useTransaction } from "@/src/hooks/useTransaction";
@@ -236,10 +237,18 @@ export const TransferVerifyInformationScreen = () => {
     void fetchQuote();
   }, [quoteID, GetQuoteByID, quote?.quote_id]);
 
+  const { account } = useAuth();
+  const walletAddress = account?.publicKey?.toBase58();
+
   useEffect(() => {
     const verifyUserPin = async () => {
       if (pin.length === PIN_LENGTH) {
-        const isValid = await PinService.verifyPin(pin);
+        if (!walletAddress) {
+          setPinError("Wallet not connected.");
+          setPin("");
+          return;
+        }
+        const isValid = await PinService.verifyPin(walletAddress, pin);
         if (isValid) {
           setShowPinModal(false);
           setPin("");
@@ -251,7 +260,7 @@ export const TransferVerifyInformationScreen = () => {
       }
     };
     verifyUserPin();
-  }, [pin]);
+  }, [pin, walletAddress]);
 
   const handlePinPress = (num: string) => {
     if (pin.length < PIN_LENGTH) {
