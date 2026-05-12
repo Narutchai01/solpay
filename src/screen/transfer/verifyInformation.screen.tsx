@@ -581,7 +581,11 @@ export const TransferVerifyInformationScreen = () => {
                 </Text>
               </View>
 
-              <PinDots pinLength={PIN_LENGTH} currentLength={pin.length} />
+              <PinDots
+                pinLength={PIN_LENGTH}
+                currentLength={pin.length}
+                scale={scale}
+              />
 
               {pinError ? (
                 <View
@@ -621,6 +625,7 @@ export const TransferVerifyInformationScreen = () => {
                 <KeypadSection
                   onPress={handlePinPress}
                   onDelete={handlePinDelete}
+                  scale={scale}
                 />
               </View>
             </SafeAreaView>
@@ -665,10 +670,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   pinScreenKeypadContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flex: 1,
     width: "85%",
     justifyContent: "center",
+    marginBottom: 40,
   },
   safeArea: { flex: 1 },
   scrollContent: {},
