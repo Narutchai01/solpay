@@ -2,10 +2,12 @@ import { useAuth } from "@/src/hooks/useAuth";
 import { useSwap } from "@/src/hooks/useSwap";
 import { Redirect } from "expo-router";
 import { useEffect } from "react";
+import { useExchangeRate } from "@/src/hooks/useExchangeRate";
 
 export default function Index() {
   const { isAuthenticated, hasPin, isInitialized } = useAuth();
   const { getSwapQuote } = useSwap();
+  const { fetchExchangeRate } = useExchangeRate();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -15,8 +17,9 @@ export default function Index() {
         amountIn: "1000000", // Default amount for initial price fetch
         slippage: 0.5,
       });
+      void fetchExchangeRate("USDC_THB");
     }
-  }, [isAuthenticated, getSwapQuote]);
+  }, [isAuthenticated, getSwapQuote, fetchExchangeRate]);
 
   if (!isInitialized) return null;
 

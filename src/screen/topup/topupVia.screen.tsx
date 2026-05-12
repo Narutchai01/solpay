@@ -20,14 +20,17 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BalanceCardComponent } from "./balanceCard.component";
+import { useExchangeRateStore } from "@/src/store/exchangeRate.store";
 
 const PRESET_AMOUNTS = [200, 500, 1000, 2000];
-const EXCHANGE_RATE = 32.39;
 
 export const TopupViaScreen = () => {
   const router = useRouter();
   const { createQuote } = useQuote();
   const { assets } = useTokenAccounts();
+  const { rate } = useExchangeRateStore();
+
+  const EXCHANGE_RATE = rate?.last ? parseFloat(rate.last) : 32.39;
 
   const usdcAsset = assets.find((asset) => asset.currency === "USDC");
   const usdcBalance = usdcAsset ? usdcAsset.val : "0.00";
