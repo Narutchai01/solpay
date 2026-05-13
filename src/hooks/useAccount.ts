@@ -23,28 +23,29 @@ export const useAccount = () => {
     void loadTokens();
   }, [loadTokens]);
 
+  const GetProfile = async () => {
+    if (!accessToken) {
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const data = await accountService.GetProfile(accessToken);
+      setProfile(data);
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch account profile:", error);
+      setProfile(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchAccount = async () => {
-      if (!accessToken) {
-        setProfile(null);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const data = await accountService.GetProfile(accessToken);
-        setProfile(data);
-      } catch (error) {
-        console.error("Failed to fetch account profile:", error);
-        setProfile(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAccount();
+    GetProfile();
   }, [accessToken, accountService]);
 
-  return { profile, loading };
+  return { profile, loading, GetProfile };
 };
