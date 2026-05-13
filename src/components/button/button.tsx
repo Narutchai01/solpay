@@ -74,7 +74,6 @@ const VARIANT_MAP: Record<
       paddingVertical: 4,
       paddingHorizontal: 8,
       borderRadius: 8,
-      opacity: 0.8,
     },
     text: {
       color: COLORS.g300,
@@ -141,7 +140,7 @@ export const Button: FC<ButtonProps> = ({
         variantStyles.container,
         rounded && styles.rounded,
         style,
-        isButtonDisabled && styles.disabled,
+        isButtonDisabled && variant !== "tag" && styles.disabled,
       ]}
     >
       {iconPosition === "left" && renderIcon()}
