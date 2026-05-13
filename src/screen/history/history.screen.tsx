@@ -11,6 +11,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
@@ -45,6 +46,13 @@ export const HistoryScreen = () => {
     MONTHS[new Date().getMonth()],
   );
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await fetchHistory(1, 100);
+    setRefreshing(false);
+  }, [fetchHistory]);
 
   useEffect(() => {
     fetchHistory(1, 100);
@@ -188,6 +196,14 @@ export const HistoryScreen = () => {
           data={filteredHistory}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={Theme.colors.surface}
+              colors={[Theme.colors.v300]}
+            />
+          }
           ListHeaderComponent={
             <>
               {/* Header */}
