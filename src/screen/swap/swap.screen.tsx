@@ -24,6 +24,7 @@ import {
   TouchableOpacity,
   View,
   useWindowDimensions,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
@@ -34,6 +35,7 @@ export const SwapScreen = () => {
   const { width, height } = useWindowDimensions();
   const router = useRouter();
   const { assets, fetchAssets } = useTokenAccounts();
+  const [refreshing, setRefreshing] = React.useState(false);
   const {
     fromToken,
     slippage,
@@ -42,6 +44,12 @@ export const SwapScreen = () => {
     reset,
     setCurrentPrice,
   } = useSwap();
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await fetchAssets();
+    setRefreshing(false);
+  }, [fetchAssets]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -137,6 +145,14 @@ export const SwapScreen = () => {
         >
           <ScrollView
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={Theme.colors.surface}
+                colors={[Theme.colors.v300]}
+              />
+            }
             contentContainerStyle={[
               styles.container,
               {
