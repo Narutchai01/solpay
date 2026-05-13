@@ -137,7 +137,7 @@ export const ConfirmSwapScreen = () => {
                     color={Theme.colors.surface}
                   />
                   <Text style={styles.balanceText}>
-                    {fromToken?.val || "0"}{" "}
+                    {fromToken?.val || "0.0"}{" "}
                     {fromToken?.name === "Solana"
                       ? "SOL"
                       : fromToken?.name || ""}
