@@ -1,11 +1,12 @@
 import GradientLayout from "@/src/components/shard/gradieintLayout";
 import { Header } from "@/src/components/shard/header";
 import { LoadingSpinner } from "@/src/components/shard/loadingSpinner";
+import { Theme } from "@/src/core/theme/theme";
 import { useAccount } from "@/src/hooks/useAccount";
 import { useBalance } from "@/src/hooks/useBalance";
 import { useTransactionHistory } from "@/src/hooks/useTransactionHistory";
-import React, { useEffect, useMemo } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BalanceCardComponent } from "./balanceCard.component";
 import { HistoryListComponent } from "./historyList.component";
@@ -13,9 +14,20 @@ import { HistoryListComponent } from "./historyList.component";
 const EXCHANGE_RATE = 32;
 
 export const TopupScreen = () => {
-  const { profile } = useAccount();
+  const { profile, GetProfile } = useAccount();
   const { balance, GetBalance } = useBalance();
   const { historyData, isLoading, fetchHistory } = useTransactionHistory();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([
+      GetProfile(),
+      GetBalance(),
+      fetchHistory(1, 100, ["TOPUP"]),
+    ]);
+    setRefreshing(false);
+  }, [GetProfile, GetBalance, fetchHistory]);
 
   useEffect(() => {
     GetBalance();
@@ -78,6 +90,14 @@ export const TopupScreen = () => {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={Theme.colors.surface}
+              colors={[Theme.colors.v300]}
+            />
+          }
         >
           <Header title="Top Up" />
 

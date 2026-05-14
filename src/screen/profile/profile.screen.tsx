@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   View,
   useWindowDimensions,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -27,7 +28,15 @@ export const ProfileScreen = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showKycModal, setShowKycModal] = useState(false);
-  const { profile } = useAccount();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const { profile, GetProfile } = useAccount();
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await GetProfile();
+    setRefreshing(false);
+  }, [GetProfile]);
   const { disconnect } = useWallet();
   const clearAuth = useAuthStore((state) => state.clear);
   const fullAddress = profile?.public_address ?? "";
@@ -118,6 +127,14 @@ export const ProfileScreen = () => {
             dynamicStyles.scrollContent,
           ]}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={Theme.colors.surface}
+              colors={[Theme.colors.v300]}
+            />
+          }
         >
           {/* User Info Section */}
           <View style={[styles.userInfoSection, dynamicStyles.userInfoSection]}>
