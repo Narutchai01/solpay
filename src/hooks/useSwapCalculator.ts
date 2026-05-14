@@ -1,45 +1,46 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect } from "react";
 import { useSwapStore } from "../store/swap.store";
+import { useSwap } from "./useSwap";
 
-/**
- * Custom hook for token swap logic and state management.
- * Optimized for reactive calculations, store synchronization, and robust "0" defaults.
- */
 export const useSwapCalculator = () => {
   const amountIn = useSwapStore((state) => state.amountIn);
   const amountOut = useSwapStore((state) => state.amountOut);
   const currentPrice = useSwapStore((state) => state.currentPrice);
   const setAmountIn = useSwapStore((state) => state.setAmountIn);
   const setAmountOut = useSwapStore((state) => state.setAmountOut);
-  const setCurrentPrice = useSwapStore((state) => state.setCurrentPrice);
 
-  // 0. Initialize with "0" on initial mount as requested
-  useEffect(() => {
-    setAmountIn("0");
-    setAmountOut("0");
-  }, []);
+  const { getSwapQuote, fromToken } = useSwap();
 
-  // 1. Price Recovery: If price is missing (after reset), re-fetch from storage.
+  // 0. Initialize with empty string on mount to show placeholder
   useEffect(() => {
-    const fetchPrice = async () => {
-      try {
-        const storedPrice = await AsyncStorage.getItem("currentPrice");
-        if (storedPrice !== null) setCurrentPrice(storedPrice);
-      } catch (e) {
-        console.error("useSwapCalculator: Price fetch error", e);
-      }
+    setAmountIn("");
+    setAmountOut("");
+  }, [setAmountIn, setAmountOut]);
+  // 1. Fetch live quote to get accurate currentPrice
+  useEffect(() => {
+    const fetchInitialPrice = async () => {
+      // Use a default small amount to get the rate
+      const mint =
+        fromToken?.mint || "So11111111111111111111111111111111111111112";
+      await getSwapQuote(
+        {
+          inputMint: mint,
+          outputMint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+          amountIn: "1000000", // 1 SOL or equivalent token base amount
+          slippage: 0.5,
+        },
+        false,
+      );
     };
 
     if (!currentPrice) {
-      fetchPrice();
+      void fetchInitialPrice();
     }
-  }, [currentPrice, setCurrentPrice]);
+  }, [currentPrice, fromToken, getSwapQuote]);
 
   // 3. Calculation: Pay -> Receive
   const handlePayAmountChange = useCallback(
     (val: string) => {
-      // Strip leading zero if typing a non-decimal number (e.g., "01" -> "1")
       let cleaned = val;
       if (val.length > 1 && val.startsWith("0") && val[1] !== ".") {
         cleaned = val.substring(1);
@@ -57,7 +58,6 @@ export const useSwapCalculator = () => {
 
       if (!isNaN(amount) && price > 0) {
         const calculated = amount * price;
-        // USDC typically 6 decimals
         setAmountOut(calculated.toFixed(6).replace(/\.?0+$/, ""));
       } else {
         setAmountOut("");
@@ -69,7 +69,6 @@ export const useSwapCalculator = () => {
   // 4. Calculation: Receive -> Pay
   const handleReceiveAmountChange = useCallback(
     (val: string) => {
-      // Strip leading zero if typing a non-decimal number (e.g., "01" -> "1")
       let cleaned = val;
       if (val.length > 1 && val.startsWith("0") && val[1] !== ".") {
         cleaned = val.substring(1);
@@ -87,7 +86,6 @@ export const useSwapCalculator = () => {
 
       if (!isNaN(amount) && price > 0) {
         const calculated = amount / price;
-        // SOL typically 9 decimals
         setAmountIn(calculated.toFixed(9).replace(/\.?0+$/, ""));
       } else {
         setAmountIn("");
@@ -96,7 +94,6 @@ export const useSwapCalculator = () => {
     [setAmountIn, setAmountOut, currentPrice],
   );
 
-  // Validation
   const canSwap = parseFloat(amountIn) > 0 && parseFloat(amountOut) > 0;
 
   return {

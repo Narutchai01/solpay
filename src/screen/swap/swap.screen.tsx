@@ -98,7 +98,7 @@ export const SwapScreen = () => {
     }
   };
 
-  const targetBalance = targetAsset?.val || "0";
+  const targetBalance = targetAsset?.val || "0.0";
   const targetSymbol = targetAsset?.currency || "USDC";
 
   const {
@@ -205,7 +205,7 @@ export const SwapScreen = () => {
                     color={Theme.colors.surface}
                   />
                   <Text style={styles.balanceText}>
-                    {fromToken?.val || "0"}{" "}
+                    {fromToken?.val || "0.0"}{" "}
                     {fromToken?.name === "Solana"
                       ? "SOL"
                       : fromToken?.name || ""}
@@ -226,7 +226,7 @@ export const SwapScreen = () => {
 
                 <TextInput
                   style={styles.amountInput}
-                  placeholder="0.00"
+                  placeholder="0.0"
                   placeholderTextColor={Theme.colors.surface}
                   keyboardType="numeric"
                   value={amountIn}
@@ -303,7 +303,7 @@ export const SwapScreen = () => {
 
                 <TextInput
                   style={styles.amountInput}
-                  placeholder="0.00"
+                  placeholder="0.0"
                   placeholderTextColor={Theme.colors.surface}
                   keyboardType="numeric"
                   value={amountOut}
@@ -317,7 +317,7 @@ export const SwapScreen = () => {
                 />
               </View>
 
-              {currentPrice && (
+              {currentPrice && parseFloat(amountIn || "0") > 0 && (
                 <Text
                   style={styles.rateText}
                 >{`1 ${fromToken?.name || "SOL"} ≈ ${currentPrice} USDC`}</Text>

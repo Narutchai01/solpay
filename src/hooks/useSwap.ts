@@ -102,20 +102,24 @@ export const useSwap = () => {
   );
 
   const getSwapQuote = useCallback(
-    async (req: SwapQuoteRequest) => {
+    async (req: SwapQuoteRequest, updateState = true) => {
       setLoading(true);
       try {
         const result = await swapService.GetSwapQuote(req);
         if (result) {
           setCurrentPrice(result.currentPrice);
-          setAmountIn(result.realAmountIn.decimalAmount);
-          setAmountOut(result.amountOut.decimalAmount);
+          if (updateState) {
+            setAmountIn(result.realAmountIn.decimalAmount);
+            setAmountOut(result.amountOut.decimalAmount);
+          }
         }
         return result;
       } catch (error) {
         console.error("useSwap: Failed to get swap quote", error);
         setCurrentPrice(null);
-        setAmountOut("");
+        if (updateState) {
+          setAmountOut("");
+        }
         return null;
       } finally {
         setLoading(false);

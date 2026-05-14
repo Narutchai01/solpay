@@ -33,7 +33,7 @@ export const TopupViaScreen = () => {
   const EXCHANGE_RATE = rate?.last ? parseFloat(rate.last) : 32.39;
 
   const usdcAsset = assets.find((asset) => asset.currency === "USDC");
-  const usdcBalance = usdcAsset ? usdcAsset.val : "0.00";
+  const usdcBalance = usdcAsset ? usdcAsset.val : "0.0";
   const thbBalance = (parseFloat(usdcBalance) * EXCHANGE_RATE).toLocaleString(
     undefined,
     { minimumFractionDigits: 2, maximumFractionDigits: 2 },
