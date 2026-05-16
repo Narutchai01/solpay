@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   },
   idText: {
     color: Theme.colors.g50,
-    fontSize: Theme.fontSize.textS,
+    fontSize: 10,
   },
   amountText: {
     color: Theme.colors.errorText,
