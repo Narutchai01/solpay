@@ -37,40 +37,19 @@ export const MonthlyBarChart = ({
   selectedYear = new Date().getFullYear(),
 }: MonthlyBarChartProps) => {
   const { width } = useWindowDimensions();
-  const currentDate = new Date();
-  const currentMonthIndex = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
-  const isCurrentYear = selectedYear === currentYear;
-
-  const availableMonths = useMemo(() => {
-    if (isCurrentYear) {
-      return ALL_MONTHS.slice(0, currentMonthIndex + 1);
-    }
-    return ALL_MONTHS;
-  }, [isCurrentYear, currentMonthIndex]);
 
   const shortSelectedMonth = selectedMonth.substring(0, 3);
-  let selectedIndex = availableMonths.indexOf(shortSelectedMonth);
-  if (selectedIndex === -1) selectedIndex = 0;
+  const displayMonths = data.map((d) => d.label);
 
-  const startIndex = selectedIndex < 6 ? 0 : 6;
-  const displayMonths = availableMonths.slice(startIndex, startIndex + 6);
-
-  const maxDataValue = Math.max(
-    ...displayMonths.map((monthLabel) => {
-      const foundData = data.find((item) => item.label === monthLabel);
-      return foundData ? foundData.value : 0;
-    }),
-  );
+  const maxDataValue = Math.max(...data.map((item) => item.value));
 
   const rawMax = Math.max(1000, maxDataValue * 1.2);
   const roundStep = rawMax > 10000 ? 1000 : 100;
   const chartMaxValue = Math.ceil(rawMax / roundStep) * roundStep;
 
-  const mappedData = displayMonths.map((monthLabel) => {
-    const foundData = data.find((item) => item.label === monthLabel);
-    const isSelected = monthLabel === shortSelectedMonth;
-    const actualValue = foundData ? foundData.value : 0;
+  const mappedData = data.map((item) => {
+    const isSelected = item.label === shortSelectedMonth;
+    const actualValue = item.value;
 
     let displayValue = actualValue;
     if (actualValue === 0) {
@@ -81,7 +60,7 @@ export const MonthlyBarChart = ({
 
     return {
       value: displayValue,
-      label: monthLabel,
+      label: item.label,
       frontColor: isSelected ? Theme.colors.v300 : Theme.colors.g50,
       topLabelComponent: isSelected
         ? () => <Text style={styles.topLabelText}>{actualValue} THB</Text>
