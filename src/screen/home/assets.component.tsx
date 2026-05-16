@@ -19,7 +19,7 @@ export interface AssetData {
   val: string;
   icon: keyof typeof Ionicons.glyphMap;
   currency?: string; // defaults to "THB" if not supplied
-  imageUri?: string;
+  imageUri?: string | any;
 }
 
 interface AssetsComponentProps {
@@ -41,7 +41,7 @@ const AssetItem = ({
       <View style={styles.assetIconBG}>
         {imageUri ? (
           <Image
-            source={{ uri: imageUri }}
+            source={typeof imageUri === "string" ? { uri: imageUri } : imageUri}
             style={styles.tokenImage}
             resizeMode="contain"
           />

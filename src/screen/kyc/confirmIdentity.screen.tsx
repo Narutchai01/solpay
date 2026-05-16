@@ -1,9 +1,10 @@
 import { Button } from "@/src/components/button/button";
 import GradientLayout from "@/src/components/shard/gradieintLayout";
+import { ConfirmModal } from "@/src/components/modal/Confirm";
 import { ConfirmKYCRequest } from "@/src/domain/model/kyc";
 import { useKYC } from "@/src/hooks/useKYC";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Theme } from "../../core/theme/theme";
@@ -11,6 +12,7 @@ import { Theme } from "../../core/theme/theme";
 export const ConfirmIdentityKYCScreen = () => {
   const router = useRouter();
   const { confirmKYC, loading } = useKYC();
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
   const {
     idCard,
@@ -57,6 +59,7 @@ export const ConfirmIdentityKYCScreen = () => {
       router.replace("/");
     } catch (error) {
       console.error("Submit KYC Error:", error);
+      setShowErrorModal(true);
     }
   };
 
@@ -85,6 +88,16 @@ export const ConfirmIdentityKYCScreen = () => {
             textColor="g300"
           />
         </View>
+
+        <ConfirmModal
+          visible={showErrorModal}
+          iconName="alert-circle-outline"
+          iconColor={Theme.colors.errorText}
+          title="Submission Failed"
+          description="There was an error verifying your identity. Please try again."
+          confirmLabel="OK"
+          onConfirm={() => setShowErrorModal(false)}
+        />
       </SafeAreaView>
     </GradientLayout>
   );

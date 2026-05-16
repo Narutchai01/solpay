@@ -62,7 +62,7 @@ export const ChartSection = ({
         }}
         renderItem={({ item }) => (
           <View style={[styles.slideWrapper, { width: SCREEN_WIDTH }]}>
-            <GlassCard>{item.component}</GlassCard>
+            <GlassCard style={styles.chartCard}>{item.component}</GlassCard>
           </View>
         )}
       />
@@ -90,6 +90,9 @@ export const ChartSection = ({
 const styles = StyleSheet.create({
   slideWrapper: {
     paddingHorizontal: 16,
+  },
+  chartCard: {
+    height: 360,
   },
   pagination: {
     flexDirection: "row",

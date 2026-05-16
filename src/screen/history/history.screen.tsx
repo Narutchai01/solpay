@@ -108,10 +108,29 @@ export const HistoryScreen = () => {
   }, [selectedMonth, selectedYear, historyData]);
 
   const dynamicBarData = useMemo(() => {
-    const monthlyTotals = Array(12).fill(0);
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonthIndex = currentDate.getMonth();
+    const monthIndex = MONTHS.indexOf(selectedMonth);
+    const dataPoints: {
+      label: string;
+      year: number;
+      monthStr: string;
+      value: number;
+    }[] = [];
+
+    for (let i = 5; i >= 0; i--) {
+      let targetMonth = monthIndex - i;
+      let targetYear = selectedYear;
+      if (targetMonth < 0) {
+        targetMonth += 12;
+        targetYear -= 1;
+      }
+
+      dataPoints.push({
+        label: MONTHS[targetMonth].substring(0, 3),
+        year: targetYear,
+        monthStr: MONTHS[targetMonth],
+        value: 0,
+      });
+    }
 
     historyData.forEach((item) => {
       if (item.transaction_type === "TOPUP") return;
@@ -120,19 +139,23 @@ export const HistoryScreen = () => {
       const cleanDateString = item.created_at.split(" +")[0].replace(" ", "T");
       const dateObj = new Date(cleanDateString);
 
-      if (dateObj.getFullYear() === selectedYear) {
-        monthlyTotals[dateObj.getMonth()] += item.thb_amount;
+      const itemYear = dateObj.getFullYear();
+      const itemMonthIndex = dateObj.getMonth();
+      const itemMonthStr = MONTHS[itemMonthIndex];
+
+      const point = dataPoints.find(
+        (p) => p.year === itemYear && p.monthStr === itemMonthStr,
+      );
+      if (point) {
+        point.value += item.thb_amount;
       }
     });
 
-    const monthsToShow =
-      selectedYear === currentYear ? currentMonthIndex + 1 : 12;
-
-    return MONTHS.slice(0, monthsToShow).map((month, index) => ({
-      label: month.substring(0, 3),
-      value: monthlyTotals[index],
+    return dataPoints.map((p) => ({
+      label: p.label,
+      value: p.value,
     }));
-  }, [historyData, selectedYear]);
+  }, [historyData, selectedMonth, selectedYear]);
 
   const dynamicPieData = useMemo(() => {
     const monthIndex = MONTHS.indexOf(selectedMonth);

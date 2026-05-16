@@ -39,6 +39,7 @@ export default function TabsLayout() {
         name="pay"
         options={{
           title: "Pay",
+          tabBarStyle: { display: "none" },
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
               name="line-scan"
