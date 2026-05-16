@@ -131,6 +131,7 @@ export const MonthlyBarChart = ({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     paddingTop: 20,
     paddingBottom: 15,
     alignItems: "center",

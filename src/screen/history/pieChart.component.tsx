@@ -75,6 +75,7 @@ export const PieChartComponent = ({ data }: PieChartComponentProps) => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 20,
@@ -87,6 +88,7 @@ const styles = StyleSheet.create({
   },
   legendContainer: {
     width: "100%",
+    flex: 1,
   },
   legendRow: {
     flexDirection: "row",
@@ -115,9 +117,9 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   emptyContainer: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 360,
   },
   emptyIconWrapper: {
     width: 130,
