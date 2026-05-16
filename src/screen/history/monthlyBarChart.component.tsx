@@ -68,26 +68,29 @@ export const MonthlyBarChart = ({
     };
   });
 
-  const availableWidth = width - 130;
-  const itemCount = displayMonths.length;
+  const availableWidth = width - 90; // Account for y-axis and padding
+  const itemCount = mappedData.length;
   const barWidth = 24;
-  const sideSpacing = 30;
+
+  // Provide enough end spacing so the 80px wide topLabel doesn't clip on the final bar
+  let initialSpacing = 10;
+  let endSpacing = 35;
 
   let spacing = 0;
   if (itemCount > 1) {
     const spaceForGaps =
-      availableWidth - barWidth * itemCount - sideSpacing * 2;
+      availableWidth - barWidth * itemCount - initialSpacing - endSpacing;
     spacing = Math.max(0, Math.floor(spaceForGaps / (itemCount - 1)));
+  } else {
+    initialSpacing = (availableWidth - barWidth) / 2;
+    endSpacing = initialSpacing;
   }
 
-  const dynamicInitialSpacing =
-    itemCount === 1 ? (availableWidth - barWidth) / 2 : sideSpacing;
-
   const exactChartWidth =
-    dynamicInitialSpacing +
+    initialSpacing +
     barWidth * itemCount +
     spacing * (itemCount > 1 ? itemCount - 1 : 0) +
-    dynamicInitialSpacing;
+    endSpacing;
 
   if (mappedData.length === 0) {
     return (
@@ -105,8 +108,8 @@ export const MonthlyBarChart = ({
         barWidth={barWidth}
         height={285}
         spacing={spacing}
-        initialSpacing={dynamicInitialSpacing}
-        endSpacing={dynamicInitialSpacing}
+        initialSpacing={initialSpacing}
+        endSpacing={endSpacing}
         barBorderRadius={8}
         yAxisThickness={1}
         xAxisThickness={1}
