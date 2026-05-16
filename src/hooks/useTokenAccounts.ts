@@ -18,6 +18,7 @@ interface KnownToken {
   name: string;
   symbol: string;
   icon: IoniconName;
+  imageUri?: any;
 }
 
 const KNOWN_TOKENS: Record<string, KnownToken> = {
@@ -32,12 +33,14 @@ const KNOWN_TOKENS: Record<string, KnownToken> = {
     name: "USD Coin",
     symbol: "USDC",
     icon: "cash-outline",
+    imageUri: require("@/assets/images/usdc-icon.jpg"),
   },
   // Devnet USDC
   "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU": {
     name: "USD Coin",
     symbol: "USDC",
     icon: "cash-outline",
+    imageUri: require("@/assets/images/usdc-icon.jpg"),
   },
   // Devnet USDT
   BRjpCHtyQLNCo8gqRUr8jtdAj5AjPYQaoqbvcZiHok1k: {
@@ -141,6 +144,7 @@ export const useTokenAccounts = () => {
         val: solBalance.toString(),
         icon: "logo-bitcoin",
         currency: "SOL",
+        imageUri: require("@/assets/images/sol-logo.png"),
         // No Metaplex metadata for native SOL – icon is used as fallback
       };
 
@@ -181,7 +185,7 @@ export const useTokenAccounts = () => {
         const imageUri =
           imageResult.status === "fulfilled" && imageResult.value
             ? imageResult.value
-            : undefined;
+            : known?.imageUri;
 
         return {
           id: mint,

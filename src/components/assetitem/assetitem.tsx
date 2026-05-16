@@ -11,7 +11,7 @@ interface AssetItemProps {
     val: string;
     icon: string;
     currency?: string;
-    imageUri?: string;
+    imageUri?: string | any;
   };
 }
 
@@ -23,7 +23,11 @@ export const AssetItem = ({ item }: AssetItemProps) => {
           <View style={styles.iconWrapper}>
             {item.imageUri ? (
               <Image
-                source={{ uri: item.imageUri }}
+                source={
+                  typeof item.imageUri === "string"
+                    ? { uri: item.imageUri }
+                    : item.imageUri
+                }
                 style={styles.tokenImage}
                 resizeMode="contain"
               />

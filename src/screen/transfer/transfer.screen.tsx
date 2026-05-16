@@ -43,9 +43,18 @@ export const TransferScreen = () => {
     promptpay_id: "1234567890",
   });
 
+  const [amountStr, setAmountStr] = useState<string>("");
+
   const isKycVerified = profile?.is_kyc_verified ?? false;
   const isAmountEmpty = reqQuote.thb_amount === 0;
-  const isButtonDisabled = isAmountEmpty || !isKycVerified;
+
+  const isInsufficientBalance =
+    reqQuote.action_type === "OFFCHAIN" && balance
+      ? reqQuote.thb_amount > balance.thb_amount
+      : false;
+
+  const isButtonDisabled =
+    isAmountEmpty || !isKycVerified || isInsufficientBalance;
 
   const dynamicStyles = useMemo(
     () => ({
@@ -59,22 +68,6 @@ export const TransferScreen = () => {
       },
       divider: {
         marginVertical: 30 * scale,
-      },
-      receiverContainer: {
-        marginTop: 10 * scale,
-      },
-      avatarPlaceholder: {
-        width: 60 * scale,
-        height: 60 * scale,
-        borderRadius: 30 * scale,
-        marginRight: 16 * scale,
-      },
-      receiverName: {
-        fontSize: Math.min(Theme.fontSize.textL, 16 * scale),
-      },
-      receiverDetail: {
-        fontSize: Math.min(Theme.fontSize.textM, 14 * scale),
-        marginTop: 4 * scale,
       },
       coinSection: {
         marginTop: 25 * scale,
@@ -193,33 +186,17 @@ export const TransferScreen = () => {
                   <View style={[styles.divider, dynamicStyles.divider]} />
 
                   <Text style={[styles.label, dynamicStyles.label]}>To:</Text>
-                  <View
-                    style={[
-                      styles.receiverContainer,
-                      dynamicStyles.receiverContainer,
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.avatarPlaceholder,
-                        dynamicStyles.avatarPlaceholder,
-                      ]}
-                    />
-                    <View>
-                      <Text
-                        style={[
-                          styles.receiverName,
-                          dynamicStyles.receiverName,
-                        ]}
-                      >
-                        QR PromptPay
-                      </Text>
-                      <Text
-                        style={[
-                          styles.receiverDetail,
-                          dynamicStyles.receiverDetail,
-                        ]}
-                      >
+                  <View style={styles.instructionBlock}>
+                    <View style={styles.iconWrapper}>
+                      <Image
+                        source={require("@/assets/images/thaiQR-logo.png")}
+                        style={styles.qrLogo}
+                        resizeMode="contain"
+                      />
+                    </View>
+                    <View style={styles.textWrapper}>
+                      <Text style={styles.stepTitle}>QR PromptPay</Text>
+                      <Text style={styles.stepSubtitle}>
                         {formatPromptPayID(reqQuote.promptpay_id || "")}
                       </Text>
                     </View>
@@ -264,13 +241,18 @@ export const TransferScreen = () => {
                     >
                       <TextInput
                         style={[styles.amountInput, dynamicStyles.amountInput]}
-                        value={
-                          reqQuote.thb_amount === 0
-                            ? ""
-                            : reqQuote.thb_amount.toString()
-                        }
+                        value={amountStr}
                         onChangeText={(text) => {
-                          const numericOnly = text.replace(/[^0-9.]/g, "");
+                          // Allow numbers and a single decimal point
+                          let numericOnly = text.replace(/[^0-9.]/g, "");
+                          const parts = numericOnly.split(".");
+                          if (parts.length > 2) {
+                            numericOnly =
+                              parts[0] + "." + parts.slice(1).join("");
+                          }
+
+                          setAmountStr(numericOnly);
+
                           const newAmount =
                             numericOnly === "" ? 0 : parseFloat(numericOnly);
                           setReqQuote({
@@ -290,6 +272,14 @@ export const TransferScreen = () => {
                         style={[styles.helperText, dynamicStyles.helperText]}
                       >
                         *Enter THB; calculation is automatic.
+                      </Text>
+                    )}
+                    {/* Warning for Insufficient Balance */}
+                    {isInsufficientBalance && (
+                      <Text
+                        style={[styles.helperText, dynamicStyles.helperText]}
+                      >
+                        *Insufficient balance.
                       </Text>
                     )}
                   </View>
@@ -325,16 +315,38 @@ const styles = StyleSheet.create({
     color: Theme.colors.surface,
   },
   divider: { height: 1, backgroundColor: Theme.colors.g50 },
-  receiverContainer: {
+  instructionBlock: {
     flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  iconWrapper: {
+    justifyContent: "center",
     alignItems: "center",
-  },
-  avatarPlaceholder: {
+    marginRight: 20,
     backgroundColor: Theme.colors.g50,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
   },
-  receiverName: { color: Theme.colors.surface },
-  receiverDetail: {
+  qrLogo: {
+    width: 40,
+    height: 40,
+  },
+  textWrapper: {
+    flex: 1,
+    justifyContent: "center",
+    height: 60, // align with icon wrapper height
+  },
+  stepTitle: {
     color: Theme.colors.surface,
+    fontSize: Theme.fontSize.h6,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  stepSubtitle: {
+    color: Theme.colors.surface,
+    fontSize: Theme.fontSize.textM,
+    lineHeight: 20,
   },
   coinSection: {},
   coinCard: {},
