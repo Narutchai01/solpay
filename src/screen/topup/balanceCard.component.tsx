@@ -1,0 +1,124 @@
+import { Button } from "@/src/components/button/button";
+import { GlassCard } from "@/src/components/card/glass";
+import { Theme } from "@/src/core/theme/theme";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import React, { useMemo } from "react";
+import { StyleSheet, Text, View, ViewStyle } from "react-native";
+
+interface BalanceCardProps {
+  label: string;
+  mainAmount: string;
+  mainCurrency: string;
+  subAmount: string;
+  subCurrency: string;
+  showTopUp?: boolean;
+  topUpDisabled?: boolean;
+  topUpTitle?: string;
+  style?: ViewStyle;
+}
+
+export const BalanceCardComponent = ({
+  label,
+  mainAmount,
+  mainCurrency,
+  subAmount,
+  subCurrency,
+  showTopUp = false,
+  topUpDisabled = false,
+  topUpTitle = "Top Up",
+  style,
+}: BalanceCardProps) => {
+  const dynamicFontSize = useMemo(() => {
+    if (mainAmount.length > 12) return 28;
+    return Theme.fontSize.h3;
+  }, [mainAmount]);
+
+  return (
+    <GlassCard style={[styles.balanceCard, style]}>
+      <View style={styles.cardInner}>
+        <View style={styles.balanceInfo}>
+          <Text style={styles.label}>{label}</Text>
+
+          <View style={styles.mainContentRow}>
+            <View style={styles.amountRow}>
+              <Text style={[styles.amountText, { fontSize: dynamicFontSize }]}>
+                {mainAmount}
+              </Text>
+              <Text
+                style={[styles.currencyText, { fontSize: dynamicFontSize }]}
+              >
+                {mainCurrency}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.subAmountMargin}>
+            <Text style={styles.subAmount}>
+              ~{subAmount} {subCurrency}
+            </Text>
+          </View>
+        </View>
+
+        {showTopUp && (
+          <Button
+            title={topUpTitle}
+            rounded
+            icon={
+              <Ionicons name="add" size={24} color={Theme.colors.surface} />
+            }
+            iconBgColor={topUpDisabled ? "g200" : "v300"}
+            style={{ minWidth: 110 }}
+            disabled={topUpDisabled}
+            onPress={() => router.push("/topupVia")}
+          />
+        )}
+      </View>
+    </GlassCard>
+  );
+};
+
+const styles = StyleSheet.create({
+  balanceCard: { marginTop: 26 },
+  cardInner: {
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  balanceInfo: { flex: 1 },
+  label: {
+    color: Theme.colors.g50,
+    fontSize: Theme.fontSize.h6,
+    fontWeight: "600",
+    marginBottom: 16,
+  },
+  mainContentRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+  },
+  amountRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  amountText: {
+    color: Theme.colors.surface,
+    fontSize: Theme.fontSize.h3,
+    fontWeight: "700",
+    marginRight: 12,
+  },
+  currencyText: {
+    color: Theme.colors.surface,
+    fontSize: Theme.fontSize.h3,
+    fontWeight: "700",
+  },
+  subAmountMargin: {
+    marginTop: 16,
+  },
+  subAmount: {
+    color: Theme.colors.surface,
+    fontSize: Theme.fontSize.textM,
+  },
+});

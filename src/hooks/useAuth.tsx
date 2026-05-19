@@ -1,0 +1,116 @@
+import { HttpHelper } from "@/lib/http";
+import { AccountService } from "@/src/core/services/account.service";
+import { AccountModel } from "@/src/domain/model/account";
+import { AuthModel } from "@/src/domain/model/auth";
+import { AccountRepositoryImpl } from "@/src/infrastructure/account.repository";
+import { useMobileWallet } from "@wallet-ui/react-native-web3js";
+import { useMemo, useState, useEffect } from "react";
+import { API_URL } from "../config/config";
+import { useAuthStore } from "../store/auth.store";
+import { router } from "expo-router";
+
+export const useAuth = () => {
+  const { account, connect, disconnect } = useMobileWallet();
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [session, setSession] = useState<AuthModel | null>(null);
+  const [profile, setProfile] = useState<AccountModel | null>(null);
+
+  const accountService = useMemo(() => {
+    const httpHelper = new HttpHelper(API_URL);
+    const accountRepo = new AccountRepositoryImpl(httpHelper);
+    return new AccountService(accountRepo);
+  }, []);
+
+  const { accessToken, save, clear, hasPin, checkPin, isInitialized } =
+    useAuthStore();
+
+  const isAuthenticated = Boolean(account);
+
+  // Automatically check for PIN when account changes (e.g. on mount if reauthorized)
+  useEffect(() => {
+    if (account?.publicKey) {
+      void checkPin(account.publicKey.toBase58());
+    }
+  }, [account, checkPin]);
+
+  const login = async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const connectedAccount = await connect();
+      const walletAddress = connectedAccount.publicKey.toBase58();
+      const authSession =
+        await accountService.AuthenticateWallet(walletAddress);
+
+      save(authSession.access_token, authSession.refresh_token);
+      await checkPin(walletAddress);
+      setSession(authSession);
+      return authSession;
+    } catch (error) {
+      if (error instanceof Error) {
+        if (
+          error.message.includes("Network Error") ||
+          error.message.includes("Failed to fetch")
+        ) {
+          setErrorMessage(
+            `Cannot reach API at ${API_URL}. Set EXPO_PUBLIC_API_BASE_URL for your backend host.`,
+          );
+        } else {
+          setErrorMessage(error.message);
+        }
+      } else {
+        setErrorMessage("Login failed");
+      }
+      console.error("Login failed:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await disconnect();
+      clear();
+      setSession(null);
+      setProfile(null);
+      setErrorMessage(null);
+      router.replace("/(auth)");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const getProfile = async () => {
+    if (!accessToken) return null;
+    setIsLoading(true);
+    try {
+      const profileData = await accountService.GetProfile(accessToken);
+      setProfile(profileData);
+      return profileData;
+    } catch (error) {
+      console.error("Failed to get profile:", error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    isAuthenticated,
+    isInitialized,
+    account,
+    session,
+    profile,
+    isLoading,
+    errorMessage,
+    hasPin,
+    login,
+    logout,
+    handleLogout: logout,
+    getProfile,
+    checkPin,
+  };
+};

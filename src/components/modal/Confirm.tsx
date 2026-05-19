@@ -1,0 +1,137 @@
+import { Theme } from "@/src/core/theme/theme";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import {
+  Image,
+  ImageSourcePropType,
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { Button } from "../button/button";
+
+interface ConfirmModalProps {
+  iconName?: keyof typeof Ionicons.glyphMap;
+  iconSize?: number;
+  iconColor?: string;
+  imageSource?: ImageSourcePropType;
+  imageStyle?: { width?: number; height?: number };
+  title: string;
+  description?: string;
+  cancelLabel?: string;
+  confirmLabel?: string;
+  visible: boolean;
+  onCancel?: () => void;
+  onConfirm: () => void;
+}
+
+export const ConfirmModal = ({
+  iconName,
+  iconSize = 80,
+  iconColor = Theme.colors.onSurface,
+  imageSource,
+  imageStyle,
+  title,
+  description,
+  cancelLabel,
+  confirmLabel = "Confirm",
+  visible,
+  onCancel,
+  onConfirm,
+}: ConfirmModalProps) => {
+  const hasOtherContent = iconName || imageSource || description;
+
+  return (
+    <Modal transparent visible={visible} animationType="fade">
+      <View style={styles.centeredView}>
+        <View style={[styles.modalView, !hasOtherContent && { padding: 24 }]}>
+          {/* Image or Icon */}
+          {imageSource ? (
+            <Image
+              source={imageSource}
+              style={[styles.topImage, imageStyle]}
+              resizeMode="contain"
+            />
+          ) : iconName ? (
+            <Ionicons
+              name={iconName}
+              size={iconSize}
+              color={iconColor}
+              style={styles.icon}
+            />
+          ) : null}
+
+          <Text
+            style={[
+              styles.modalTitle,
+              !hasOtherContent && { marginBottom: 28 },
+            ]}
+          >
+            {title}
+          </Text>
+
+          {description && (
+            <Text style={styles.modalDescription}>{description}</Text>
+          )}
+
+          <View style={styles.buttonGroup}>
+            {onCancel && cancelLabel && (
+              <Button
+                title={cancelLabel}
+                variant="outline"
+                color="v300"
+                textColor="v500"
+                onPress={onCancel}
+                style={styles.flexButton}
+              />
+            )}
+
+            <Button
+              title={confirmLabel}
+              variant="solid"
+              color="v300"
+              onPress={onConfirm}
+              style={styles.flexButton}
+            />
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Theme.colors.disabled,
+  },
+  modalView: {
+    width: "85%",
+    backgroundColor: Theme.colors.surface,
+    borderRadius: 12,
+    padding: 12,
+    alignItems: "center",
+  },
+  topImage: { width: 140, height: 120 },
+  icon: { marginBottom: 20 },
+  modalTitle: {
+    fontSize: Theme.fontSize.h5,
+    fontWeight: "700",
+    color: Theme.colors.g300,
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  modalDescription: {
+    fontSize: Theme.fontSize.h7,
+    color: Theme.colors.g300,
+    textAlign: "center",
+    marginBottom: 25,
+  },
+  buttonGroup: { flexDirection: "row", width: "100%", gap: 12 },
+  flexButton: {
+    flex: 1,
+  },
+});

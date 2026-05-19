@@ -15,7 +15,6 @@ export class HttpError extends Error {
     super(message);
     this.name = "HttpError";
   }
-
   isUnauthorized(): boolean {
     return this.status === 401;
   }
@@ -38,15 +37,17 @@ export class HttpHelper {
     });
   }
 
+  get baseUrl(): string {
+    return this.instance.defaults.baseURL || "";
+  }
+
   private buildFullUrl(url: string): string {
     return `${this.instance.defaults.baseURL || ""}${url}`;
   }
 
   private formatErrorDetails(errorData: unknown): string {
     if (!errorData) return "";
-    if (typeof errorData === "string") {
-      return errorData;
-    }
+    if (typeof errorData === "string") return errorData;
     return JSON.stringify(errorData);
   }
 
@@ -57,7 +58,6 @@ export class HttpHelper {
     const fullUrl = this.buildFullUrl(url);
     const details = this.formatErrorDetails(errorData);
     const detailsSuffix = details ? ` | ${details}` : "";
-
     throw new HttpError(
       `HTTP ${status} ${statusText} @ ${fullUrl}${detailsSuffix}`,
       status,
@@ -71,7 +71,10 @@ export class HttpHelper {
   ): Promise<Resp> {
     // Handle FormData - let axios set the Content-Type automatically
     if (options.data instanceof FormData) {
-      delete options.headers?.["Content-Type"];
+      options.headers = {
+        ...options.headers,
+        "Content-Type": "multipart/form-data",
+      };
     }
 
     try {
@@ -79,65 +82,105 @@ export class HttpHelper {
         url,
         ...options,
       });
-
       return response.data;
     } catch (err) {
       if (isAxiosError(err)) {
         this.handleAxiosError(err, url);
       }
-
       const fullUrl = this.buildFullUrl(url);
-
       if (err instanceof Error && err.name === "CanceledError") {
         throw new Error(`Request timeout @ ${fullUrl}`);
       }
-
       if (err instanceof Error) {
         throw new Error(`Failed to fetch ${fullUrl}: ${err.message}`);
       }
-
       throw new Error(`Failed to fetch ${fullUrl}: Unknown error`);
     }
   }
 
-  get<Resp>(url: string, headers?: Record<string, string>) {
-    return this.request<Resp>(url, { method: "GET", headers });
+  // ── Instance-level header management ────────────────────────────────────────
+
+  setHeader(name: string, value: string) {
+    this.instance.defaults.headers.common[name] = value;
+  }
+
+  /** Merge multiple headers into the instance defaults at once */
+  setHeaders(headers: Record<string, string>) {
+    Object.entries(headers).forEach(([name, value]) => {
+      this.instance.defaults.headers.common[name] = value;
+    });
+  }
+
+  removeHeader(name: string) {
+    delete this.instance.defaults.headers.common[name];
+  }
+
+  setAuthorization(token: string) {
+    this.setHeader("Authorization", `Bearer ${token}`);
+  }
+
+  clearAuthorization() {
+    this.removeHeader("Authorization");
+  }
+
+  // ── Per-request methods (all accept an optional `headers` object) ────────────
+
+  get<Resp>(
+    url: string,
+    config: AxiosRequestConfig & { headers?: Record<string, string> } = {},
+  ) {
+    const { headers, ...rest } = config;
+    return this.request<Resp>(url, { method: "GET", headers, ...rest });
   }
 
   post<Resp, Req = unknown>(
     url: string,
     body?: Req,
-    headers?: Record<string, string>,
+    config: AxiosRequestConfig<Req> & { headers?: Record<string, string> } = {},
   ) {
+    const { headers, ...rest } = config;
     return this.request<Resp, Req>(url, {
       method: "POST",
       data: body,
       headers,
+      ...rest,
     });
   }
 
   put<Resp, Req = unknown>(
     url: string,
     body?: Req,
-    headers?: Record<string, string>,
+    config: AxiosRequestConfig<Req> & { headers?: Record<string, string> } = {},
   ) {
-    return this.request<Resp, Req>(url, { method: "PUT", data: body, headers });
+    const { headers, ...rest } = config;
+    return this.request<Resp, Req>(url, {
+      method: "PUT",
+      data: body,
+      headers,
+      ...rest,
+    });
   }
 
   patch<Resp, Req = unknown>(
     url: string,
     body?: Req,
-    headers?: Record<string, string>,
+    config: AxiosRequestConfig<Req> & { headers?: Record<string, string> } = {},
   ) {
+    const { headers, ...rest } = config;
     return this.request<Resp, Req>(url, {
       method: "PATCH",
       data: body,
       headers,
+      ...rest,
     });
   }
 
-  delete<Resp>(url: string, headers?: Record<string, string>) {
-    return this.request<Resp>(url, { method: "DELETE", headers });
+  delete<Resp>(
+    url: string,
+    config: AxiosRequestConfig & { headers?: Record<string, string> } = {},
+  ) {
+    const { headers, ...rest } = config;
+    return this.request<Resp>(url, { method: "DELETE", headers, ...rest });
   }
 }
 
